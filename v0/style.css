@@ -1,3 +1,7 @@
+:root{
+    --canvas-ui-bg: #0008;
+}
+
 *{
     margin: 0;
     padding: 0;
@@ -6,6 +10,7 @@
 body, #container{
     width: 100vw;
     height: 100vh;
+    overflow: hidden;
 }
 
 #container{
@@ -26,7 +31,7 @@ body, #container{
     display: flex;
     flex-direction: column;
 
-    z-index: 3;
+    z-index: 10;
 }
 
 #container #rightside{
@@ -47,17 +52,50 @@ body, #container{
     padding: 0.5em 0;
     text-align: center;
 
-    z-index: 2;
+    z-index: 9;
 }
 
 #container main{
+    position: relative;
     flex-grow: 1;
 }
 
 #canvas_render{
+    position: absolute;
+    top: 0; left: 0;
     width: 100%;
     height: 100%;
-    aspect-ratio: none;
     display: block;
     outline: none;
+
+    overflow: none;
+}
+
+.floating_window{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    background: #0008;
+    color: white;
+
+    position: absolute;
+    z-index: 1;
+}
+
+.floating_header{
+    border-bottom: solid 1px white;
+    user-select: none;
+    cursor: grab;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+
+    padding: 0.3em;
+}
+
+.floating_content{
+    flex-grow: 1;
 }

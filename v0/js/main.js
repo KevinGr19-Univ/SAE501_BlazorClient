@@ -18,6 +18,7 @@ class Scene{
         this.light2.intensity = 0.7;
 
         this.initMeshes();
+        this.initGizmo();
 
         this.engine.runRenderLoop(() => this.scene.render());
         window.addEventListener('resize', () => this.engine.resize());
@@ -28,6 +29,58 @@ class Scene{
         this.room.material = new BABYLON.StandardMaterial("ground");
         this.room.flipFaces(true);
         this.room.isPickable = false;
+    }
+
+    initGizmo(){
+        this.gizmoManager = new BABYLON.GizmoManager(this.scene);
+        this.gizmoManager.positionGizmoEnabled = true;
+        this.gizmoManager.clearGizmoOnEmptyPointerEvent = true;
+        this.gizmoManager.updateGizmoRotationToMatchAttachedMesh = false;
+
+        this.canvas.addEventListener("keydown", (e) => {
+            if(e.key == 'g'){
+                this.gizmoManager.positionGizmoEnabled = true;
+                this.gizmoManager.rotationGizmoEnabled = false;
+                this.gizmoManager.scaleGizmoEnabled = false;
+            }
+
+            else if(e.key == 'r'){
+                this.gizmoManager.positionGizmoEnabled = false;
+                this.gizmoManager.rotationGizmoEnabled = true;
+                this.gizmoManager.scaleGizmoEnabled = false;
+            }
+
+            else if(e.key == 's'){
+                this.gizmoManager.positionGizmoEnabled = false;
+                this.gizmoManager.rotationGizmoEnabled = false;
+                this.gizmoManager.scaleGizmoEnabled = true;
+            }
+        });
+
+        this.gizmoManager.attachableMeshes = [];
+
+        this.gizmoManager.gizmos.positionGizmo.onDragObservable.add(() => {
+            var bb_room = this.room.getBoundingInfo().boundingBox;
+
+            var mesh = this.gizmoManager.attachedMesh;
+            var { min, max } = mesh.getHierarchyBoundingVectors();
+            var size = max.subtract(min).scale(0.5);
+
+            for(let dim of ["x", "y", "z"])
+                mesh.position[dim] = clamp(
+                    mesh.position[dim], 
+                    bb_room.minimumWorld[dim] + size[dim],
+                    bb_room.maximumWorld[dim] - size[dim], 
+                );
+        });
+    }
+
+    clickAddElement(){
+        let mesh = BABYLON.MeshBuilder.CreateBox("box", {width: 1, height: 1, depth: 1}, this.scene);
+        mesh.material = new BABYLON.StandardMaterial(mesh.name + "_mat");
+        mesh.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+
+        this.gizmoManager.attachableMeshes.push(mesh);
     }
 
 }

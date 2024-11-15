@@ -17,7 +17,7 @@
         <aside id="navbar">
             <div class="d-flex align-items-center">
                 <hr style="background: white;" class="flex-grow-1 m-3">
-                <span>Objets (3)</span>
+                <span>Objets test (3)</span>
                 <hr style="background: white;" class="flex-grow-1 m-3">
             </div>
             <ul>
@@ -32,10 +32,21 @@
             </div>
             <main>
                 <canvas id="canvas_render" touch-action="none"></canvas>
+
+                <div class="floating_window" style="width: 150px; left: 2em; top: 2em;">
+                    <div class="floating_header">
+                        <span>Scene</span>
+                    </div>
+                    <div class="floating_content" style="height: 150px;">
+                        <a href="#" onclick="scene.clickAddElement()">Ajouter</a>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
 
+    <script src="js/utils.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
