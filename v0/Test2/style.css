@@ -1,0 +1,96 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: Helvetica;
+}
+
+body{
+    width: 100vw;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.row{
+    display: flex;
+}
+
+.row{
+    align-items: center;
+}
+
+.sgap{
+    gap: 1em;
+}
+
+.smar{
+    margin: 1em;
+}
+
+.hide, .template{
+    display: none !important;
+}
+
+#fwindow_container{
+    position: relative;
+    background-color: #667;
+    width: calc(100% - 2em);
+    height: 60em;
+
+    overflow: hidden;
+}
+
+.fwindow{
+    position: absolute;
+
+    color: white;
+    background-color: #0008;
+    border: solid 1px transparent;
+}
+
+.fwindow > *{
+    opacity: 0.7;
+}
+
+.fwindow.collapsed > .fwindow_content{
+    display: none !important;
+}
+
+.fwindow.selected{
+    border-color: rgb(104, 179, 255);
+}
+
+.fwindow.selected > *{
+    opacity: 1;
+}
+
+.fwindow_header{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+    width: 15em;
+    padding: 2px 5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.fwindow_header:hover{
+    opacity: 1;
+}
+
+.fwindow.collapsed > .fwindow_header::before, 
+.fwindow.collapsed > .fwindow_header::after{
+    content: '';
+    flex-grow: 1;
+    background-color: #ccc;
+    height: 1px;
+}
+
+.fwindow_content{
+    border-top: solid 1px #777;
+    min-height: 4em;
+}
+
+.grabbing, .grabbing *{
+    cursor: grabbing !important;
+}
