@@ -1,0 +1,246 @@
+﻿@page "/"
+
+<PageTitle>Room Renderer</PageTitle>
+
+<div id="renderer_container">
+
+    <canvas id="renderer" touch-action="none"></canvas>
+
+    <div class="renderer_ui align-items-start">
+        <div class="fwindow collapse_box">
+            <div class="fwindow_header collapse_box_header">
+                <span>Salle D360</span>
+                <!-- <div class="fwindow_header_btns">
+                    <span class="close_btn">X</span>
+                </div> -->
+            </div>
+            <div class="fwindow_content collapse_box_content">
+                <div class="fsubwindow collapse_box">
+                    <div class="fsubwindow_header collapse_box_header">
+                        <span>Actions</span>
+                    </div>
+                    <div class="fsubwindow_content collapse_box_content">
+                        <button class="button_add" onclick="scene.clickAddElement()">Ajouter un capteur</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="renderer_ui align-items-end">
+
+        <div class="fwindow collapse_box">
+            <div class="fwindow_header collapse_box_header">
+                <span>Capteur #1</span>
+                <div class="fwindow_header_btns">
+                    <span class="close_btn">X</span>
+                </div>
+            </div>
+            <div class="fwindow_content collapse_box_content">
+                <div class="fsubwindow collapse_box">
+                    <div class="fsubwindow_header collapse_box_header">
+                        <span>Informations</span>
+                    </div>
+                    <div class="fsubwindow_content collapse_box_content">
+                        <span><b>Type:</b> ZSensor-V5.1</span>
+                        <span><b>Type:</b> ZSensor-V5.1</span>
+                        <span><b>Type:</b> ZSensor-V5.1</span>
+                    </div>
+                </div>
+                <div class="fsubwindow collapse_box">
+                    <div class="fsubwindow_header collapse_box_header">
+                        <span>Informations</span>
+                    </div>
+                    <div class="fsubwindow_content collapse_box_content">
+                        <span><b>Type:</b> ZSensor-V5.1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fwindow collapse_box">
+            <div class="fwindow_header collapse_box_header">
+                <span>Capteur #2</span>
+                <div class="fwindow_header_btns">
+                    <span class="close_btn">X</span>
+                </div>
+            </div>
+            <div class="fwindow_content collapse_box_content">
+                <div class="fsubwindow collapse_box">
+                    <div class="fsubwindow_header collapse_box_header">
+                        <span>Informations</span>
+                    </div>
+                    <div class="fsubwindow_content collapse_box_content">
+                        <span><b>Type:</b> ZSensor-V5.1</span>
+                    </div>
+                </div>
+                <div class="fsubwindow collapse_box">
+                    <div class="fsubwindow_header collapse_box_header">
+                        <span>Transform</span>
+                    </div>
+                    <div class="fsubwindow_content collapse_box_content">
+
+                        <div>
+                            <b>Position</b>
+                            <div class="sgap-row">
+                                <span>
+                                    <label class="xaxis">X:&nbsp;</label>
+                                    <input type="number" class="number_box" value="0">
+                                </span>
+                                <span>
+                                    <label class="yaxis">Y:&nbsp;</label>
+                                    <input type="number" class="number_box" value="0">
+                                </span>
+                                <span>
+                                    <label class="zaxis">Z:&nbsp;</label>
+                                    <input type="number" class="number_box" value="0">
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <b>Rotation</b>
+                            <div class="sgap-row">
+                                <span>
+                                    <label class="xaxis">X:&nbsp;</label>
+                                    <input type="number" class="number_box" value="0">
+                                </span>
+                                <span>
+                                    <label class="yaxis">Y:&nbsp;</label>
+                                    <input type="number" class="number_box" value="0">
+                                </span>
+                                <span>
+                                    <label class="zaxis">Z:&nbsp;</label>
+                                    <input type="number" class="number_box" value="0">
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <b>Échelle</b>
+                            <div class="sgap-row">
+                                <span>
+                                    <label class="xaxis">X:&nbsp;</label>
+                                    <input type="number" class="number_box" value="0">
+                                </span>
+                                <span>
+                                    <label class="yaxis">Y:&nbsp;</label>
+                                    <input type="number" class="number_box" value="0">
+                                </span>
+                                <span>
+                                    <label class="zaxis">Z:&nbsp;</label>
+                                    <input type="number" class="number_box" value="0">
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+    }
+
+    class Scene {
+
+        constructor(canvas) {
+            this.canvas = canvas;
+            this.engine = new BABYLON.Engine(this.canvas, true);
+
+            this.scene = new BABYLON.Scene(this.engine);
+            this.scene.clearColor = new BABYLON.Color3(0.3, 0.35, 0.4);
+
+            this.camera = new BABYLON.ArcRotateCamera("camera1", 90, 45, 10, BABYLON.Vector3.Zero(), this.scene);
+            this.camera.allowUpsideDown = false;
+            this.camera.setPosition(BABYLON.Vector3.One().scale(10));
+            this.camera.attachControl(this.canvas, true);
+
+            this.light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 0, 0), this.scene);
+            this.light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 3, 3), this.scene);
+            this.light1.intensity = 0.7;
+            this.light2.intensity = 0.7;
+
+            this.initMeshes();
+            this.initGizmo();
+
+            this.engine.runRenderLoop(() => this.scene.render());
+            window.addEventListener('resize', () => this.engine.resize());
+        }
+
+        initMeshes() {
+            this.room = BABYLON.MeshBuilder.CreateBox("room", { width: 10, height: 3, depth: 8 }, this.scene);
+            this.room.material = new BABYLON.StandardMaterial("ground");
+            this.room.flipFaces(true);
+            this.room.isPickable = false;
+        }
+
+        initGizmo() {
+            this.gizmoManager = new BABYLON.GizmoManager(this.scene);
+            this.gizmoManager.positionGizmoEnabled = true;
+            this.gizmoManager.clearGizmoOnEmptyPointerEvent = true;
+            this.gizmoManager.updateGizmoRotationToMatchAttachedMesh = false;
+
+            this.canvas.addEventListener("keydown", (e) => {
+                if (e.key == 'g') {
+                    this.gizmoManager.positionGizmoEnabled = true;
+                    this.gizmoManager.rotationGizmoEnabled = false;
+                    this.gizmoManager.scaleGizmoEnabled = false;
+                }
+
+                else if (e.key == 'r') {
+                    this.gizmoManager.positionGizmoEnabled = false;
+                    this.gizmoManager.rotationGizmoEnabled = true;
+                    this.gizmoManager.scaleGizmoEnabled = false;
+                }
+
+                else if (e.key == 's') {
+                    this.gizmoManager.positionGizmoEnabled = false;
+                    this.gizmoManager.rotationGizmoEnabled = false;
+                    this.gizmoManager.scaleGizmoEnabled = true;
+                }
+            });
+
+            this.gizmoManager.attachableMeshes = [];
+
+            this.gizmoManager.gizmos.positionGizmo.onDragObservable.add(() => {
+                var bb_room = this.room.getBoundingInfo().boundingBox;
+
+                var mesh = this.gizmoManager.attachedMesh;
+                var { min, max } = mesh.getHierarchyBoundingVectors();
+                var size = max.subtract(min).scale(0.5);
+
+                for (let dim of ["x", "y", "z"])
+                    mesh.position[dim] = clamp(
+                        mesh.position[dim],
+                        bb_room.minimumWorld[dim] + size[dim],
+                        bb_room.maximumWorld[dim] - size[dim],
+                    );
+            });
+        }
+
+        clickAddElement() {
+            let mesh = BABYLON.MeshBuilder.CreateBox("box", { width: 1, height: 1, depth: 1 }, this.scene);
+            mesh.material = new BABYLON.StandardMaterial(mesh.name + "_mat");
+            mesh.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+
+            this.gizmoManager.attachableMeshes.push(mesh);
+        }
+
+    }
+</script>
+
+<script>
+    $(".collapse_box_header").on("click", (e) => {
+        $(e.currentTarget.parentElement).toggleClass("collapsed");
+    });
+
+    $(".fwindow .close_btn").on("click", (e) => {
+        $(e.currentTarget).parents(".fwindow").remove();
+    });
+
+    var scene = new Scene($("#renderer").get(0));
+</script>

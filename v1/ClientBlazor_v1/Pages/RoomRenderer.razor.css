@@ -1,0 +1,144 @@
+﻿#renderer_container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+    #renderer_container #renderer {
+        width: 100%;
+        height: 100%;
+        outline: none;
+        display: block;
+    }
+
+.renderer_ui {
+    position: absolute;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    inset: 2em;
+    pointer-events: none;
+}
+
+    .renderer_ui > * {
+        pointer-events: all;
+    }
+
+.fwindow {
+    background-color: #0008;
+    color: white;
+    font-size: 0.95em;
+}
+
+.fwindow_header {
+    gap: 0.5em;
+    padding: 3px 5px;
+    min-width: 15em;
+}
+
+    .fwindow_header::before, .fwindow_header::after {
+        content: '';
+        background-color: transparent;
+        height: 1px;
+        flex-grow: 1;
+    }
+
+.fwindow.collapsed > .fwindow_header::before,
+.fwindow.collapsed > .fwindow_header::after {
+    background-color: white;
+}
+
+.fwindow_header_btns {
+    order: 10;
+}
+
+.fwindow_header:not(:hover) > .fwindow_header_btns {
+    display: none !important;
+}
+
+.fwindow_content {
+    padding: 5px;
+    min-height: 3em;
+    font-size: 0.95em;
+}
+
+.fsubwindow {
+    background-color: #0004;
+}
+
+.fwindow_header, .fsubwindow_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.fsubwindow_header {
+    padding: 5px;
+}
+
+    .fsubwindow_header::after {
+        content: '▲';
+        padding: 0 0.2em;
+    }
+
+.fsubwindow.collapsed > .fsubwindow_header::after {
+    content: '▼';
+}
+
+.fwindow_content, .fsubwindow_content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.fsubwindow_content {
+    padding: 0.5em 0.5em 0.5em 1em;
+}
+
+.fwindow_content, .fsubwindow_content {
+    border-top: solid 1px #777;
+}
+
+.collapse_box.collapsed > .collapse_box_content {
+    display: none !important;
+}
+
+.fwindow button {
+    padding: 0.2em;
+    background: dodgerblue;
+    color: white;
+    outline: none;
+    border: none;
+}
+
+.button_add:not(:active) {
+    background: green !important;
+}
+
+.button_danger:not(:active) {
+    background: red !important;
+}
+
+.fwindow button:hover {
+    filter: brightness(1.2);
+}
+
+.fwindow button:active {
+    background: white;
+    color: black;
+}
+
+.xaxis {
+    color: #f77;
+}
+
+.yaxis {
+    color: #7f7;
+}
+
+.zaxis {
+    color: #77f;
+}
