@@ -1,0 +1,37 @@
+﻿<div class="fwindow collapse_box @(Collapsed ? "collapsed" : "")">
+    <div class="fwindow_header collapse_box_header" @onclick=Toggle>
+        @Header
+        @if (CloseButton)
+        {
+            <div class="fwindow_header_btns">
+                <span class="close_btn" @onclick=Close>X</span>
+            </div>
+        }
+    </div>
+    <div class="fwindow_content collapse_box_content">
+        @Content
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment Header { get; set; }
+
+    [Parameter]
+    public RenderFragment Content { get; set; }
+
+    [Parameter]
+    public bool CloseButton { get; set; } = true;
+
+    public bool Collapsed = false;
+
+    void Toggle()
+    {
+        Collapsed = !Collapsed;
+    }
+
+    public async Task Close()
+    {
+        
+    }
+}

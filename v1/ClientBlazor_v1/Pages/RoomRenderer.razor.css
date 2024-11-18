@@ -21,53 +21,53 @@
     pointer-events: none;
 }
 
-    .renderer_ui > * {
+    .renderer_ui > ::deep * {
         pointer-events: all;
     }
 
-.fwindow {
+::deep .fwindow {
     background-color: #0008;
     color: white;
     font-size: 0.95em;
 }
 
-.fwindow_header {
+::deep .fwindow_header {
     gap: 0.5em;
     padding: 3px 5px;
     min-width: 15em;
 }
 
-    .fwindow_header::before, .fwindow_header::after {
+    ::deep .fwindow_header::before, ::deep .fwindow_header::after {
         content: '';
         background-color: transparent;
         height: 1px;
         flex-grow: 1;
     }
 
-.fwindow.collapsed > .fwindow_header::before,
-.fwindow.collapsed > .fwindow_header::after {
+::deep .fwindow.collapsed > .fwindow_header::before,
+::deep .fwindow.collapsed > .fwindow_header::after {
     background-color: white;
 }
 
-.fwindow_header_btns {
+::deep .fwindow_header_btns {
     order: 10;
 }
 
-.fwindow_header:not(:hover) > .fwindow_header_btns {
+::deep .fwindow_header:not(:hover) > .fwindow_header_btns {
     display: none !important;
 }
 
-.fwindow_content {
+::deep .fwindow_content {
     padding: 5px;
     min-height: 3em;
     font-size: 0.95em;
 }
 
-.fsubwindow {
+::deep .fsubwindow {
     background-color: #0004;
 }
 
-.fwindow_header, .fsubwindow_header {
+::deep .fwindow_header, ::deep .fsubwindow_header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -75,38 +75,38 @@
     user-select: none;
 }
 
-.fsubwindow_header {
+::deep .fsubwindow_header {
     padding: 5px;
 }
 
-    .fsubwindow_header::after {
+    ::deep .fsubwindow_header::after {
         content: '▲';
         padding: 0 0.2em;
     }
 
-.fsubwindow.collapsed > .fsubwindow_header::after {
+::deep .fsubwindow.collapsed > .fsubwindow_header::after {
     content: '▼';
 }
 
-.fwindow_content, .fsubwindow_content {
+::deep .fwindow_content, ::deep .fsubwindow_content {
     display: flex;
     flex-direction: column;
     gap: 0.5em;
 }
 
-.fsubwindow_content {
+::deep .fsubwindow_content {
     padding: 0.5em 0.5em 0.5em 1em;
 }
 
-.fwindow_content, .fsubwindow_content {
+::deep .fwindow_content, ::deep .fsubwindow_content {
     border-top: solid 1px #777;
 }
 
-.collapse_box.collapsed > .collapse_box_content {
+::deep .collapse_box.collapsed > .collapse_box_content {
     display: none !important;
 }
 
-.fwindow button {
+::deep .fwindow button {
     padding: 0.2em;
     background: dodgerblue;
     color: white;
@@ -114,31 +114,31 @@
     border: none;
 }
 
-.button_add:not(:active) {
+::deep .button_add:not(:active) {
     background: green !important;
 }
 
-.button_danger:not(:active) {
+::deep .button_danger:not(:active) {
     background: red !important;
 }
 
-.fwindow button:hover {
+::deep .fwindow button:hover {
     filter: brightness(1.2);
 }
 
-.fwindow button:active {
+::deep .fwindow button:active {
     background: white;
     color: black;
 }
 
-.xaxis {
+::deep .xaxis {
     color: #f77;
 }
 
-.yaxis {
+::deep .yaxis {
     color: #7f7;
 }
 
-.zaxis {
+::deep .zaxis {
     color: #77f;
 }

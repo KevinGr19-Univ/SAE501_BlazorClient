@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using ClientBlazor_v1.Components
+@using ClientBlazor_v1.Interop
 
 <PageTitle>Room Renderer</PageTitle>
 
@@ -7,85 +9,72 @@
     <canvas id="renderer" touch-action="none"></canvas>
 
     <div class="renderer_ui align-items-start">
-        <div class="fwindow collapse_box">
-            <div class="fwindow_header collapse_box_header">
+        <FWindow CloseButton="false">
+            <Header>
                 <span>Salle D360</span>
-                <!-- <div class="fwindow_header_btns">
-                    <span class="close_btn">X</span>
-                </div> -->
-            </div>
-            <div class="fwindow_content collapse_box_content">
-                <div class="fsubwindow collapse_box">
-                    <div class="fsubwindow_header collapse_box_header">
-                        <span>Actions</span>
-                    </div>
-                    <div class="fsubwindow_content collapse_box_content">
-                        <button class="button_add" onclick="scene.clickAddElement()">Ajouter un capteur</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+            </Header>
+            <Content>
+                <FSubWindow>
+                    <Header><span>Actions</span></Header>
+                    <Content>
+                        <button class="button_add" @onclick=ClickAddSensor>Ajouter un capteur</button>
+                    </Content>
+                </FSubWindow>
+            </Content>
+        </FWindow>
     </div>
 
     <div class="renderer_ui align-items-end">
 
-        <div class="fwindow collapse_box">
-            <div class="fwindow_header collapse_box_header">
+        <FWindow CloseButton="true">
+            <Header>
                 <span>Capteur #1</span>
-                <div class="fwindow_header_btns">
-                    <span class="close_btn">X</span>
-                </div>
-            </div>
-            <div class="fwindow_content collapse_box_content">
-                <div class="fsubwindow collapse_box">
-                    <div class="fsubwindow_header collapse_box_header">
-                        <span>Informations</span>
-                    </div>
-                    <div class="fsubwindow_content collapse_box_content">
+            </Header>
+            <Content>
+                <FSubWindow>
+                    <Header><span>Informations</span></Header>
+                    <Content>
                         <span><b>Type:</b> ZSensor-V5.1</span>
                         <span><b>Type:</b> ZSensor-V5.1</span>
                         <span><b>Type:</b> ZSensor-V5.1</span>
-                    </div>
-                </div>
-                <div class="fsubwindow collapse_box">
-                    <div class="fsubwindow_header collapse_box_header">
-                        <span>Informations</span>
-                    </div>
-                    <div class="fsubwindow_content collapse_box_content">
+                    </Content>
+                </FSubWindow>
+                <FSubWindow>
+                    <Header><span>Informations</span></Header>
+                    <Content>
                         <span><b>Type:</b> ZSensor-V5.1</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </Content>
+                </FSubWindow>
+            </Content>
+        </FWindow>
 
-        <div class="fwindow collapse_box">
-            <div class="fwindow_header collapse_box_header">
+        <FWindow CloseButton="true">
+            <Header>
                 <span>Capteur #2</span>
-                <div class="fwindow_header_btns">
-                    <span class="close_btn">X</span>
-                </div>
-            </div>
-            <div class="fwindow_content collapse_box_content">
-                <div class="fsubwindow collapse_box">
-                    <div class="fsubwindow_header collapse_box_header">
-                        <span>Informations</span>
-                    </div>
-                    <div class="fsubwindow_content collapse_box_content">
+            </Header>
+            <Content>
+                <FSubWindow>
+                    <Header><span>Informations</span></Header>
+                    <Content>
                         <span><b>Type:</b> ZSensor-V5.1</span>
-                    </div>
-                </div>
-                <div class="fsubwindow collapse_box">
-                    <div class="fsubwindow_header collapse_box_header">
-                        <span>Transform</span>
-                    </div>
-                    <div class="fsubwindow_content collapse_box_content">
-
+                    </Content>
+                </FSubWindow>
+                <FSubWindow>
+                    <Header><span>Transform</span></Header>
+                    <Content>
                         <div>
                             <b>Position</b>
                             <div class="sgap-row">
                                 <span>
                                     <label class="xaxis">X:&nbsp;</label>
-                                    <input type="number" class="number_box" value="0">
+                                    @if(_sensor is null)
+                                    {
+                                        <input type="number" class="number_box" value="0">
+                                    }
+                                    else
+                                    {
+                                        <input type="number" class="number_box" @bind-value=_sensor.X>
+                                    }
                                 </span>
                                 <span>
                                     <label class="yaxis">Y:&nbsp;</label>
@@ -131,11 +120,10 @@
                                 </span>
                             </div>
                         </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </Content>
+                </FSubWindow>
+            </Content>
+        </FWindow>
     </div>
 
 </div>
@@ -213,12 +201,15 @@
                 var { min, max } = mesh.getHierarchyBoundingVectors();
                 var size = max.subtract(min).scale(0.5);
 
-                for (let dim of ["x", "y", "z"])
+                for (let dim of ["x", "y", "z"]){
                     mesh.position[dim] = clamp(
                         mesh.position[dim],
                         bb_room.minimumWorld[dim] + size[dim],
                         bb_room.maximumWorld[dim] - size[dim],
                     );
+
+                    if(dim == "x" && mesh.setX) mesh.setX(mesh.position.x);
+                }
             });
         }
 
@@ -228,19 +219,39 @@
             mesh.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
 
             this.gizmoManager.attachableMeshes.push(mesh);
+
+            mesh.getX = () => mesh.position.x;
+            mesh.setX = (val) => mesh.position.x = val;
+            return mesh;
         }
 
     }
 </script>
 
 <script>
-    $(".collapse_box_header").on("click", (e) => {
-        $(e.currentTarget.parentElement).toggleClass("collapsed");
-    });
-
-    $(".fwindow .close_btn").on("click", (e) => {
-        $(e.currentTarget).parents(".fwindow").remove();
-    });
-
     var scene = new Scene($("#renderer").get(0));
+    window.getScene = () => {
+        return scene;
+    }
 </script>
+
+@inject IJSRuntime JS
+@code{
+    private Scene _scene = null;
+    private Sensor _sensor;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await Load();
+    }
+
+    public async Task Load()
+    {
+        _scene = new Scene(await JS.InvokeAsync<IJSInProcessObjectReference>("getScene"));
+    }
+
+    public async Task ClickAddSensor()
+    {
+        _sensor = await _scene.AddSensor();
+    }
+}
