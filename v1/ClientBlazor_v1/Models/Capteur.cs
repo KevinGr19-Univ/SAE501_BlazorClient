@@ -1,6 +1,6 @@
 ﻿namespace ClientBlazor_v1.Models
 {
-    public class Capteur
+    public class Capteur : SalleObject
     {
 
     }

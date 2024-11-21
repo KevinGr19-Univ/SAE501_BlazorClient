@@ -7,7 +7,7 @@ namespace ClientBlazor_v1.Interop.Utils
     {
         private const string POSITION = "position";
         private const string ROTATION = "rotation";
-        private const string SCALE = "scale";
+        private const string SCALE = "scaling";
 
         public double PosX
         {

@@ -6,10 +6,14 @@ namespace ClientBlazor_v1.Interop.Utils
 {
     public abstract class BaseInterop : INotifyPropertyChanged
     {
-        public IJSInProcessObjectReference JsObj { get; internal set; }
+        public IJSInProcessObjectReference JSObj { get; protected set; }
+        public void SetJSObj(IJSInProcessObjectReference jsObj)
+        {
+            JSObj ??= jsObj;
+        }
 
-        protected T JSGet<T>(string prop) => JsObj.Invoke<T>("dotnetGet", prop);
-        protected void JSSet(string prop, object? value) => JsObj.InvokeVoid("dotnetSet", prop, value);
+        protected T JSGet<T>(string prop) => JSObj.Invoke<T>("dotnetGet", prop);
+        protected void JSSet(string prop, object? value) => JSObj.InvokeVoid("dotnetSet", prop, value);
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

@@ -1,0 +1,95 @@
+﻿@using ClientBlazor_v1.Interop
+@using System.ComponentModel
+<FWindow CloseButton="true">
+    <Header>
+        <span>Capteur #1</span>
+    </Header>
+    <Content>
+        <FSubWindow>
+            <Header><span>Informations</span></Header>
+            <Content>
+                <span><b>Type:</b> ZSensor-V5.1</span>
+            </Content>
+        </FSubWindow>
+        <FSubWindow>
+            <Header><span>Transform</span></Header>
+            <Content>
+                <div>
+                    <b>Position</b>
+                    <div class="sgap-row">
+                        <span>
+                            <label class="xaxis">X:&nbsp;</label>
+                            <input type="number" class="number_box" @bind-value=CapteurInterop.PosX>
+                        </span>
+                        <span>
+                            <label class="yaxis">Y:&nbsp;</label>
+                            <input type="number" class="number_box" @bind-value=CapteurInterop.PosY>
+                        </span>
+                        <span>
+                            <label class="zaxis">Z:&nbsp;</label>
+                            <input type="number" class="number_box" @bind-value=CapteurInterop.PosZ>
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <b>Rotation</b>
+                    <div class="sgap-row">
+                        <span>
+                            <label class="xaxis">X:&nbsp;</label>
+                            <input type="number" class="number_box" @bind-value=CapteurInterop.RotX>
+                        </span>
+                        <span>
+                            <label class="yaxis">Y:&nbsp;</label>
+                            <input type="number" class="number_box" @bind-value=CapteurInterop.RotY>
+                        </span>
+                        <span>
+                            <label class="zaxis">Z:&nbsp;</label>
+                            <input type="number" class="number_box" @bind-value=CapteurInterop.RotZ>
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <b>Échelle</b>
+                    <div class="sgap-row">
+                        <span>
+                            <label class="xaxis">X:&nbsp;</label>
+                            <input type="number" class="number_box" @bind-value=CapteurInterop.ScaleX>
+                        </span>
+                        <span>
+                            <label class="yaxis">Y:&nbsp;</label>
+                            <input type="number" class="number_box" @bind-value=CapteurInterop.ScaleY>
+                        </span>
+                        <span>
+                            <label class="zaxis">Z:&nbsp;</label>
+                            <input type="number" class="number_box" @bind-value=CapteurInterop.ScaleZ>
+                        </span>
+                    </div>
+                </div>
+            </Content>
+        </FSubWindow>
+    </Content>
+</FWindow>
+
+@implements IDisposable
+@code {
+    [Parameter]
+    public CapteurInterop CapteurInterop { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CapteurInterop.PropertyChanged += InteropPropertyChanged;
+    }
+
+    public void Dispose()
+    {
+        CapteurInterop.PropertyChanged -= InteropPropertyChanged;
+    }
+
+    private async void InteropPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+}
