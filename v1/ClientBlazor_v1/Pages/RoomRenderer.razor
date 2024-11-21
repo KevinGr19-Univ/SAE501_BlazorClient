@@ -17,7 +17,7 @@
                 <FSubWindow>
                     <Header><span>Actions</span></Header>
                     <Content>
-                        <button class="button_add" @onclick=ClickAddSensor>Ajouter un capteur</button>
+                        <button class="button_add">Ajouter un capteur</button>
                     </Content>
                 </FSubWindow>
             </Content>
@@ -67,14 +67,7 @@
                             <div class="sgap-row">
                                 <span>
                                     <label class="xaxis">X:&nbsp;</label>
-                                    @if(_sensor is null)
-                                    {
-                                        <input type="number" class="number_box" value="0">
-                                    }
-                                    else
-                                    {
-                                        <input type="number" class="number_box" @bind-value=_sensor.X>
-                                    }
+                                    <input type="number" class="number_box" value="0">
                                 </span>
                                 <span>
                                     <label class="yaxis">Y:&nbsp;</label>
@@ -128,106 +121,6 @@
 
 </div>
 
-<script type="text/javascript">
-    function clamp(value, min, max) {
-        return Math.min(Math.max(value, min), max);
-    }
-
-    class Scene {
-
-        constructor(canvas) {
-            this.canvas = canvas;
-            this.engine = new BABYLON.Engine(this.canvas, true);
-
-            this.scene = new BABYLON.Scene(this.engine);
-            this.scene.clearColor = new BABYLON.Color3(0.3, 0.35, 0.4);
-
-            this.camera = new BABYLON.ArcRotateCamera("camera1", 90, 45, 10, BABYLON.Vector3.Zero(), this.scene);
-            this.camera.allowUpsideDown = false;
-            this.camera.setPosition(BABYLON.Vector3.One().scale(10));
-            this.camera.attachControl(this.canvas, true);
-
-            this.light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 0, 0), this.scene);
-            this.light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 3, 3), this.scene);
-            this.light1.intensity = 0.7;
-            this.light2.intensity = 0.7;
-
-            this.initMeshes();
-            this.initGizmo();
-
-            this.engine.runRenderLoop(() => this.scene.render());
-            window.addEventListener('resize', () => this.engine.resize());
-        }
-
-        initMeshes() {
-            this.room = BABYLON.MeshBuilder.CreateBox("room", { width: 10, height: 3, depth: 8 }, this.scene);
-            this.room.material = new BABYLON.StandardMaterial("ground");
-            this.room.flipFaces(true);
-            this.room.isPickable = false;
-        }
-
-        initGizmo() {
-            this.gizmoManager = new BABYLON.GizmoManager(this.scene);
-            this.gizmoManager.positionGizmoEnabled = true;
-            this.gizmoManager.clearGizmoOnEmptyPointerEvent = true;
-            this.gizmoManager.updateGizmoRotationToMatchAttachedMesh = false;
-
-            this.canvas.addEventListener("keydown", (e) => {
-                if (e.key == 'g') {
-                    this.gizmoManager.positionGizmoEnabled = true;
-                    this.gizmoManager.rotationGizmoEnabled = false;
-                    this.gizmoManager.scaleGizmoEnabled = false;
-                }
-
-                else if (e.key == 'r') {
-                    this.gizmoManager.positionGizmoEnabled = false;
-                    this.gizmoManager.rotationGizmoEnabled = true;
-                    this.gizmoManager.scaleGizmoEnabled = false;
-                }
-
-                else if (e.key == 's') {
-                    this.gizmoManager.positionGizmoEnabled = false;
-                    this.gizmoManager.rotationGizmoEnabled = false;
-                    this.gizmoManager.scaleGizmoEnabled = true;
-                }
-            });
-
-            this.gizmoManager.attachableMeshes = [];
-
-            this.gizmoManager.gizmos.positionGizmo.onDragObservable.add(() => {
-                var bb_room = this.room.getBoundingInfo().boundingBox;
-
-                var mesh = this.gizmoManager.attachedMesh;
-                var { min, max } = mesh.getHierarchyBoundingVectors();
-                var size = max.subtract(min).scale(0.5);
-
-                for (let dim of ["x", "y", "z"]){
-                    mesh.position[dim] = clamp(
-                        mesh.position[dim],
-                        bb_room.minimumWorld[dim] + size[dim],
-                        bb_room.maximumWorld[dim] - size[dim],
-                    );
-
-                    if(dim == "x" && mesh.setX) mesh.setX(mesh.position.x);
-                }
-            });
-        }
-
-        clickAddElement() {
-            let mesh = BABYLON.MeshBuilder.CreateBox("box", { width: 1, height: 1, depth: 1 }, this.scene);
-            mesh.material = new BABYLON.StandardMaterial(mesh.name + "_mat");
-            mesh.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
-
-            this.gizmoManager.attachableMeshes.push(mesh);
-
-            mesh.getX = () => mesh.position.x;
-            mesh.setX = (val) => mesh.position.x = val;
-            return mesh;
-        }
-
-    }
-</script>
-
 <script>
     var scene = new Scene($("#renderer").get(0));
     window.getScene = () => {
@@ -237,21 +130,5 @@
 
 @inject IJSRuntime JS
 @code{
-    private Scene _scene = null;
-    private Sensor _sensor;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender) await Load();
-    }
-
-    public async Task Load()
-    {
-        _scene = new Scene(await JS.InvokeAsync<IJSInProcessObjectReference>("getScene"));
-    }
-
-    public async Task ClickAddSensor()
-    {
-        _sensor = await _scene.AddSensor();
-    }
 }
