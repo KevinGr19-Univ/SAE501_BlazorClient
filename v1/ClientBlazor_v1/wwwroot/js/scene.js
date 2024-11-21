@@ -1,12 +1,5 @@
-function clamp(value, min, max) {
-    return Math.min(Math.max(value, min), max);
-}
-
-function getNestedObject(object, path){
-    path = path.split(".");
-    for(let i = 0; i < path.length - 1; i++) object = object[path[i]];
-    return [object, path[path.length-1]];
-}
+import { clamp } from './utils.js';
+import { dotnetTransformProxy } from './interop.js';
 
 class Scene {
 
@@ -46,6 +39,10 @@ class Scene {
         this.gizmoManager.positionGizmoEnabled = true;
         this.gizmoManager.clearGizmoOnEmptyPointerEvent = true;
         this.gizmoManager.updateGizmoRotationToMatchAttachedMesh = false;
+
+        this.gizmoManager.onAttachedToMeshObservable.add(mesh => {
+            if(mesh && !mesh.__isProxy && mesh.proxy) this.gizmoManager.attachToMesh(mesh.proxy);
+        });
 
         this.canvas.addEventListener("keydown", (e) => {
             if (e.key == 'g') {
@@ -87,73 +84,16 @@ class Scene {
     }
 
     addCapteur(dotnetRef) {
-        let capteur = BABYLON.MeshBuilder.CreateBox("capteur", { width: 1, height: 1, depth: 1 });
+        let capteur = BABYLON.MeshBuilder.CreateBox("capteur", { width: 1, height: 1, depth: 1 }, this.scene);
         capteur.material = new BABYLON.StandardMaterial(capteur.name + "_mat");
         capteur.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
         
-        capteur = dotnetSceneObjectProxy(capteur, dotnetRef);
         this.gizmoManager.attachableMeshes.push(capteur);
-        
-        this.scene.addMesh(capteur);
-        this.gizmoManager.attachToMesh(capteur);
+        capteur = dotnetTransformProxy(capteur, dotnetRef);
+
         return capteur;
     }
 
-}
-
-function dotnetSceneObjectProxy(object, dotnetRef){
-    object.dotnetGet = function(prop){
-        let [object, lastProp] = getNestedObject(this, prop);
-        return object[lastProp];
-    }
-
-    object.dotnetSet = function(prop, value){
-        let [object, lastProp] = getNestedObject(this, prop);
-        console.log(prop, lastProp);
-        object[lastProp] = value;
-    }
-
-    return new Proxy(object, {
-        get(target, prop){
-            let dotnetPrefix = vectorPropToPrefix(prop);
-            let value = Reflect.get(...arguments);
-
-            if(dotnetPrefix)
-                value = dotnetVectorProxy(value, dotnetPrefix, dotnetRef);
-
-            return value;
-        },
-
-        set(target, prop, value){
-            if(!Reflect.set(...arguments)) return false;
-            let dotnetPrefix = vectorPropToPrefix(prop);
-            if(dotnetPrefix){
-                dotnetRef.invokeMethod("OnPropertyChanged", `${dotnetPrefix}X`);
-                dotnetRef.invokeMethod("OnPropertyChanged", `${dotnetPrefix}Y`);
-                dotnetRef.invokeMethod("OnPropertyChanged", `${dotnetPrefix}Z`);
-            }
-            return true;
-        }
-    });
-}
-
-function vectorPropToPrefix(prop){
-    if(prop == "position") return "Pos"
-    else if(prop == "rotation") return "Rot";
-    else if(prop == "scale") return "Scale";
-    return null;
-}
-
-function dotnetVectorProxy(vector, prefix, dotnetRef){
-    return new Proxy(vector, {
-        set(target, prop, value){
-            if(!Reflect.set(...arguments)) return false;
-
-            if(prop == "x" || prop == "y" || prop == "z")
-                dotnetRef.invokeMethod("OnPropertyChanged", `${prefix}${prop.toUpperCase()}`);
-            return true;
-        }
-    });
 }
 
 export function getScene(){

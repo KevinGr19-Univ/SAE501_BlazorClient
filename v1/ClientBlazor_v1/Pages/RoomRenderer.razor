@@ -55,6 +55,6 @@
 
     public async Task ClickAddCapteur()
     {
-        CapteurInterops.Add(Scene.AddCapteur(new Capteur()));
+        CapteurInterops.Add(Scene.AddCapteur(new Capteur() { Name = $"Capteur numéro {CapteurInterops.Count + 1}" } ));
     }
 }

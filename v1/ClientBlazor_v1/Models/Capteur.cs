@@ -2,6 +2,6 @@
 {
     public class Capteur : SalleObject
     {
-
+        public string Name { get; set; }
     }
 }
