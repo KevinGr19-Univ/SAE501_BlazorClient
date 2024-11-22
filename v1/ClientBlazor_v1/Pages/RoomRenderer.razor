@@ -28,7 +28,7 @@
     <div class="renderer_ui align-items-end">
         @foreach(var capteurInterop in CapteurInterops)
         {
-            <CapteurVM CapteurInterop="capteurInterop"></CapteurVM>
+            <CapteurVM CapteurInterop="capteurInterop" OnClose=@(() => RemoveCapteurInterop(capteurInterop))></CapteurVM>
         }
     </div>
 </div>
@@ -44,6 +44,7 @@
         {
             var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/scene.js");
             Scene = new Scene(await module.InvokeAsync<IJSInProcessObjectReference>("getScene"));
+            Scene.OnElementSelected += OnElementSelected;
 
             await InvokeAsync(() =>
             {
@@ -55,6 +56,22 @@
 
     public async Task ClickAddCapteur()
     {
-        CapteurInterops.Add(Scene.AddCapteur(new Capteur() { Name = $"Capteur numéro {CapteurInterops.Count + 1}" } ));
+        var capteurInterop = Scene.AddCapteur(new Capteur() { Name = $"{Guid.NewGuid()}" });
+        CapteurInterops.Add(capteurInterop);
+    }
+
+    private void OnElementSelected(object? sender, Scene.OnElementSelectedEventArgs e)
+    {
+        CapteurInterop capteurInterop = (CapteurInterop)e.Element;
+        if (!CapteurInterops.Contains(capteurInterop))
+        {
+            CapteurInterops.Add(capteurInterop);
+            StateHasChanged();
+        }
+    }
+
+    private void RemoveCapteurInterop(CapteurInterop capteurInterop)
+    {
+        CapteurInterops.Remove(capteurInterop);
     }
 }

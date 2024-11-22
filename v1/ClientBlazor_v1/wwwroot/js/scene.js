@@ -5,7 +5,7 @@ class Scene {
 
     constructor(canvas) {
         this.canvas = canvas;
-        this.engine = new BABYLON.Engine(this.canvas, true);
+        this.engine = new BABYLON.Engine(this.canvas, true, { stencil: true });
 
         this.scene = new BABYLON.Scene(this.engine);
         this.scene.clearColor = new BABYLON.Color3(0.3, 0.35, 0.4);
@@ -27,6 +27,10 @@ class Scene {
         window.addEventListener('resize', () => this.engine.resize());
     }
 
+    setDotnetRef(dotnetRef) {
+        this.dotnetRef = dotnetRef;
+    }
+
     initMeshes() {
         this.room = BABYLON.MeshBuilder.CreateBox("room", { width: 10, height: 3, depth: 8 }, this.scene);
         this.room.material = new BABYLON.StandardMaterial("ground");
@@ -37,11 +41,20 @@ class Scene {
     initGizmo() {
         this.gizmoManager = new BABYLON.GizmoManager(this.scene);
         this.gizmoManager.positionGizmoEnabled = true;
-        this.gizmoManager.clearGizmoOnEmptyPointerEvent = true;
+        this.gizmoManager.clearGizmoOnEmptyPointerEvent = false;
         this.gizmoManager.updateGizmoRotationToMatchAttachedMesh = false;
 
         this.gizmoManager.onAttachedToMeshObservable.add(mesh => {
-            if(mesh && !mesh.__isProxy && mesh.proxy) this.gizmoManager.attachToMesh(mesh.proxy);
+            if (mesh && !mesh.__isProxy && mesh.proxy) {
+                mesh = mesh.proxy;
+                this.setSelected(mesh);
+
+                this.gizmoManager.attachToMesh(mesh);
+                if (mesh.dotnetRef) this.dotnetRef?.invokeMethodAsync("ElementSelected", mesh.dotnetRef);
+            }
+            else if(!mesh) {
+                this.setSelected(null);
+            }
         });
 
         this.canvas.addEventListener("keydown", (e) => {
@@ -81,6 +94,21 @@ class Scene {
                 );
             }
         });
+    }
+
+    setSelected(mesh) {
+        if (this.selected) {
+            this.selected.material.emissiveColor = BABYLON.Color3.Black();
+        }
+
+        this.selected = mesh;
+        if (this.selected) {
+            this.selected.material.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+        }
+
+        this.gizmoManager.positionGizmoEnabled = false;
+        this.gizmoManager.rotationGizmoEnabled = false;
+        this.gizmoManager.scaleGizmoEnabled = false;
     }
 
     addCapteur(dotnetRef) {

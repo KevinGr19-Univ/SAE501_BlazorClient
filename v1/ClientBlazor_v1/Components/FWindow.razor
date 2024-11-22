@@ -23,6 +23,9 @@
     [Parameter]
     public bool CloseButton { get; set; } = true;
 
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
     public bool Collapsed = false;
 
     void Toggle()
@@ -32,6 +35,6 @@
 
     public async Task Close()
     {
-        
+        await OnClose.InvokeAsync();
     }
 }

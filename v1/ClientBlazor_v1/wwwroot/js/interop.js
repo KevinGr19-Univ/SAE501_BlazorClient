@@ -19,6 +19,8 @@ export function dotnetTransformProxy(object, dotnetRef){
         object[lastProp] = value;
     }
 
+    object.dotnetRef = dotnetRef;
+
     object = new Proxy(object, {
         get(target, prop){
             if(prop == "__isProxy") return true;

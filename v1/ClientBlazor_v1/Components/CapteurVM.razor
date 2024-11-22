@@ -1,6 +1,7 @@
 ﻿@using ClientBlazor_v1.Interop
 @using System.ComponentModel
-<FWindow CloseButton="true">
+
+<FWindow CloseButton="true" OnClose=OnClose>
     <Header>
         <span>@CapteurInterop.Name</span>
     </Header>
@@ -74,6 +75,9 @@
 @code {
     [Parameter]
     public CapteurInterop CapteurInterop { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

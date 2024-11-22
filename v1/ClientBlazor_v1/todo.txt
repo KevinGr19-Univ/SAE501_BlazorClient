@@ -1,0 +1,49 @@
+>> Object selection
+> Ways
+- From Gizmo
+- From C# FWindow
+
+> Actions
+- Highlight object
+- Show infos in 3d space (layerMask)
+.Name
+.Type
+- Showing/Unwrap/Select corresponding FWindow
+
+>> Object transforms
+> Constraints
+- Walls
+- Other objects
+
+> Tooltips
+- Stick object to wall / normal
+- Global/Local arrows
+
+>> Models
+> Sensor
+- Normal transform
+
+> Door
+- Normal transform
+
+> Window
+- Special scaling
+
+> Glass pane
+- Special scaling
+
+>> Room
+> Orientation
+- Compass
+
+> Prism builder
+- Base with 2d dots
+- Height
+
+> Day night cycle
+
+>> Database
+> Load
+> Save
+> Validation
+
