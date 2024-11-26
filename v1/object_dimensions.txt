@@ -1,0 +1,21 @@
+DIMENSIONS
+
+Air Quality Sensor Z-Wave Plus
+- W: 6.4cm
+- D: 6.4cm
+- H: 1.3cm
+
+LED Lampe Z-Wave
+- H: 12cm
+- Max diameter: 5 cm
+- Bulb transparent height: 4.5cm 
+- Bottom radius: 3.2cm
+- Screw radius: 2.5cm
+- Screw height: 2.7cm
+- Screw bottom height: 0.5cm
+
+FIBARO Wall plug Type E
+- Outlet max radius: 4.3cm
+- Oultet min radius: 3.9cm
+- Bottom outlet height: 1.8cm
+- Outlet rods height: 1.8cm
