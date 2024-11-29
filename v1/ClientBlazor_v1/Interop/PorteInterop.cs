@@ -4,5 +4,9 @@ namespace ClientBlazor_v1.Interop
 {
     public class PorteInterop : TransformInterop
     {
+        public PorteInterop()
+        {
+            Name = "Porte";
+        }
     }
 }

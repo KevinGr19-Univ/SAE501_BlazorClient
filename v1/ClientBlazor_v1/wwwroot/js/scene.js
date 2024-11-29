@@ -100,11 +100,14 @@ class Scene {
     setSelected(mesh) {
         if (this.selected) {
             this.selected.material.emissiveColor = BABYLON.Color3.Black();
+            console.log(this.selected.onUnselect);
+            this.selected.onUnselect();
         }
 
         this.selected = mesh;
         if (this.selected) {
             this.selected.material.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+            this.selected.onSelect();
         }
 
         this.gizmoManager.positionGizmoEnabled = false;
@@ -121,6 +124,28 @@ class Scene {
         this.gizmoManager.attachableMeshes.push(capteur);
         capteur = dotnetTransformProxy(capteur, dotnetRef);
 
+        let nameText = BABYLON.MeshBuilder.CreatePlane("textname_plane", { width: 1, height: 1 }, BABYLON.UtilityLayerRenderer.DefaultUtilityLayer.utilityLayerScene);
+        nameText.scaling.x = 5;
+        nameText.scaling.y = 0.5;
+        nameText.isPickable = false;
+
+        let advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(nameText, 500 * nameText.scaling.x, 500 * nameText.scaling.y);
+        let text = new BABYLON.GUI.TextBlock();
+        text.text = capteur.name;
+        text.fontSizeInPixels = 25;
+        text.color = "red";
+        text.verticalAlignment = BABYLON.GUI.TextBlock.VERTICAL_ALIGNMENT_BOTTOM;
+
+        advancedTexture.addControl(text);
+
+        capteur.onSelect = () => nameText.setEnabled(true);
+        capteur.onUnselect = () => nameText.setEnabled(false);
+
+        nameText.onBeforeRenderObservable.add(() => {
+            nameText.position.y = capteur.getHierarchyBoundingVectors().max.y + nameText.scaling.y * 0.5;
+            nameText.setDirection(this.camera.getForwardRay().direction);
+        });
+
         return capteur;
     }
 
@@ -132,6 +157,9 @@ class Scene {
 
         this.gizmoManager.attachableMeshes.push(porte);
         porte = dotnetTransformProxy(porte, dotnetRef);
+
+        porte.onSelect = function () { }
+        porte.onUnselect = function () { }
 
         return porte;
     }

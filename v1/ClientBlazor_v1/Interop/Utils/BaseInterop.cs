@@ -19,5 +19,8 @@ namespace ClientBlazor_v1.Interop.Utils
 
         [JSInvokable] public void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new(name));
+
+        private string _name;
+        public string Name { get => _name; set { _name = value; OnPropertyChanged(); } }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ClientBlazor_v1.Models;
 using Microsoft.JSInterop;
+using System.Data.SqlTypes;
 
 namespace ClientBlazor_v1.Interop.Utils
 {
@@ -8,6 +9,9 @@ namespace ClientBlazor_v1.Interop.Utils
         private const string POSITION = "position";
         private const string ROTATION = "rotation";
         private const string SCALE = "scaling";
+
+        public const double RAD2DEG = 180 / Math.PI;
+        public const double DEG2RAD = Math.PI / 180;
 
         public double PosX
         {
@@ -41,30 +45,30 @@ namespace ClientBlazor_v1.Interop.Utils
 
         public double RotX
         {
-            get => JSGet<double>($"{ROTATION}.x");
+            get => JSGet<double>($"{ROTATION}.x") * RAD2DEG;
             set
             {
-                JSSet($"{ROTATION}.x", value);
+                JSSet($"{ROTATION}.x", value * DEG2RAD);
                 OnPropertyChanged();
             }
         }
 
         public double RotY
         {
-            get => JSGet<double>($"{ROTATION}.y");
+            get => JSGet<double>($"{ROTATION}.y") * RAD2DEG;
             set
             {
-                JSSet($"{ROTATION}.y", value);
+                JSSet($"{ROTATION}.y", value * DEG2RAD);
                 OnPropertyChanged();
             }
         }
 
         public double RotZ
         {
-            get => JSGet<double>($"{ROTATION}.z");
+            get => JSGet<double>($"{ROTATION}.z") * RAD2DEG;
             set
             {
-                JSSet($"{ROTATION}.z", value);
+                JSSet($"{ROTATION}.z", value * DEG2RAD);
                 OnPropertyChanged();
             }
         }
