@@ -1,5 +1,4 @@
 ﻿using ClientBlazor_v1.Interop.Utils;
-using ClientBlazor_v1.Models;
 using Microsoft.JSInterop;
 
 namespace ClientBlazor_v1.Interop
@@ -14,20 +13,25 @@ namespace ClientBlazor_v1.Interop
             JSObj.InvokeVoid("setDotnetRef", DotNetObjectReference.Create(this));
         }
 
-        public CapteurInterop AddCapteur(Capteur capteur)
+        private T AddObject<T>(Func<T> interopFactory, string jsFactoryMethodName) where T : BaseInterop
         {
-            var capteurInterop = new CapteurInterop();
-            var dotnetRef = DotNetObjectReference.Create(capteurInterop);
+            var interop = interopFactory();
+            var dotnetRef = DotNetObjectReference.Create<object>(interop);
 
-            capteurInterop.SetJSObj(JSObj.Invoke<IJSInProcessObjectReference>("addCapteur", dotnetRef));
-            capteurInterop.Capteur = capteur;
-            return capteurInterop;
+            interop.SetJSObj(JSObj.Invoke<IJSInProcessObjectReference>(jsFactoryMethodName, dotnetRef));
+            return interop;
         }
 
+        public CapteurInterop AddCapteur()
+            => AddObject(() => new CapteurInterop(), "addCapteur");
+
+        public PorteInterop AddPorte()
+            => AddObject(() => new PorteInterop(), "addPorte");
+
         [JSInvokable]
-        public async Task ElementSelected(DotNetObjectReference<CapteurInterop> dotnetRef)
+        public async Task ElementSelected(DotNetObjectReference<object> dotnetRef)
         {
-            var value = dotnetRef.Value;
+            var value = (BaseInterop)dotnetRef.Value;
             OnElementSelected?.Invoke(this, new() { Element = value });
         }
 

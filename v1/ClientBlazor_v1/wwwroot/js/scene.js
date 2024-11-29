@@ -12,6 +12,7 @@ class Scene {
 
         this.camera = new BABYLON.ArcRotateCamera("camera1", 90, 45, 10, BABYLON.Vector3.Zero(), this.scene);
         this.camera.allowUpsideDown = false;
+        this.camera.minZ = 0.01;
         this.camera.setPosition(BABYLON.Vector3.One().scale(10));
         this.camera.attachControl(this.canvas, true);
 
@@ -113,6 +114,7 @@ class Scene {
 
     addCapteur(dotnetRef) {
         let capteur = BABYLON.MeshBuilder.CreateBox("capteur", { width: 1, height: 1, depth: 1 }, this.scene);
+        capteur.scaling = new BABYLON.Vector3(0.06, 0.04, 0.06);
         capteur.material = new BABYLON.StandardMaterial(capteur.name + "_mat");
         capteur.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
         
@@ -120,6 +122,18 @@ class Scene {
         capteur = dotnetTransformProxy(capteur, dotnetRef);
 
         return capteur;
+    }
+
+    addPorte(dotnetRef) {
+        let porte = BABYLON.MeshBuilder.CreateBox("porte", { width: 1, height: 1, depth: 1 });
+        porte.scaling = new BABYLON.Vector3(0.7, 2, 0.1);
+        porte.material = new BABYLON.StandardMaterial(porte.name + "_mat");
+        porte.material.diffuseColor = new BABYLON.Color3(0, 0, 1);
+
+        this.gizmoManager.attachableMeshes.push(porte);
+        porte = dotnetTransformProxy(porte, dotnetRef);
+
+        return porte;
     }
 
 }

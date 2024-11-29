@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using ClientBlazor_v1.Components
 @using ClientBlazor_v1.Interop
+@using ClientBlazor_v1.Interop.Utils
 @using ClientBlazor_v1.Models
 
 <PageTitle>Room Renderer</PageTitle>
@@ -19,6 +20,7 @@
                     <Header><span>Actions</span></Header>
                     <Content>
                         <button class="button_add" @onclick=ClickAddCapteur>Ajouter un capteur</button>
+                        <button class="button_add" @onclick=ClickAddPorte>Ajouter une porte</button>
                     </Content>
                 </FSubWindow>
             </Content>
@@ -26,9 +28,16 @@
     </div>
 
     <div class="renderer_ui align-items-end">
-        @foreach(var capteurInterop in CapteurInterops)
+        @foreach(var interop in Interops)
         {
-            <CapteurVM CapteurInterop="capteurInterop" OnClose=@(() => RemoveCapteurInterop(capteurInterop))></CapteurVM>
+            @if(interop is CapteurInterop capteurInterop)
+            {
+                <CapteurVM CapteurInterop="capteurInterop" OnClose=@(() => RemoveInterop(capteurInterop))></CapteurVM>
+            }
+            else if(interop is PorteInterop porteInterop)
+            {
+                <PorteVM PorteInterop="porteInterop" OnClose="@(() => RemoveInterop(porteInterop))"></PorteVM>
+            }
         }
     </div>
 </div>
@@ -36,7 +45,7 @@
 @inject IJSRuntime JS
 @code{
     public Scene Scene;
-    public List<CapteurInterop> CapteurInterops = new();
+    public List<BaseInterop> Interops = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -56,22 +65,27 @@
 
     public async Task ClickAddCapteur()
     {
-        var capteurInterop = Scene.AddCapteur(new Capteur() { Name = $"{Guid.NewGuid()}" });
-        CapteurInterops.Add(capteurInterop);
+        var capteurInterop = Scene.AddCapteur();
+        Interops.Add(capteurInterop);
+    }
+
+    public async Task ClickAddPorte()
+    {
+        var porteInterop = Scene.AddPorte();
+        Interops.Add(porteInterop);
     }
 
     private void OnElementSelected(object? sender, Scene.OnElementSelectedEventArgs e)
     {
-        CapteurInterop capteurInterop = (CapteurInterop)e.Element;
-        if (!CapteurInterops.Contains(capteurInterop))
+        if (!Interops.Contains(e.Element))
         {
-            CapteurInterops.Add(capteurInterop);
+            Interops.Add(e.Element);
             StateHasChanged();
         }
     }
 
-    private void RemoveCapteurInterop(CapteurInterop capteurInterop)
+    private void RemoveInterop(BaseInterop interop)
     {
-        CapteurInterops.Remove(capteurInterop);
+        Interops.Remove(interop);
     }
 }
