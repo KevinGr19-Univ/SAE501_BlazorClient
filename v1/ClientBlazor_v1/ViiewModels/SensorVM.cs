@@ -5,6 +5,8 @@ namespace ClientBlazor_v1.ViewModels
 {
     public class SensorVM : JSObjectVM, ITransformFullVM
     {
+        public ITransformFullVM Transform => (ITransformFullVM)this;
+
         private Sensor _sensor;
         public Sensor Sensor
         {
@@ -12,7 +14,7 @@ namespace ClientBlazor_v1.ViewModels
             set
             {
                 _sensor = value;
-                ((ITransformFullVM)this).CopyTransformFrom(_sensor);
+                Transform.CopyTransformFrom(_sensor);
                 OnPropertyChanged();
             }
         }

@@ -14,7 +14,7 @@ namespace ClientBlazor_v1.ViewModels
             set
             {
                 _jsObj = value;
-                JSSet("dotnetRef", DotNetObjectReference.Create<object>(value)); // TODO: Faire attention à la disposition de la ref
+                JSSet("dotnetRef", DotNetObjectReference.Create<object>(this)); // TODO: Faire attention à la disposition de la ref
                 OnPropertyChanged();
             }
         }
@@ -30,7 +30,7 @@ namespace ClientBlazor_v1.ViewModels
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName] string? name = null)
+        [JSInvokable] public void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

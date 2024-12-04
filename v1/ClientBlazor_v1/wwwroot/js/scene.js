@@ -1,5 +1,5 @@
 import { clamp } from './utils.js';
-import { dotnetProxify } from './interop.js';
+import { dotnetProxify, addDotnetMutators } from './interop.js';
 
 class Scene {
 
@@ -26,10 +26,6 @@ class Scene {
 
         this.engine.runRenderLoop(() => this.scene.render());
         window.addEventListener('resize', () => this.engine.resize());
-    }
-
-    setDotnetRef(dotnetRef) {
-        this.dotnetRef = dotnetRef;
     }
 
     initMeshes() {
@@ -101,13 +97,13 @@ class Scene {
         if (this.selected) {
             this.selected.material.emissiveColor = BABYLON.Color3.Black();
             console.log(this.selected.onUnselect);
-            this.selected.onUnselect();
+            if (this.selected.onUnselect) this.selected.onUnselect();
         }
 
         this.selected = mesh;
         if (this.selected) {
             this.selected.material.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
-            this.selected.onSelect();
+            if(this.selected.onSelect) this.selected.onSelect();
         }
 
         this.gizmoManager.positionGizmoEnabled = false;
@@ -115,31 +111,17 @@ class Scene {
         this.gizmoManager.scaleGizmoEnabled = false;
     }
 
-    addCapteur() {
-        let capteur = BABYLON.MeshBuilder.CreateBox("capteur", { width: 1, height: 1, depth: 1 }, this.scene);
-        capteur.scaling = new BABYLON.Vector3(0.06, 0.04, 0.06);
-        capteur.material = new BABYLON.StandardMaterial(capteur.name + "_mat");
-        capteur.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+    addSensor() {
+        let sensor = BABYLON.MeshBuilder.CreateBox("sensor", { width: 1, height: 1, depth: 1 }, this.scene);
+        //sensor.scaling = new BABYLON.Vector3(0.06, 0.04, 0.06);
+        sensor.material = new BABYLON.StandardMaterial(sensor.name + "_mat");
+        sensor.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
         
-        this.gizmoManager.attachableMeshes.push(capteur);
-        capteur = this.dotnetProxifyTransformFull(capteur);
+        this.gizmoManager.attachableMeshes.push(sensor);
+        sensor = this.dotnetProxifyTransformFull(sensor);
 
-        return capteur;
-    }
-
-    addPorte() {
-        let porte = BABYLON.MeshBuilder.CreateBox("porte", { width: 1, height: 1, depth: 1 });
-        porte.scaling = new BABYLON.Vector3(0.7, 2, 0.1);
-        porte.material = new BABYLON.StandardMaterial(porte.name + "_mat");
-        porte.material.diffuseColor = new BABYLON.Color3(0, 0, 1);
-
-        this.gizmoManager.attachableMeshes.push(porte);
-        porte = this.dotnetProxifyTransformFull(porte);
-
-        porte.onSelect = function () { }
-        porte.onUnselect = function () { }
-
-        return porte;
+        console.log("Test");
+        return sensor;
     }
 
     dotnetProxifyTransformFull(object) {
@@ -165,5 +147,7 @@ class Scene {
 }
 
 export function getScene(){
-    return new Scene($("#renderer").get(0));
+    let scene = new Scene($("#renderer").get(0));
+    addDotnetMutators(scene);
+    return scene;
 }

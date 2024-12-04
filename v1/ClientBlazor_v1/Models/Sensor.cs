@@ -4,6 +4,8 @@ namespace ClientBlazor_v1.Models
 {
     public class Sensor : ITransformFull
     {
+        public string Name { get; set; }
+
         public double PosX { get; set; }
         public double PosY { get; set; }
         public double PosZ { get; set; }

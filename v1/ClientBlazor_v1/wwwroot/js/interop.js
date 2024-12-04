@@ -6,7 +6,7 @@ function nestedProp(object, propName, optionalNewValue) {
     return object[path[path.length - 1]] = optionalNewValue;
 }
 
-export function dotnetProxify(object, notifiedProps) {
+export function addDotnetMutators(object) {
     object.dotnetGet = function (propName) {
         return nestedProp(this, propName);
     }
@@ -14,15 +14,21 @@ export function dotnetProxify(object, notifiedProps) {
     object.dotnetSet = function (propName, value) {
         nestedProp(this, propName, value);
     }
+};
+
+export function dotnetProxify(object, notifiedProps) {
+    addDotnetMutators(object);
 
     const notifyProp = (dotnetRef, notifiedProp) => {
         if (!notifiedProp) return;
 
-        if (notifiedProp instanceof String)
+        if (typeof(notifiedProp) === "string") {
             dotnetRef.invokeMethod("OnPropertyChanged", notifiedProp);
+            console.log("OnPropertyChanged: " + notifiedProp);
+        }
 
-        else if (notifiedProp instanceof Object)
-            Object.values(notifiedProp).forEach(val => notifiedProp(dotnetRef, val));
+        else if (typeof(notifiedProp) === "object")
+            Object.values(notifiedProp).forEach(val => notifyProp(dotnetRef, val));
     };
 
     const createProxy = (root, object, notifiedProps) => {
@@ -33,6 +39,8 @@ export function dotnetProxify(object, notifiedProps) {
                 let subProps = notifiedProps[prop];
                 let value = Reflect.get(...arguments);
 
+                if (notifiedProps[prop]) console.log("Get: " + prop);
+
                 if (value && value instanceof Object && subProps && subProps instanceof Object)
                     return createProxy(root, value, subProps);
 
@@ -41,6 +49,11 @@ export function dotnetProxify(object, notifiedProps) {
 
             set(target, prop, newValue) {
                 if (!Reflect.set(...arguments)) return false;
+
+                if (notifiedProps[prop]) {
+                    console.log("Set: " + prop);
+                    console.log(notifiedProps);
+                }
 
                 notifyProp(root.dotnetRef, notifiedProps[prop]);
                 return true;

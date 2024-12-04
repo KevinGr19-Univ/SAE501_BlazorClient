@@ -1,8 +1,7 @@
 ﻿@page "/"
 @using ClientBlazor_v1.Components
-@using ClientBlazor_v1.Interop
-@using ClientBlazor_v1.Interop.Utils
-@using ClientBlazor_v1.Models
+@using ClientBlazor_v1.ViewModels
+@using ClientBlazor_v1.ViewModels.Utils
 
 <PageTitle>Room Renderer</PageTitle>
 
@@ -19,8 +18,7 @@
                 <FSubWindow>
                     <Header><span>Actions</span></Header>
                     <Content>
-                        <button class="button_add" @onclick=ClickAddCapteur>Ajouter un capteur</button>
-                        <button class="button_add" @onclick=ClickAddPorte>Ajouter une porte</button>
+                        <button class="button_add" @onclick=ClickAddSensor>Ajouter un capteur</button>
                     </Content>
                 </FSubWindow>
             </Content>
@@ -28,15 +26,11 @@
     </div>
 
     <div class="renderer_ui align-items-end">
-        @foreach(var interop in Interops)
+        @foreach(var sceneObjectVM in SceneObjectVMs)
         {
-            @if(interop is CapteurInterop capteurInterop)
+            @if(sceneObjectVM is SensorVM sensorVM)
             {
-                <CapteurVM CapteurInterop="capteurInterop" OnClose=@(() => RemoveInterop(capteurInterop))></CapteurVM>
-            }
-            else if(interop is PorteInterop porteInterop)
-            {
-                <PorteVM PorteInterop="porteInterop" OnClose="@(() => RemoveInterop(porteInterop))"></PorteVM>
+                <SensorComponent SensorVM="sensorVM" OnClose=@(() => RemoveInterop(sceneObjectVM))></SensorComponent>
             }
         }
     </div>
@@ -45,14 +39,15 @@
 @inject IJSRuntime JS
 @code{
     public Scene Scene;
-    public List<BaseInterop> Interops = new();
+    public List<IJSObjectVM> SceneObjectVMs = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/scene.js");
-            Scene = new Scene(await module.InvokeAsync<IJSInProcessObjectReference>("getScene"));
+            Scene = new Scene();
+            Scene.JSObj = await module.InvokeAsync<IJSInProcessObjectReference>("getScene");
             Scene.OnElementSelected += OnElementSelected;
 
             await InvokeAsync(() =>
@@ -63,29 +58,25 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    public async Task ClickAddCapteur()
+    public async Task ClickAddSensor()
     {
-        var capteurInterop = Scene.AddCapteur();
-        Interops.Add(capteurInterop);
-    }
+        var sensorVM = Scene.CreateSensor();
+        SceneObjectVMs.Add(sensorVM);
 
-    public async Task ClickAddPorte()
-    {
-        var porteInterop = Scene.AddPorte();
-        Interops.Add(porteInterop);
+        sensorVM.Transform.PosX = 2;
     }
 
     private void OnElementSelected(object? sender, Scene.OnElementSelectedEventArgs e)
     {
-        if (!Interops.Contains(e.Element))
+        if (!SceneObjectVMs.Contains(e.SceneObjectVM))
         {
-            Interops.Add(e.Element);
+            SceneObjectVMs.Add(e.SceneObjectVM);
             StateHasChanged();
         }
     }
 
-    private void RemoveInterop(BaseInterop interop)
+    private void RemoveInterop(IJSObjectVM sceneObjectVM)
     {
-        Interops.Remove(interop);
+        SceneObjectVMs.Remove(sceneObjectVM);
     }
 }
