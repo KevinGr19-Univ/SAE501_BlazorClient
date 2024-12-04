@@ -1,63 +1,55 @@
-import { getNestedObject } from "./utils.js";
+function nestedProp(object, propName, optionalNewValue) {
+    let path = propName.split(".");
+    for (let i = 0; i < path.length - 1; i++) object = object[path[i]];
 
-let listenedVectors = {
-    "position": "Pos",
-    "rotation": "Rot",
-    "scaling": "Scale"
-};
-
-let axes = ["x", "y", "z"];
-
-export function dotnetTransformProxy(object, dotnetRef){
-    object.dotnetGet = function(prop){
-        let [object, lastProp] = getNestedObject(this, prop);
-        return object[lastProp];
-    }
-
-    object.dotnetSet = function(prop, value){
-        let [object, lastProp] = getNestedObject(this, prop);
-        object[lastProp] = value;
-    }
-
-    object.dotnetRef = dotnetRef;
-
-    object = new Proxy(object, {
-        get(target, prop){
-            if(prop == "__isProxy") return true;
-
-            let dotnetPrefix = listenedVectors[prop];
-            let value = Reflect.get(...arguments);
-
-            if(dotnetPrefix)
-                value = dotnetVectorProxy(value, dotnetPrefix, dotnetRef);
-
-            return value;
-        },
-
-        set(target, prop, value){
-            if(!Reflect.set(...arguments)) return false;
-            let dotnetPrefix = listenedVectors[prop];
-
-            if(dotnetPrefix){
-                for(let axis in axes)
-                    dotnetRef.invokeMethod("OnPropertyChanged", `${dotnetPrefix}${axis.toUpperCase()}`);
-            }
-            return true;
-        }
-    });
-
-    object.proxy = object;
-    return object;
+    if (optionalNewValue === undefined) return object[path[path.length - 1]];
+    return object[path[path.length - 1]] = optionalNewValue;
 }
 
-function dotnetVectorProxy(vector, prefix, dotnetRef){
-    return new Proxy(vector, {
-        set(target, prop, value){
-            if(!Reflect.set(...arguments)) return false;
+export function dotnetProxify(object, notifiedProps) {
+    object.dotnetGet = function (propName) {
+        return nestedProp(this, propName);
+    }
 
-            if(axes.includes(prop))
-                dotnetRef.invokeMethod("OnPropertyChanged", `${prefix}${prop.toUpperCase()}`);
-            return true;
-        }
-    });
+    object.dotnetSet = function (propName, value) {
+        nestedProp(this, propName, value);
+    }
+
+    const notifyProp = (dotnetRef, notifiedProp) => {
+        if (!notifiedProp) return;
+
+        if (notifiedProp instanceof String)
+            dotnetRef.invokeMethod("OnPropertyChanged", notifiedProp);
+
+        else if (notifiedProp instanceof Object)
+            Object.values(notifiedProp).forEach(val => notifiedProp(dotnetRef, val));
+    };
+
+    const createProxy = (root, object, notifiedProps) => {
+        return new Proxy(object, {
+            get(target, prop) {
+                if (prop == "__isProxy") return true;
+
+                let subProps = notifiedProps[prop];
+                let value = Reflect.get(...arguments);
+
+                if (value && value instanceof Object && subProps && subProps instanceof Object)
+                    return createProxy(root, value, subProps);
+
+                return value;
+            },
+
+            set(target, prop, newValue) {
+                if (!Reflect.set(...arguments)) return false;
+
+                notifyProp(root.dotnetRef, notifiedProps[prop]);
+                return true;
+            }
+        });
+    };
+
+    object = createProxy(object, object, notifiedProps);
+    object.proxy = object;
+
+    return object;
 }

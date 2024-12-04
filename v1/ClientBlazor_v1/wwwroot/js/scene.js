@@ -1,5 +1,5 @@
 import { clamp } from './utils.js';
-import { dotnetTransformProxy } from './interop.js';
+import { dotnetProxify } from './interop.js';
 
 class Scene {
 
@@ -115,53 +115,51 @@ class Scene {
         this.gizmoManager.scaleGizmoEnabled = false;
     }
 
-    addCapteur(dotnetRef) {
+    addCapteur() {
         let capteur = BABYLON.MeshBuilder.CreateBox("capteur", { width: 1, height: 1, depth: 1 }, this.scene);
         capteur.scaling = new BABYLON.Vector3(0.06, 0.04, 0.06);
         capteur.material = new BABYLON.StandardMaterial(capteur.name + "_mat");
         capteur.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
         
         this.gizmoManager.attachableMeshes.push(capteur);
-        capteur = dotnetTransformProxy(capteur, dotnetRef);
-
-        let nameText = BABYLON.MeshBuilder.CreatePlane("textname_plane", { width: 1, height: 1 }, BABYLON.UtilityLayerRenderer.DefaultUtilityLayer.utilityLayerScene);
-        nameText.scaling.x = 5;
-        nameText.scaling.y = 0.5;
-        nameText.isPickable = false;
-
-        let advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(nameText, 500 * nameText.scaling.x, 500 * nameText.scaling.y);
-        let text = new BABYLON.GUI.TextBlock();
-        text.text = capteur.name;
-        text.fontSizeInPixels = 25;
-        text.color = "red";
-        text.verticalAlignment = BABYLON.GUI.TextBlock.VERTICAL_ALIGNMENT_BOTTOM;
-
-        advancedTexture.addControl(text);
-
-        capteur.onSelect = () => nameText.setEnabled(true);
-        capteur.onUnselect = () => nameText.setEnabled(false);
-
-        nameText.onBeforeRenderObservable.add(() => {
-            nameText.position.y = capteur.getHierarchyBoundingVectors().max.y + nameText.scaling.y * 0.5;
-            nameText.setDirection(this.camera.getForwardRay().direction);
-        });
+        capteur = this.dotnetProxifyTransformFull(capteur);
 
         return capteur;
     }
 
-    addPorte(dotnetRef) {
+    addPorte() {
         let porte = BABYLON.MeshBuilder.CreateBox("porte", { width: 1, height: 1, depth: 1 });
         porte.scaling = new BABYLON.Vector3(0.7, 2, 0.1);
         porte.material = new BABYLON.StandardMaterial(porte.name + "_mat");
         porte.material.diffuseColor = new BABYLON.Color3(0, 0, 1);
 
         this.gizmoManager.attachableMeshes.push(porte);
-        porte = dotnetTransformProxy(porte, dotnetRef);
+        porte = this.dotnetProxifyTransformFull(porte);
 
         porte.onSelect = function () { }
         porte.onUnselect = function () { }
 
         return porte;
+    }
+
+    dotnetProxifyTransformFull(object) {
+        return dotnetProxify(object, {
+            position: {
+                x: 'PosX',
+                y: 'PosY',
+                z: 'PosZ',
+            },
+            rotation: {
+                x: 'RotX',
+                y: 'RotY',
+                z: 'RotZ',
+            },
+            scaling: {
+                x: 'ScaleX',
+                y: 'ScaleY',
+                z: 'ScaleZ',
+            }
+        })
     }
 
 }
