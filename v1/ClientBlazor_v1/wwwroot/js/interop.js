@@ -22,10 +22,8 @@ export function dotnetProxify(object, notifiedProps) {
     const notifyProp = (dotnetRef, notifiedProp) => {
         if (!notifiedProp) return;
 
-        if (typeof(notifiedProp) === "string") {
+        if (typeof (notifiedProp) === "string")
             dotnetRef.invokeMethod("OnPropertyChanged", notifiedProp);
-            console.log("OnPropertyChanged: " + notifiedProp);
-        }
 
         else if (typeof(notifiedProp) === "object")
             Object.values(notifiedProp).forEach(val => notifyProp(dotnetRef, val));
@@ -39,8 +37,6 @@ export function dotnetProxify(object, notifiedProps) {
                 let subProps = notifiedProps[prop];
                 let value = Reflect.get(...arguments);
 
-                if (notifiedProps[prop]) console.log("Get: " + prop);
-
                 if (value && value instanceof Object && subProps && subProps instanceof Object)
                     return createProxy(root, value, subProps);
 
@@ -49,11 +45,6 @@ export function dotnetProxify(object, notifiedProps) {
 
             set(target, prop, newValue) {
                 if (!Reflect.set(...arguments)) return false;
-
-                if (notifiedProps[prop]) {
-                    console.log("Set: " + prop);
-                    console.log(notifiedProps);
-                }
 
                 notifyProp(root.dotnetRef, notifiedProps[prop]);
                 return true;
