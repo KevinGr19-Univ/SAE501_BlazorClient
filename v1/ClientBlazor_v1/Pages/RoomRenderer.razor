@@ -1,9 +1,9 @@
-﻿@page "/"
+﻿@page "/renderer"
 @using ClientBlazor_v1.Components
 @using ClientBlazor_v1.ViewModels
 @using ClientBlazor_v1.ViewModels.Utils
 
-<PageTitle>Room Renderer</PageTitle>
+<PageTitle>Salle 3D</PageTitle>
 
 <div id="renderer_container">
 
@@ -30,7 +30,7 @@
         {
             @if(sceneObjectVM is SensorVM sensorVM)
             {
-                <SensorComponent SensorVM="sensorVM" OnClose=@(() => RemoveInterop(sceneObjectVM))></SensorComponent>
+                <SensorComponent SensorVM="sensorVM" OnClose=@(() => RemoveSceneObject(sceneObjectVM))></SensorComponent>
             }
         }
     </div>
@@ -73,7 +73,7 @@
         }
     }
 
-    private void RemoveInterop(IJSObjectVM sceneObjectVM)
+    private void RemoveSceneObject(IJSObjectVM sceneObjectVM)
     {
         SceneObjectVMs.Remove(sceneObjectVM);
     }

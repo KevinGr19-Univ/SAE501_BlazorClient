@@ -1,6 +1,6 @@
 ﻿using ClientBlazor_v1.Models.Utils;
 
-namespace ClientBlazor_v1.Models
+namespace ClientBlazor_v1.Layout.Models.RoomObjects
 {
     public class Door : ITransformRotY
     {

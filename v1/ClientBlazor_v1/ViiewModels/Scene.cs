@@ -1,4 +1,5 @@
-﻿using ClientBlazor_v1.Models;
+﻿using ClientBlazor_v1.Layout.Models.RoomObjects;
+using ClientBlazor_v1.Models;
 using ClientBlazor_v1.Models.Utils;
 using ClientBlazor_v1.ViewModels;
 using ClientBlazor_v1.ViewModels.Utils;

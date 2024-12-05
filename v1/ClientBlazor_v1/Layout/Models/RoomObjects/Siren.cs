@@ -1,8 +1,8 @@
 ﻿using ClientBlazor_v1.Models.Utils;
 
-namespace ClientBlazor_v1.Models
+namespace ClientBlazor_v1.Layout.Models.RoomObjects
 {
-    public class Lamp : ITransformFull
+    public class Siren : ITransformFull
     {
         public double PosX { get; set; }
         public double PosY { get; set; }
