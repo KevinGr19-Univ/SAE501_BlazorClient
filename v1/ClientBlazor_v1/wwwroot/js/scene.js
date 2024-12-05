@@ -8,6 +8,7 @@ class Scene {
         this.engine = new BABYLON.Engine(this.canvas, true, { stencil: true });
 
         this.scene = new BABYLON.Scene(this.engine);
+        this.scene.useRightHandedSystem = true;
         this.scene.clearColor = new BABYLON.Color3(0.3, 0.35, 0.4);
 
         this.camera = new BABYLON.ArcRotateCamera("camera1", 90, 45, 10, BABYLON.Vector3.Zero(), this.scene);
@@ -15,6 +16,7 @@ class Scene {
         this.camera.minZ = 0.01;
         this.camera.setPosition(BABYLON.Vector3.One().scale(10));
         this.camera.attachControl(this.canvas, true);
+        this.camera.wheelPrecision = 30;
 
         this.light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 0, 0), this.scene);
         this.light2 = new BABYLON.PointLight("light2", new BABYLON.Vector3(0, 3, 3), this.scene);
@@ -40,6 +42,9 @@ class Scene {
             this.templates["sensor"] = this.scene.getNodeByName("__root__").getChildMeshes()[0];
             this.templates["sensor"].setParent(null);
             this.templates["sensor"].setEnabled(false);
+            console.log(this.templates["sensor"].scaling);
+
+            // TODO: Wait until all templates are loaded to init a new object
         });
     }
 
