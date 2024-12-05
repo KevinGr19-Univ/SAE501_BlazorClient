@@ -33,6 +33,14 @@ class Scene {
         this.room.material = new BABYLON.StandardMaterial("ground");
         this.room.flipFaces(true);
         this.room.isPickable = false;
+
+        this.templates = {};
+        BABYLON.SceneLoader.ShowLoadingScreen = false;
+        BABYLON.SceneLoader.AppendAsync("/3d/Models/capteur.gltf", undefined, this.scene, (event) => { }, ".gltf").then((scene) => {
+            this.templates["sensor"] = this.scene.getNodeByName("__root__").getChildMeshes()[0];
+            this.templates["sensor"].setParent(null);
+            this.templates["sensor"].setEnabled(false);
+        });
     }
 
     initGizmo() {
@@ -112,15 +120,13 @@ class Scene {
     }
 
     addSensor() {
-        let sensor = BABYLON.MeshBuilder.CreateBox("sensor", { width: 1, height: 1, depth: 1 }, this.scene);
-        //sensor.scaling = new BABYLON.Vector3(0.06, 0.04, 0.06);
-        sensor.material = new BABYLON.StandardMaterial(sensor.name + "_mat");
-        sensor.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+        let sensor = this.templates["sensor"].clone("sensor", null, true, true);
+        sensor.setEnabled(true);
         
         this.gizmoManager.attachableMeshes.push(sensor);
         sensor = this.dotnetProxifyTransformFull(sensor);
 
-        console.log("Test");
+        console.log(sensor);
         return sensor;
     }
 
