@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using ClientBlazor_v1.Components
 @using ClientBlazor_v1.Models
+@using ClientBlazor_v1.Models.RoomObjects
 
 <PageTitle>Liste des salles</PageTitle>
 
@@ -23,31 +24,25 @@
                             <div class="room_header">
                                 <span><b>@room.Name</b></span>
                                 <hr />
-                                <span>2 capteurs</span>
+                                <span>@room.Sensors.Count capteurs</span>
                             </div>
                             <div class="room_content">
                                 <div class="room_description">
-                                    <div>
-                                        <b>Capteurs (2)</b>
-                                        <ul>
-                                            <li>1 Capteur Z-Wave 6-1</li>
-                                            <li>1 Capteur Z-Wave Multi</li>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <b>Equipements (8)</b>
-                                        <ul>
-                                            <li>2 portes</li>
-                                            <li>4 fenêtres</li>
-                                            <li>2 radiateurs</li>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <b>Actionneurs (1)</b>
-                                        <ul>
-                                            <li>1 Lampe Z-Wave</li>
-                                        </ul>
-                                    </div>
+                                    @foreach (var section in new[]{
+                                        new { Name = "Capteurs", Objects = (RoomObject[])room.Sensors.ToArray() },
+                                        new { Name = "Equipements", Objects = (RoomObject[])room.Equipments.ToArray() },
+                                        new { Name = "Actionneurs", Objects = (RoomObject[])room.Actionnables.ToArray() },
+                                    }){
+                                        <div>
+                                            <b>@(section.Name) (@(section.Objects.Length))</b>
+                                            <ul>
+                                                @foreach (var roomObj in section.Objects)
+                                                {
+                                                    <li>@roomObj.GetName()</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
                                 </div>
 
                                 <div class="bottom_bar">
@@ -65,62 +60,62 @@
 
 <style>
     .building_container {
-        margin: 3em 1em;
-        display: flex;
-        flex-direction: column;
-        gap: 2em;
+    margin: 3em 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
     }
 
     .building_header, .room_list {
-        padding: 1em;
+    padding: 1em;
     }
 
     .building_header, .room_header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1em;
-        cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    cursor: pointer;
     }
 
-        .building_header > hr, .room_header > hr {
-            flex: 1;
-        }
+    .building_header > hr, .room_header > hr {
+    flex: 1;
+    }
 
     .room_header, .room_content {
-        padding: 0.4em;
+    padding: 0.4em;
     }
 
     .room_content {
-        border-top: solid 1px #AAA7;
+    border-top: solid 1px #AAA7;
     }
 
     .building_header:hover, .room_header:hover {
-        background: #EEE;
+    background: #EEE;
     }
 
     .room_list {
-        border-top: solid 1px #8888;
-        padding-left: 2em;
+    border-top: solid 1px #8888;
+    padding-left: 2em;
     }
 
     .room_header::before {
-        content: '▸';
-        font-weight: bold;
-        font-size: 1.5em;
+    content: '▸';
+    font-weight: bold;
+    font-size: 1.5em;
     }
 
     .room_description {
-        display: flex;
-        justify-content: space-around;
-        gap: 1em;
+    display: flex;
+    justify-content: space-around;
+    gap: 1em;
     }
 
     .bottom_bar {
-        display: flex;
-        gap: 1em;
-        justify-content: end;
-        padding: 0.4em;
+    display: flex;
+    gap: 1em;
+    justify-content: end;
+    padding: 0.4em;
     }
 
 </style>
@@ -134,16 +129,28 @@
         {
             Name = "IUT Annecy",
             Rooms = [
-                new() { Name = "D351" },
+                new()
+                {
+                    Name = "D351",
+                    Sensors = new List<Sensor>() {
+                        new() { Type = "ZWave 6-1" },
+                        new() { Type = "ZWave Net Plus Ultra" },
+                    },
+                    Equipments = new List<Equipment>(){
+                        new Door(),
+                        new Door(),
+                        new Heater(),
+                        new Heater(),
+                        new Heater(),
+                        new Window(),
+                        new Window(),
+                    },
+                    Actionnables = new List<Actionnable>(){
+                        new Siren() { Type = "ZWave 10000Hz" },
+                        new Lamp() { Type = "ZWave RGB" },
+                    }
+                },
                 new() { Name = "D360" },
-            ]
-        });
-
-        Buildings.Add(new()
-        {
-            Name = "Tetras",
-            Rooms = [
-                new() { Name = "E710" }
             ]
         });
     }
