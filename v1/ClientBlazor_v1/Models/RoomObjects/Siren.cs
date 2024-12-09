@@ -1,12 +1,17 @@
-﻿namespace ClientBlazor_v1.Models.RoomObjects
-{
-    public class Siren : Actionnable
-    {
-        public string Type { get; set; }
+﻿using ClientBlazor_v1.Models.Transform;
 
-        public override string GetName()
-        {
-            return string.Format("Sirène", Type);
-        }
+namespace ClientBlazor_v1.Models.RoomObjects
+{
+    public class Siren : ActionnableObject, IPosition, IRotation
+    {
+        public double PosX { get; set; }
+        public double PosY { get; set; }
+        public double PosZ { get; set; }
+
+        public double RotX { get; set; }
+        public double RotY { get; set; }
+        public double RotZ { get; set; }
+
+        public override string GetName() => "Sirène";
     }
 }

@@ -1,10 +1,19 @@
-﻿namespace ClientBlazor_v1.Models.RoomObjects
+﻿using ClientBlazor_v1.Models.Transform;
+
+namespace ClientBlazor_v1.Models.RoomObjects
 {
-    public class Heater : Equipment
+    public class Heater : RoomObject, IPosition, ISize, IOrientation
     {
-        public override string GetName()
-        {
-            return "Radiateur";
-        }
+        public double Orientation { get; set; }
+
+        public double PosX { get; set; }
+        public double PosY { get; set; }
+        public double PosZ { get; set; }
+
+        public double SizeX { get; set; }
+        public double SizeY { get; set; }
+        public double SizeZ { get; set; }
+
+        public override string GetName() => "Radiateur";
     }
 }

@@ -1,10 +1,19 @@
-﻿namespace ClientBlazor_v1.Models.RoomObjects
+﻿using ClientBlazor_v1.Models.Transform;
+
+namespace ClientBlazor_v1.Models.RoomObjects
 {
-    public class Door : Equipment
+    public class Door : RoomObject, IPosition, ISize, IOrientation
     {
-        public override string GetName()
-        {
-            return "Porte";
-        }
+        public double Orientation { get; set; }
+
+        public double PosX { get; set; }
+        public double PosY { get; set; }
+        public double PosZ { get; set; }
+
+        public double SizeX { get; set; }
+        public double SizeY { get; set; }
+        public double SizeZ { get; set; }
+
+        public override string GetName() => "Porte";
     }
 }

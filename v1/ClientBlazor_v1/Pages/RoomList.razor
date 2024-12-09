@@ -20,29 +20,43 @@
                 <div class="room_list">
                     @foreach(var room in building.Rooms)
                     {
+                        Room.RoomObjects roomObjects = Room.RoomObjects.SortObjects(room);
+
                         <div class="room">
                             <div class="room_header">
                                 <span><b>@room.Name</b></span>
                                 <hr />
-                                <span>@room.Sensors.Count capteurs</span>
+                                <span>@roomObjects.Sensors.Count() capteurs</span>
                             </div>
                             <div class="room_content">
                                 <div class="room_description">
-                                    @foreach (var section in new[]{
-                                        new { Name = "Capteurs", Objects = (RoomObject[])room.Sensors.ToArray() },
-                                        new { Name = "Equipements", Objects = (RoomObject[])room.Equipments.ToArray() },
-                                        new { Name = "Actionneurs", Objects = (RoomObject[])room.Actionnables.ToArray() },
-                                    }){
-                                        <div>
-                                            <b>@(section.Name) (@(section.Objects.Length))</b>
-                                            <ul>
-                                                @foreach (var roomObj in section.Objects)
-                                                {
-                                                    <li>@roomObj.GetName()</li>
-                                                }
-                                            </ul>
-                                        </div>
-                                    }
+                                    <div>
+                                        <b>Capteurs (@roomObjects.Sensors.Count())</b>
+                                        <ul>
+                                            @foreach (var sensor in roomObjects.Sensors)
+                                            {
+                                                <li>@sensor.GetName()</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <b>Actionneurs (@roomObjects.Actionnables.Count())</b>
+                                        <ul>
+                                            @foreach (var actionnable in roomObjects.Actionnables)
+                                            {
+                                                <li>@actionnable.GetName()</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <b>Equipements (@roomObjects.Equipments.Count())</b>
+                                        <ul>
+                                            @foreach (var equipment in roomObjects.Equipments)
+                                            {
+                                                <li>@equipment.GetName()</li>
+                                            }
+                                        </ul>
+                                    </div>
                                 </div>
 
                                 <div class="bottom_bar">
@@ -132,23 +146,21 @@
                 new()
                 {
                     Name = "D351",
-                    Sensors = new List<Sensor>() {
-                        new() { Type = "ZWave 6-1" },
-                        new() { Type = "ZWave Net Plus Ultra" },
-                    },
-                    Equipments = new List<Equipment>(){
+                    Objects = [
                         new Door(),
                         new Door(),
-                        new Heater(),
-                        new Heater(),
-                        new Heater(),
                         new Window(),
                         new Window(),
-                    },
-                    Actionnables = new List<Actionnable>(){
-                        new Siren() { Type = "ZWave 10000Hz" },
-                        new Lamp() { Type = "ZWave RGB" },
-                    }
+                        new Window(),
+                        new Heater(),
+                        
+                        new Lamp(),
+                        new Plug(),
+                        new Plug(),
+
+                        new Sensor(),
+                        new Sensor(),
+                    ]
                 },
                 new() { Name = "D360" },
             ]

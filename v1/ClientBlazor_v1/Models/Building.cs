@@ -3,6 +3,6 @@
     public class Building
     {
         public string Name { get; set; }
-        public IList<Room> Rooms { get; set; }
+        public List<Room> Rooms { get; set; } = [];
     }
 }
