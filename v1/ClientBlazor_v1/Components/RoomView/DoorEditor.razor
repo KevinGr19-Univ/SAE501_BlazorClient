@@ -1,0 +1,25 @@
+﻿﻿@using ClientBlazor_v1.Components.Utils
+@using ClientBlazor_v1.ViewModels
+@using System.ComponentModel
+@using ClientBlazor_v1.ViewModels.JS
+@using ClientBlazor_v1.ViewModels.JS.RoomObjectVM
+
+<FWindow CloseButton="true" OnClose=OnClose>
+    <Header>
+        <span>@VM.Door.GetName()</span>
+    </Header>
+    <Content>
+        <TransformEditor VM="VM"></TransformEditor>
+    </Content>
+</FWindow>
+
+@inherits UIUpdatableComponent
+@code {
+    [Parameter]
+    public DoorVM VM { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    public override IUpdateUI Updatable => VM;
+}

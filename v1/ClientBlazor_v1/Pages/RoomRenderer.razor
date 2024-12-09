@@ -1,5 +1,11 @@
 ﻿@page "/renderer"
 @using ClientBlazor_v1.Components
+@using ClientBlazor_v1.Components.RoomView
+@using ClientBlazor_v1.Components.Utils
+@using ClientBlazor_v1.Models
+@using ClientBlazor_v1.Models.RoomObjects
+@using ClientBlazor_v1.ViewModels.JS
+@using ClientBlazor_v1.ViewModels.JS.RoomObjectVM
 
 <PageTitle>Salle 3D</PageTitle>
 
@@ -8,27 +14,62 @@
     <canvas id="renderer" touch-action="none"></canvas>
 
     <div class="renderer_ui align-items-start">
-        <FWindow CloseButton="false">
-            <Header>
-                <span>Salle D360</span>
-            </Header>
-            <Content>
-                <FSubWindow>
-                    <Header><span>Actions</span></Header>
-                    <Content>
-                        <button class="button_add">Ajouter un capteur</button>
-                    </Content>
-                </FSubWindow>
-            </Content>
-        </FWindow>
+        @if(RoomSceneVM is not null)
+        {
+            <FWindow CloseButton="false">
+                <Header>
+                    <span>@(RoomSceneVM.Room?.Name ?? "Chargement...")</span>
+                </Header>
+                <Content>
+                    <FSubWindow>
+                        <Header><span>Actions</span></Header>
+                        <Content>
+                            @* <button class="button_add">Ajouter un capteur</button> *@
+                        </Content>
+                    </FSubWindow>
+                </Content>
+            </FWindow>
+        }
     </div>
 
     <div class="renderer_ui align-items-end">
-
+        @if(RoomSceneVM is not null)
+        {
+            @foreach(var objVM in RoomSceneVM.ObjectVMs)
+            {
+                @if(objVM is DoorVM doorVM) { <DoorEditor VM="doorVM"></DoorEditor> }
+            }
+        }
     </div>
 </div>
 
 @inject IJSRuntime JS
+@inherits UIUpdatableComponent
 @code{
+    public RoomSceneVM RoomSceneVM { get; set; } = null;
+    public override IUpdateUI Updatable => RoomSceneVM;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/roomScene.js");
+            var sceneObj = await module.InvokeAsync<IJSInProcessObjectReference>("getScene");
+
+            RoomSceneVM = new RoomSceneVM(sceneObj);
+            TryBind();
+            UpdateUI();
+
+            await Task.Delay(2000);
+            RoomSceneVM.Room = new Room()
+            {
+                Name = "D360",
+                Height = 2.75,
+                Objects = [
+                    new Door(),
+                ]
+            };
+        }
+    }
 
 }
