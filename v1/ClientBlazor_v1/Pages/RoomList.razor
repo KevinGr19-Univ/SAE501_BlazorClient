@@ -2,6 +2,7 @@
 @using ClientBlazor_v1.Components
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Models.RoomObjects
+@using ClientBlazor_v1.ViewModels
 
 <PageTitle>Liste des salles</PageTitle>
 
@@ -9,161 +10,158 @@
     <h3>Liste des salles</h3>
 
     <div class="building_container">
-        @foreach(var building in Buildings)
+        @if(BuildingListVM.Buildings is null)
         {
-            <div class="building rounded shadow">
-                <div class="building_header">
-                    <span><b>@building.Name</b></span>
-                    <hr />
-                    <span>@building.Rooms.Count salles</span>
-                </div>
-                <div class="room_list">
-                    @foreach(var room in building.Rooms)
-                    {
-                        Room.RoomObjects roomObjects = Room.RoomObjects.SortObjects(room);
+            <div class="spinner-border" role="status"></div>
+        }
+        else
+        {
+            @foreach(var building in BuildingListVM.Buildings)
+            {
+                <div class="building rounded shadow">
+                    <div class="building_header" onclick="onHeaderCollapseClick(this)">
+                        <span><b>@building.Name</b></span>
+                        <hr />
+                        <span>@building.Rooms.Count salles</span>
+                    </div>
+                    <div class="room_list">
+                        @foreach(var room in building.Rooms)
+                        {
+                            Room.RoomObjects roomObjects = Room.RoomObjects.SortObjects(room);
 
-                        <div class="room">
-                            <div class="room_header">
-                                <span><b>@room.Name</b></span>
-                                <hr />
-                                <span>@roomObjects.Sensors.Count() capteurs</span>
-                            </div>
-                            <div class="room_content">
-                                <div class="room_description">
-                                    <div>
-                                        <b>Capteurs (@roomObjects.Sensors.Count())</b>
-                                        <ul>
-                                            @foreach (var sensor in roomObjects.Sensors)
-                                            {
-                                                <li>@sensor.GetName()</li>
-                                            }
-                                        </ul>
+                            <div class="room collapsed">
+                                <div class="room_header" onclick="onHeaderCollapseClick(this)">
+                                    <span><b>@room.Name</b></span>
+                                    <hr />
+                                    <span>@roomObjects.Sensors.Count() capteurs</span>
+                                </div>
+                                <div class="room_content">
+                                    <div class="room_description">
+                                        <div>
+                                            <b>Capteurs (@roomObjects.Sensors.Count())</b>
+                                            <ul>
+                                                @foreach (var sensor in roomObjects.Sensors)
+                                                {
+                                                    <li>@sensor.GetName()</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <b>Actionneurs (@roomObjects.Actionnables.Count())</b>
+                                            <ul>
+                                                @foreach (var actionnable in roomObjects.Actionnables)
+                                                {
+                                                    <li>@actionnable.GetName()</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <b>Equipements (@roomObjects.Equipments.Count())</b>
+                                            <ul>
+                                                @foreach (var equipment in roomObjects.Equipments)
+                                                {
+                                                    <li>@equipment.GetName()</li>
+                                                }
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <b>Actionneurs (@roomObjects.Actionnables.Count())</b>
-                                        <ul>
-                                            @foreach (var actionnable in roomObjects.Actionnables)
-                                            {
-                                                <li>@actionnable.GetName()</li>
-                                            }
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <b>Equipements (@roomObjects.Equipments.Count())</b>
-                                        <ul>
-                                            @foreach (var equipment in roomObjects.Equipments)
-                                            {
-                                                <li>@equipment.GetName()</li>
-                                            }
-                                        </ul>
+
+                                    <div class="bottom_bar">
+                                        <button class="btn btn-success">Modifier</button>
+                                        <button class="btn btn-danger">Supprimer</button>
                                     </div>
                                 </div>
-
-                                <div class="bottom_bar">
-                                    <button class="btn btn-success">Modifier</button>
-                                    <button class="btn btn-danger">Supprimer</button>
-                                </div>
                             </div>
-                        </div>
-                    }
+                        }
+                    </div>
                 </div>
-            </div>
+            }
         }
     </div>
 </div>
 
-<style>
-    .building_container {
-    margin: 3em 1em;
-    display: flex;
-    flex-direction: column;
-    gap: 2em;
+<script type="text/javascript">
+    function onHeaderCollapseClick(btn){
+        btn.parentNode.classList.toggle("collapsed");
     }
-
-    .building_header, .room_list {
-    padding: 1em;
-    }
-
-    .building_header, .room_header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1em;
-    cursor: pointer;
-    }
-
-    .building_header > hr, .room_header > hr {
-    flex: 1;
-    }
-
-    .room_header, .room_content {
-    padding: 0.4em;
-    }
-
-    .room_content {
-    border-top: solid 1px #AAA7;
-    }
-
-    .building_header:hover, .room_header:hover {
-    background: #EEE;
-    }
-
-    .room_list {
-    border-top: solid 1px #8888;
-    padding-left: 2em;
-    }
-
-    .room_header::before {
-    content: '▸';
-    font-weight: bold;
-    font-size: 1.5em;
-    }
-
-    .room_description {
-    display: flex;
-    justify-content: space-around;
-    gap: 1em;
-    }
-
-    .bottom_bar {
-    display: flex;
-    gap: 1em;
-    justify-content: end;
-    padding: 0.4em;
-    }
-
-</style>
+</script>
 
 @code {
-    public IList<Building> Buildings = new List<Building>();
+    public BuildingListVM BuildingListVM { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        Buildings.Add(new()
-        {
-            Name = "IUT Annecy",
-            Rooms = [
-                new()
-                {
-                    Name = "D351",
-                    Objects = [
-                        new Door(),
-                        new Door(),
-                        new Window(),
-                        new Window(),
-                        new Window(),
-                        new Heater(),
-                        
-                        new Lamp(),
-                        new Plug(),
-                        new Plug(),
-
-                        new Sensor(),
-                        new Sensor(),
-                    ]
-                },
-                new() { Name = "D360" },
-            ]
-        });
+        await BuildingListVM.LoadBuildings();
     }
 }
+
+<style>
+    .building_container {
+        margin: 3em 1em;
+        display: flex;
+        flex-direction: column;
+        gap: 2em;
+    }
+
+    .building_header, .room_list {
+        padding: 1em;
+    }
+
+    .building_header, .room_header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1em;
+        cursor: pointer;
+    }
+
+        .building_header > hr, .room_header > hr {
+            flex: 1;
+            min-width: 2em;
+        }
+
+    .room_header, .room_content {
+        padding: 0.4em;
+    }
+
+    .room_content {
+        border-top: solid 1px #AAA7;
+    }
+
+    .building_header:hover, .room_header:hover {
+        background: #EEE;
+    }
+
+    .room_list {
+        border-top: solid 1px #8888;
+        padding-left: 2em;
+    }
+
+    .room_header::before {
+        content: '▾';
+        font-weight: bold;
+        font-size: 1.5em;
+    }
+
+    .room_description {
+        display: flex;
+        justify-content: space-around;
+        gap: 1em;
+    }
+
+    .bottom_bar {
+        display: flex;
+        gap: 1em;
+        justify-content: end;
+        padding: 0.4em;
+    }
+
+    .building.collapsed > .room_list, .room.collapsed > .room_content {
+        display: none;
+    }
+
+    .collapsed > .room_header::before{
+        content: '▸'
+    }
+
+</style>

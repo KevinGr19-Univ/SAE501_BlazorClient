@@ -8,7 +8,7 @@ namespace ClientBlazor_v1.ViewModels
 
         public async Task<bool> DeleteAsync()
         {
-            Console.WriteLine("Test");
+            Console.WriteLine($"Deleting Room {Room.Name}");
             return true;
         }
     }
