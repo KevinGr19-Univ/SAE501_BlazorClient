@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\RoomObjects\" />
     <Folder Include="wwwroot\js\" />
   </ItemGroup>
 

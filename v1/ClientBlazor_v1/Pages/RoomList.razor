@@ -1,7 +1,6 @@
 ﻿@page "/"
 @using ClientBlazor_v1.Components
-@using ClientBlazor_v1.ViewModels
-@using ClientBlazor_v1.ViewModels.Utils
+@using ClientBlazor_v1.Models
 
 <PageTitle>Liste des salles</PageTitle>
 
@@ -9,144 +8,143 @@
     <h3>Liste des salles</h3>
 
     <div class="building_container">
-        <div class="building rounded shadow">
-            <div class="building_header">
-                <span><b>IUT Annecy</b></span>
-                <hr />
-                <span>2 salles</span>
-            </div>
-            <div class="room_list">
-                <div class="room">
-                    <div class="room_header">
-                        <span><b>D360</b></span>
-                        <hr />
-                        <span>2 capteurs</span>
-                    </div>
-                    <div class="room_content">
-                        <div class="room_description">
-                            <div>
-                                <b>Capteurs (2)</b>
-                                <ul>
-                                    <li>1 Capteur Z-Wave 6-1</li>
-                                    <li>1 Capteur Z-Wave Multi</li>
-                                </ul>
+        @foreach(var building in Buildings)
+        {
+            <div class="building rounded shadow">
+                <div class="building_header">
+                    <span><b>@building.Name</b></span>
+                    <hr />
+                    <span>@building.Rooms.Count salles</span>
+                </div>
+                <div class="room_list">
+                    @foreach(var room in building.Rooms)
+                    {
+                        <div class="room">
+                            <div class="room_header">
+                                <span><b>@room.Name</b></span>
+                                <hr />
+                                <span>2 capteurs</span>
                             </div>
-                            <div>
-                                <b>Equipements (8)</b>
-                                <ul>
-                                    <li>2 portes</li>
-                                    <li>4 fenêtres</li>
-                                    <li>2 radiateurs</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <b>Actionneurs (1)</b>
-                                <ul>
-                                    <li>1 Lampe Z-Wave</li>
-                                </ul>
+                            <div class="room_content">
+                                <div class="room_description">
+                                    <div>
+                                        <b>Capteurs (2)</b>
+                                        <ul>
+                                            <li>1 Capteur Z-Wave 6-1</li>
+                                            <li>1 Capteur Z-Wave Multi</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <b>Equipements (8)</b>
+                                        <ul>
+                                            <li>2 portes</li>
+                                            <li>4 fenêtres</li>
+                                            <li>2 radiateurs</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <b>Actionneurs (1)</b>
+                                        <ul>
+                                            <li>1 Lampe Z-Wave</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="bottom_bar">
+                                    <button class="btn btn-success">Modifier</button>
+                                    <button class="btn btn-danger">Supprimer</button>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="bottom_bar">
-                            <button class="btn btn-success">Modifier</button>
-                            <button class="btn btn-danger">Supprimer</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="room">
-                    <div class="room_header">
-                        <span><b>D361</b></span>
-                        <hr />
-                        <span>2 capteurs</span>
-                    </div>
-                    <div class="room_content visually-hidden"></div>
+                    }
                 </div>
             </div>
-        </div>
-
-        <div class="building rounded shadow">
-            <div class="building_header">
-                <span><b>Tetras</b></span>
-                <hr />
-                <span>1 salle</span>
-            </div>
-            <div class="room_list">
-                <div class="room">
-                    <div class="room_header">
-                        <span><b>E710</b></span>
-                        <hr />
-                        <span>2 capteurs</span>
-                    </div>
-                    <div class="room_content visually-hidden"></div>
-                </div>
-            </div>
-        </div>
+        }
     </div>
 </div>
 
 <style>
-    .building_container{
+    .building_container {
         margin: 3em 1em;
-
         display: flex;
         flex-direction: column;
         gap: 2em;
     }
 
-    .building_header, .room_list{
+    .building_header, .room_list {
         padding: 1em;
     }
 
-    .building_header, .room_header{
+    .building_header, .room_header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 1em;
-
         cursor: pointer;
     }
 
-    .building_header > hr, .room_header > hr{
-        flex: 1;
-    }
+        .building_header > hr, .room_header > hr {
+            flex: 1;
+        }
 
-    .room_header, .room_content{
+    .room_header, .room_content {
         padding: 0.4em;
     }
 
-    .room_content{
+    .room_content {
         border-top: solid 1px #AAA7;
     }
 
-    .building_header:hover, .room_header:hover{
+    .building_header:hover, .room_header:hover {
         background: #EEE;
     }
 
-    .room_list{
+    .room_list {
         border-top: solid 1px #8888;
         padding-left: 2em;
     }
 
-    .room_header::before{
+    .room_header::before {
         content: '▸';
         font-weight: bold;
         font-size: 1.5em;
     }
 
-    .room_description{
+    .room_description {
         display: flex;
         justify-content: space-around;
         gap: 1em;
     }
 
-    .bottom_bar{
+    .bottom_bar {
         display: flex;
         gap: 1em;
         justify-content: end;
         padding: 0.4em;
     }
+
 </style>
 
 @code {
+    public IList<Building> Buildings = new List<Building>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        Buildings.Add(new()
+        {
+            Name = "IUT Annecy",
+            Rooms = [
+                new() { Name = "D351" },
+                new() { Name = "D360" },
+            ]
+        });
+
+        Buildings.Add(new()
+        {
+            Name = "Tetras",
+            Rooms = [
+                new() { Name = "E710" }
+            ]
+        });
+    }
 }

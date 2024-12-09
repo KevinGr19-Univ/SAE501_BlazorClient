@@ -1,7 +1,5 @@
 ﻿@page "/renderer"
 @using ClientBlazor_v1.Components
-@using ClientBlazor_v1.ViewModels
-@using ClientBlazor_v1.ViewModels.Utils
 
 <PageTitle>Salle 3D</PageTitle>
 
@@ -18,7 +16,7 @@
                 <FSubWindow>
                     <Header><span>Actions</span></Header>
                     <Content>
-                        <button class="button_add" @onclick=ClickAddSensor>Ajouter un capteur</button>
+                        <button class="button_add">Ajouter un capteur</button>
                     </Content>
                 </FSubWindow>
             </Content>
@@ -26,55 +24,11 @@
     </div>
 
     <div class="renderer_ui align-items-end">
-        @foreach(var sceneObjectVM in SceneObjectVMs)
-        {
-            @if(sceneObjectVM is SensorVM sensorVM)
-            {
-                <SensorComponent SensorVM="sensorVM" OnClose=@(() => RemoveSceneObject(sceneObjectVM))></SensorComponent>
-            }
-        }
+
     </div>
 </div>
 
 @inject IJSRuntime JS
 @code{
-    public Scene Scene;
-    public List<IJSObjectVM> SceneObjectVMs = new();
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/scene.js");
-            Scene = new Scene();
-            Scene.JSObj = await module.InvokeAsync<IJSInProcessObjectReference>("getScene");
-            Scene.OnElementSelected += OnElementSelected;
-
-            await InvokeAsync(() =>
-            {
-                StateHasChanged();
-            });
-        }
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
-    public async Task ClickAddSensor()
-    {
-        var sensorVM = Scene.CreateSensor();
-        SceneObjectVMs.Add(sensorVM);
-    }
-
-    private void OnElementSelected(object? sender, Scene.OnElementSelectedEventArgs e)
-    {
-        if (!SceneObjectVMs.Contains(e.SceneObjectVM))
-        {
-            SceneObjectVMs.Add(e.SceneObjectVM);
-            StateHasChanged();
-        }
-    }
-
-    private void RemoveSceneObject(IJSObjectVM sceneObjectVM)
-    {
-        SceneObjectVMs.Remove(sceneObjectVM);
-    }
 }

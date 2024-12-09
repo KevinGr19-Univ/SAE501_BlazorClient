@@ -1,11 +1,8 @@
-﻿@using ClientBlazor_v1.Components.Utils
-@using ClientBlazor_v1.ViewModels
-@using System.ComponentModel
-@using ClientBlazor_v1.ViewModels
+﻿@using System.ComponentModel
 
-<FWindow CloseButton="true" OnClose=OnClose>
+<FWindow CloseButton="true">
     <Header>
-        <span>@SensorVM.Sensor.Name</span>
+        <span></span>
     </Header>
     <Content>
         <FSubWindow>
@@ -14,17 +11,10 @@
                 <span><b>Type:</b> ZSensor-V5.1</span>
             </Content>
         </FSubWindow>
-        <TransformComponent TransformVM="SensorVM"></TransformComponent>
+        <TransformComponent></TransformComponent>
     </Content>
 </FWindow>
 
-@inherits NotifiedComponent
 @code {
-    [Parameter]
-    public SensorVM SensorVM { get; set; }
-
-    [Parameter]
-    public EventCallback OnClose { get; set; }
-
-    protected override INotifyPropertyChanged Notifier => SensorVM;
+    
 }
