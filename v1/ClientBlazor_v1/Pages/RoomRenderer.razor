@@ -4,6 +4,7 @@
 @using ClientBlazor_v1.Components.Utils
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Models.RoomObjects
+@using ClientBlazor_v1.Services
 @using ClientBlazor_v1.Utils
 @using ClientBlazor_v1.ViewModels.JS
 @using ClientBlazor_v1.ViewModels.JS.RoomObject
@@ -41,7 +42,7 @@
                                         @foreach(var roomObjectVM in section.VMs)
                                         {
                                             <li class="objectLink @(RoomSceneVM.VisibleObjectVMs.Contains(roomObjectVM) ? "isVisible" : "")" 
-                                                @onclick=roomObjectVM.Select>@roomObjectVM.RoomObject.GetName()</li>
+                                            @onclick=roomObjectVM.Select>@roomObjectVM.RoomObject.GetName()</li>
                                         }
                                     </ul>
                                 }
@@ -66,8 +67,12 @@
 </div>
 
 @inject IJSRuntime JS
+@inject IAPIService api
 @inherits UIUpdatableComponent
 @code{
+    [SupplyParameterFromQuery]
+    public Guid RoomGuid { get; set; }
+
     public RoomSceneVM RoomSceneVM { get; set; } = null;
     public override IUpdateUI Updatable => RoomSceneVM;
 
@@ -78,20 +83,11 @@
             var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/roomScene.js");
             var sceneObj = await module.InvokeAsync<IJSInProcessObjectReference>("getScene");
 
-            RoomSceneVM = new RoomSceneVM(sceneObj);
+            RoomSceneVM = new RoomSceneVM(api, sceneObj);
             TryBind();
             UpdateUI();
 
-            await Task.Delay(2000);
-            RoomSceneVM.Room = new Room()
-            {
-                Name = "D360",
-                Height = 2.75,
-                Objects = [
-                    new Door(),
-                    new Sensor()
-                ]
-            };
+            await RoomSceneVM.LoadRoom(RoomGuid);
         }
     }
 

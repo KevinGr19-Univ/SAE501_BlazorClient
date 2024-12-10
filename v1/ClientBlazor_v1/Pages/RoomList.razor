@@ -2,6 +2,7 @@
 @using ClientBlazor_v1.Components
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Models.RoomObjects
+@using ClientBlazor_v1.Services
 @using ClientBlazor_v1.Utils
 @using ClientBlazor_v1.ViewModels
 
@@ -68,8 +69,8 @@
                                     </div>
 
                                     <div class="bottom_bar">
-                                        <button class="btn btn-success">Modifier</button>
-                                        <button class="btn btn-danger">Supprimer</button>
+                                        <a class="btn btn-success" href="/renderer?RoomGuid=@room.GUID">Modifier</a>
+                                        <a class="btn btn-danger">Supprimer</a>
                                     </div>
                                 </div>
                             </div>
@@ -83,15 +84,17 @@
 
 <script type="text/javascript">
     function onHeaderCollapseClick(btn){
-        btn.parentNode.classList.toggle("collapsed");
+    btn.parentNode.classList.toggle("collapsed");
     }
 </script>
 
+@inject IAPIService api;
 @code {
-    public BuildingListVM BuildingListVM { get; set; } = new();
+    public BuildingListVM BuildingListVM { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        BuildingListVM = new(api);
         await BuildingListVM.LoadBuildings();
     }
 }

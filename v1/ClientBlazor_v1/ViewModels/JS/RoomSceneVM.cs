@@ -1,5 +1,6 @@
 ﻿using ClientBlazor_v1.Models;
 using ClientBlazor_v1.Models.RoomObjects;
+using ClientBlazor_v1.Services;
 using ClientBlazor_v1.ViewModels.JS.RoomObject;
 using Microsoft.JSInterop;
 
@@ -7,25 +8,31 @@ namespace ClientBlazor_v1.ViewModels.JS
 {
     public class RoomSceneVM : JSObjectVM
     {
-        private Room _room;
-        public Room Room
-        {
-            get => _room;
-            set
-            {
-                _room = value;
-                UpdateRoomMesh();
-                UpdateRoomObjects();
-                RequireUIUpdate();
-            }
-        }
+        private readonly IAPIService _api;
+
+        private Room? _room;
+        public Room? Room => _room;
 
         public readonly ICollection<RoomObjectVM> ObjectVMs = new HashSet<RoomObjectVM>();
         public readonly ICollection<RoomObjectVM> VisibleObjectVMs = new HashSet<RoomObjectVM>();
 
-        public RoomSceneVM(IJSInProcessObjectReference sceneObj)
+        public RoomSceneVM(IAPIService api, IJSInProcessObjectReference sceneObj)
         {
+            _api = api;
             JSObj = sceneObj;
+        }
+
+        public async Task LoadRoom(Guid guid)
+        {
+            Room? room = await _api.GetRoomAsync(guid);
+            _room = room;
+
+            if (Room is not null)
+            {
+                UpdateRoomMesh();
+                UpdateRoomObjects();
+                RequireUIUpdate();
+            }
         }
 
         public DoorVM AddDoor(Door door) => AddRoomObject<DoorVM>(() => new() { Door = door }, "addDoor");

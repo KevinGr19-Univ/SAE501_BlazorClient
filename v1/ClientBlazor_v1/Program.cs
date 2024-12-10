@@ -1,3 +1,4 @@
+using ClientBlazor_v1.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -12,6 +13,8 @@ namespace ClientBlazor_v1
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+            builder.Services.AddSingleton<IAPIService, DummyAPIService>();
 
             await builder.Build().RunAsync();
         }
