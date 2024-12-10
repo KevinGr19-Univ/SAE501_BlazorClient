@@ -129,18 +129,6 @@
     color: black;
 }
 
-::deep .xaxis {
-    color: #f77;
-}
-
-::deep .yaxis {
-    color: #7f7;
-}
-
-::deep .zaxis {
-    color: #77f;
-}
-
 .objectLink:hover{
     cursor: pointer;
     text-decoration: underline;

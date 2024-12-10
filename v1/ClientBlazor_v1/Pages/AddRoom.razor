@@ -1,7 +1,220 @@
 ﻿@page "/add_room"
+@using ClientBlazor_v1.Services
+@using ClientBlazor_v1.ViewModels
 
-<h3>Créer une salle</h3>
+<div class="m-4 d-flex flex-column align-items-center" style="gap: 1em;">
+    <h3>Créer une salle</h3>
 
+    @if(VM.IsLoaded)
+    {
+        <EditForm Model="@VM.Room" OnValidSubmit="Click_SaveChanges">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+
+            <div class="d-flex flex-column align-items-center" style="gap: 1.5em">
+                <div class="shadow p-3 input-section">
+                    <div class="input-box">
+                        <label for="room-name">Nom</label>
+                        <input id="room-name" type="text" @bind-value=VM.Room.Name />
+                    </div>
+                    <div class="input-box">
+                        <label for="room-building">Bâtiment</label>
+                        <InputSelect id="room-building" @bind-Value="VM.Room.BuildingID" class="form-select">
+                            <option value="null">- Séléctionnez un bâtiment -</option>
+                            @foreach (var building in VM.Buildings)
+                            {
+                                <option value="@building.Name">@building.Name</option>
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+
+                <div class="shadow p-3 input-section">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label>Base (@VM.BasePoints.Count points)</label>
+                            <button type="button" class="btn btn-primary base-btn m-1 p-1" @onclick=VM.AddBasePoint>Ajouter</button>
+                        </div>
+                        <canvas id="room-base-renderer"></canvas>
+                        <div class="m-2 d-flex flex-column">
+                            @{int i = 0;}
+                            @foreach(var point in VM.BasePoints)
+                            {
+                                i++;
+                                <div class="d-flex align-items-center p-1 point-box">
+                                    <b>#@i</b>
+
+                                    <span class="me-3"></span>
+
+                                    <span class="xaxis m-1">X:</span>
+                                    <input type="number" class="number_box" @bind-value=point.x/>
+
+                                    <span class="me-2"></span>
+
+                                    <span class="zaxis m-1">Z:</span>
+                                    <input type="number" class="number_box" @bind-value=point.y/>
+
+                                    <span class="me-4"></span>
+
+                                    <button type="button" class="btn btn-secondary base-btn p-1 onHovered" @onclick=@(() => VM.RoundCorner(point, 6, 1, true))>Arrondir</button>
+                                    <button type="button" class="btn btn-danger base-btn p-1 onHovered" @onclick=@(() => VM.DeletePoint(point))>Supprimer</button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="input-box">
+                        <label for="room-height">Hauteur</label>
+                        <input id="room-height" type="number" @bind-value=VM.Room.Height />
+                    </div>
+                    <div class="input-box">
+                        <label for="room-orientation">Orientation (°N)</label>
+                        <input id="room-orientation" type="number" @bind-value=VM.Room.Orientation />
+                    </div>
+                </div>
+            </div>
+        </EditForm>     
+    }
+</div>
+
+<script type="text/javascript">
+    function drawBaseOnCanvas(points){
+        const canvasResolutionFactor = 4;
+        const bgColor = "black";
+        const circleColor = "dodgerblue";
+        const circleRadius = 7 * canvasResolutionFactor;
+        const edgeColor = "blue";
+        const edgeThickness = 2 * canvasResolutionFactor;
+        const font = `${14*canvasResolutionFactor}px Helvetica`;
+        const fontColor = "white";
+
+        let canvas = document.querySelector("#room-base-renderer");
+        let ctx = canvas.getContext("2d");
+        canvas.width = canvas.clientWidth * canvasResolutionFactor;
+        canvas.height = canvas.clientHeight * canvasResolutionFactor;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if(points.length == 0) return;
+
+        let padding = 10 * canvasResolutionFactor;
+        let totalWidth = canvas.width - padding*2;
+        let totalHeight = canvas.height - padding*2;
+
+        let minX = null, minY = null, maxX = null, maxY = null;
+        for(let point of points){
+            if(minX === null || minX > point.x) minX = point.x;
+            if(minY === null || minY > point.y) minY = point.y;
+            if(maxX === null || maxX < point.x) maxX = point.x;
+            if(maxY === null || maxY < point.y) maxY = point.y;
+        }
+
+        let diffX = maxX - minX;
+        let diffY = maxY - minY;
+
+        let midX = minX + diffX/2;
+        let midY = minY + diffY/2;
+        
+        // Scaling
+        let scaleX = diffX ? totalWidth/diffX : null;
+        let scaleY = diffY ? totalHeight/diffY : null;
+        
+        let scale = 1;
+        if(scaleX && scaleY) scale = Math.min(scaleX, scaleY);
+        else if(scaleX) scale = scaleX;
+        else if(scaleY) scale = scaleY;
+
+        let scaledPoints = points.map(point => ({
+            x: (point.x - midX) * scale + (totalWidth/2 + padding),
+            y: (midY - point.y) * scale + (totalHeight/2 + padding),
+        }));
+
+        // Edges
+        ctx.strokeStyle = edgeColor;
+        ctx.lineWidth = edgeThickness;
+        scaledPoints.forEach((point, i) => {
+            let nextPoint = scaledPoints[(i+1)%scaledPoints.length];
+            ctx.beginPath();
+            ctx.moveTo(point.x, point.y);
+            ctx.lineTo(nextPoint.x, nextPoint.y);
+            ctx.stroke();
+        });
+
+        // Points
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        scaledPoints.forEach((point, i) => {
+            ctx.fillStyle = circleColor;
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, circleRadius, 0, Math.PI*2);
+            ctx.fill();
+
+            ctx.fillStyle = fontColor;
+            ctx.font = font;
+            ctx.beginPath();
+            ctx.fillText(`${i+1}`, point.x, point.y);
+        });
+    }
+</script>
+
+@inject IAPIService api
+@inject IJSRuntime JS
 @code {
+    public RoomCreatorVM VM { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        VM = new(api);
+        await VM.Load();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("drawBaseOnCanvas", (object) VM.BasePoints.Select(p => new{ x = p.x, y = p.y }).ToArray());
+    }
+
+    public async Task Click_SaveChanges()
+    {
+        Console.WriteLine("Saving changes.");
+    }
 }
+
+<style>
+    .input-section{
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+
+        width: fit-content;
+    }
+
+    .input-box{
+        position: relative;
+        margin-top: 1.5em;
+    }
+
+    .input-box > label{
+        position: absolute;
+        left: 0;
+        bottom: 100%;
+    }
+
+    #room-base-renderer{
+        width: 30em;
+        height: 30em;
+        border: solid 1px #0008;
+    }
+
+    .base-btn{
+        font-size: 0.8em;
+    }
+
+    .point-box:hover{
+        background: #0004;
+    }
+
+    .point-box:not(:hover) .onHovered{
+        display: none !important;
+    }
+</style>

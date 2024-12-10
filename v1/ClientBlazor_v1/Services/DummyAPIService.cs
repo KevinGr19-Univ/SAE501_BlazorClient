@@ -67,10 +67,14 @@ namespace ClientBlazor_v1.Services
                 foreach(var room in building.Rooms)
                 {
                     _rooms.Add(room.GUID, room);
+
                     room.Building = building;
+                    room.BuildingID = building.Name;
+
                     foreach(var roomObject in room.Objects)
                     {
                         _roomObjects.Add(roomObject.GUID, roomObject);
+
                         roomObject.Room = room;
                     }
                 }
