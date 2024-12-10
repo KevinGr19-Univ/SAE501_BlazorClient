@@ -134,6 +134,7 @@ class RoomScene {
         door.material.diffuseColor = new BABYLON.Color3(1, 1, 0);
 
         this.gizmoManager.attachableMeshes.push(door);
+        addSizeProps(door);
         door = dotnetProxify(door, {
             position: {
                 x: true,
@@ -143,7 +144,7 @@ class RoomScene {
             rotation: {
                 y: true
             },
-            scaling: {
+            size: {
                 x: true,
                 y: true,
                 z: true
@@ -153,6 +154,30 @@ class RoomScene {
         return door;
     }
 
+}
+
+function addSizeProps(mesh) {
+    mesh.size = {
+        get x() {
+            return (mesh.getBoundingInfo().boundingBox.extendSize.x*2) * mesh.scaling.x;
+        },
+        get y() {
+            return (mesh.getBoundingInfo().boundingBox.extendSize.y*2) * mesh.scaling.y;
+        },
+        get z() {
+            return (mesh.getBoundingInfo().boundingBox.extendSize.z*2) * mesh.scaling.z;
+        },
+
+        set x(value) {
+            mesh.scaling.x = value / (mesh.getBoundingInfo().boundingBox.extendSize.x*2);
+        },
+        set y(value) {
+            mesh.scaling.y = value / (mesh.getBoundingInfo().boundingBox.extendSize.y*2);
+        },
+        set z(value) {
+            mesh.scaling.z = value / (mesh.getBoundingInfo().boundingBox.extendSize.z*2);
+        },
+    };
 }
 
 export function getScene() {

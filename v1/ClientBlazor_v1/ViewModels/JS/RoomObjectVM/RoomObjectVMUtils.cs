@@ -13,9 +13,9 @@
         public static double GetRotY(IJSObjectVM jsObj) => jsObj.JSGet<double>("rotation.y") * RAD2DEG;
         public static double GetRotZ(IJSObjectVM jsObj) => jsObj.JSGet<double>("rotation.z") * RAD2DEG;
 
-        public static double GetSizeX(IJSObjectVM jsObj) => jsObj.JSGet<double>("scaling.x");
-        public static double GetSizeY(IJSObjectVM jsObj) => jsObj.JSGet<double>("scaling.y");
-        public static double GetSizeZ(IJSObjectVM jsObj) => jsObj.JSGet<double>("scaling.z");
+        public static double GetSizeX(IJSObjectVM jsObj) => jsObj.JSGet<double>("size.x");
+        public static double GetSizeY(IJSObjectVM jsObj) => jsObj.JSGet<double>("size.y");
+        public static double GetSizeZ(IJSObjectVM jsObj) => jsObj.JSGet<double>("size.z");
 
         public static void SetPosX(IJSObjectVM jsObj, double value)
         {
@@ -51,17 +51,17 @@
 
         public static void SetSizeX(IJSObjectVM jsObj, double value)
         {
-            jsObj.JSSet("scaling.x", value);
+            jsObj.JSSet("size.x", value);
             jsObj.RequireUIUpdate();
         }
         public static void SetSizeY(IJSObjectVM jsObj, double value)
         {
-            jsObj.JSSet("scaling.y", value);
+            jsObj.JSSet("size.y", value);
             jsObj.RequireUIUpdate();
         }
         public static void SetSizeZ(IJSObjectVM jsObj, double value)
         {
-            jsObj.JSSet("scaling.z", value);
+            jsObj.JSSet("size.z", value);
             jsObj.RequireUIUpdate();
         }
     }
