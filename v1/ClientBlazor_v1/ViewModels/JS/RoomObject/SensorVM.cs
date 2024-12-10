@@ -1,5 +1,6 @@
 ﻿using ClientBlazor_v1.Models.RoomObjects;
 using ClientBlazor_v1.Models.Transform;
+using ClientBlazor_v1.Utils;
 
 namespace ClientBlazor_v1.ViewModels.JS.RoomObject
 {

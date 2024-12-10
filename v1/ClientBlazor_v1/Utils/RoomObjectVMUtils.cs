@@ -1,4 +1,6 @@
-﻿namespace ClientBlazor_v1.ViewModels.JS.RoomObject
+﻿using ClientBlazor_v1.ViewModels.JS.RoomObject;
+
+namespace ClientBlazor_v1.Utils
 {
     public static class RoomObjectVMUtils
     {

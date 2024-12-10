@@ -20,7 +20,7 @@ namespace ClientBlazor_v1.ViewModels.JS
             }
         }
 
-        public readonly List<RoomObjectVM> ObjectVMs = new();
+        public readonly ICollection<RoomObjectVM> ObjectVMs = new HashSet<RoomObjectVM>();
         public readonly ICollection<RoomObjectVM> VisibleObjectVMs = new HashSet<RoomObjectVM>();
 
         public RoomSceneVM(IJSInProcessObjectReference sceneObj)

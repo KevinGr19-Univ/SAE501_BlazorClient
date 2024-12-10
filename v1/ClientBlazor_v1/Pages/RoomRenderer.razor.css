@@ -4,7 +4,8 @@
     height: 100%;
 }
 
-    #renderer_container #renderer {
+    #renderer_container > #renderer {
+        position: absolute;
         width: 100%;
         height: 100%;
         outline: none;
@@ -17,13 +18,10 @@
     display: flex;
     flex-direction: column;
     gap: 2em;
-    inset: 2em;
-    pointer-events: none;
-}
 
-    .renderer_ui > ::deep * {
-        pointer-events: all;
-    }
+    margin: 2em;
+    max-height: calc(100% - 4em);
+}
 
 ::deep .fwindow {
     background-color: #0008;

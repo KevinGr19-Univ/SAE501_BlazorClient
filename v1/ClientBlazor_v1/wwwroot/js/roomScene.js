@@ -7,6 +7,7 @@ class RoomScene {
     constructor(canvas) {
         this.canvas = canvas;
         this.engine = new BABYLON.Engine(this.canvas, true, { stencil: true });
+        this.engine.adaptToDeviceRatio = true;
 
         this.scene = new BABYLON.Scene(this.engine);
         this.scene.useRightHandedSystem = true;

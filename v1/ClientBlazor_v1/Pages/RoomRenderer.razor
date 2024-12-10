@@ -4,7 +4,7 @@
 @using ClientBlazor_v1.Components.Utils
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Models.RoomObjects
-@using ClientBlazor_v1.Models.Utils
+@using ClientBlazor_v1.Utils
 @using ClientBlazor_v1.ViewModels.JS
 @using ClientBlazor_v1.ViewModels.JS.RoomObject
 
@@ -14,7 +14,7 @@
 
     <canvas id="renderer" touch-action="none"></canvas>
 
-    <div class="renderer_ui align-items-start">
+    <div class="renderer_ui" style="left: 0;">
         @if(RoomSceneVM is not null)
         {
             <FWindow CloseButton="false">
@@ -53,7 +53,7 @@
         }
     </div>
 
-    <div class="renderer_ui align-items-end">
+    <div class="renderer_ui" style="right: 0;">
         @if(RoomSceneVM is not null)
         {
             @foreach(var objVM in RoomSceneVM.VisibleObjectVMs)

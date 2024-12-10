@@ -1,6 +1,6 @@
 ﻿using ClientBlazor_v1.Models.RoomObjects;
 
-namespace ClientBlazor_v1.Models.Utils
+namespace ClientBlazor_v1.Utils
 {
     public class RoomObjectSorter<T>
     {
