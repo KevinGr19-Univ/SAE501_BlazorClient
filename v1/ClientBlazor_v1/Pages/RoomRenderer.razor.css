@@ -142,3 +142,12 @@
 ::deep .zaxis {
     color: #77f;
 }
+
+.objectLink:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.objectLink.isVisible{
+    color: dodgerblue;
+}

@@ -2,6 +2,7 @@
 @using ClientBlazor_v1.Components
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Models.RoomObjects
+@using ClientBlazor_v1.Models.Utils
 @using ClientBlazor_v1.ViewModels
 
 <PageTitle>Liste des salles</PageTitle>
@@ -27,18 +28,18 @@
                     <div class="room_list">
                         @foreach(var room in building.Rooms)
                         {
-                            Room.RoomObjects roomObjects = Room.RoomObjects.SortObjects(room);
+                            RoomObjectSorter<RoomObject> roomObjects = RoomObjectSorter<RoomObject>.SortObjects(room.Objects, obj => obj);
 
                             <div class="room collapsed">
                                 <div class="room_header" onclick="onHeaderCollapseClick(this)">
                                     <span><b>@room.Name</b></span>
                                     <hr />
-                                    <span>@roomObjects.Sensors.Count() capteurs</span>
+                                    <span>@roomObjects.Sensors.Count capteurs</span>
                                 </div>
                                 <div class="room_content">
                                     <div class="room_description">
                                         <div>
-                                            <b>Capteurs (@roomObjects.Sensors.Count())</b>
+                                            <b>Capteurs (@roomObjects.Sensors.Count)</b>
                                             <ul>
                                                 @foreach (var sensor in roomObjects.Sensors)
                                                 {
@@ -47,7 +48,7 @@
                                             </ul>
                                         </div>
                                         <div>
-                                            <b>Actionneurs (@roomObjects.Actionnables.Count())</b>
+                                            <b>Actionneurs (@roomObjects.Actionnables.Count)</b>
                                             <ul>
                                                 @foreach (var actionnable in roomObjects.Actionnables)
                                                 { 
@@ -56,7 +57,7 @@
                                             </ul>
                                         </div>
                                         <div>
-                                            <b>Equipements (@roomObjects.Equipments.Count())</b>
+                                            <b>Equipements (@roomObjects.Equipments.Count)</b>
                                             <ul>
                                                 @foreach (var equipment in roomObjects.Equipments)
                                                 {

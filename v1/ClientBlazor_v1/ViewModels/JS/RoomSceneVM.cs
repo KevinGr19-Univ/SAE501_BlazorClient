@@ -1,6 +1,6 @@
 ﻿using ClientBlazor_v1.Models;
 using ClientBlazor_v1.Models.RoomObjects;
-using ClientBlazor_v1.ViewModels.JS.RoomObjectVM;
+using ClientBlazor_v1.ViewModels.JS.RoomObject;
 using Microsoft.JSInterop;
 
 namespace ClientBlazor_v1.ViewModels.JS
@@ -20,24 +20,38 @@ namespace ClientBlazor_v1.ViewModels.JS
             }
         }
 
-        public readonly IList<IJSObjectVM> ObjectVMs;
+        public readonly List<RoomObjectVM> ObjectVMs = new();
+        public readonly ICollection<RoomObjectVM> VisibleObjectVMs = new HashSet<RoomObjectVM>();
 
         public RoomSceneVM(IJSInProcessObjectReference sceneObj)
         {
             JSObj = sceneObj;
-            ObjectVMs = new List<IJSObjectVM>();
         }
 
-        public DoorVM AddDoor(Door door)
+        public DoorVM AddDoor(Door door) => AddRoomObject<DoorVM>(() => new() { Door = door }, "addDoor");
+        public SensorVM AddSensor(Sensor sensor) => AddRoomObject<SensorVM>(() => new() { Sensor = sensor }, "addSensor");
+
+        private T AddRoomObject<T>(Func<T> vmBuilder, string jsBuilderName) where T : RoomObjectVM
         {
-            var doorVM = new DoorVM();
-            doorVM.Door = door;
-            doorVM.JSObj = JSObj.Invoke<IJSInProcessObjectReference>("addDoor");
-            ObjectVMs.Add(doorVM);
+            T vm = vmBuilder();
+            vm.JSObj = JSObj.Invoke<IJSInProcessObjectReference>(jsBuilderName);
 
-            return doorVM;
+            vm.OnSelect += OnVMSelect;
+            vm.OnClose += OnVMClose;
+            ObjectVMs.Add(vm);
+            return vm;
         }
 
+        private void AddObjectVMToVisible(RoomObjectVM objectVM)
+        {
+            if (!VisibleObjectVMs.Contains(objectVM))
+            {
+                VisibleObjectVMs.Add(objectVM);
+                RequireUIUpdate();
+            }
+        }
+
+        #region Updates
         public void UpdateRoomMesh()
         {
             JSObj.InvokeVoid("updateRoomMesh", Room.Height);
@@ -49,13 +63,35 @@ namespace ClientBlazor_v1.ViewModels.JS
             foreach (var roomObj in Room.Objects)
             {
                 if (roomObj is Door door) AddDoor(door);
+                else if (roomObj is Sensor sensor) AddSensor(sensor);
+            }
+        }
+        #endregion
+
+        #region Events
+        private void OnVMSelect(object? obj, EventArgs e)
+        {
+            if(obj is RoomObjectVM objectVM)
+            {
+                AddObjectVMToVisible(objectVM);
+            }
+        }
+
+        private void OnVMClose(object? obj, EventArgs e)
+        {
+            if (obj is RoomObjectVM objectVM)
+            {
+                VisibleObjectVMs.Remove(objectVM);
+                RequireUIUpdate();
             }
         }
 
         [JSInvokable]
         public async Task ElementSelected(DotNetObjectReference<object> dotnetRef)
         {
-            Console.WriteLine("ElementSelected");
+            RoomObjectVM objectVM = (RoomObjectVM)dotnetRef.Value;
+            AddObjectVMToVisible(objectVM);
         }
+        #endregion
     }
 }

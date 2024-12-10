@@ -1,5 +1,6 @@
-﻿import { clamp } from './utils.js';
+﻿import { clamp, addSizeProps } from './utils.js';
 import { dotnetProxify, addDotnetMutators } from './interop.js';
+import { objectInfos } from './objectInfos.js';
 
 class RoomScene {
 
@@ -129,55 +130,27 @@ class RoomScene {
     }
 
     addDoor() {
-        let door = BABYLON.MeshBuilder.CreateBox("door", { width: 1, height: 2, depth: 0.15 });
-        door.material = new BABYLON.StandardMaterial("doorMat");
-        door.material.diffuseColor = new BABYLON.Color3(1, 1, 0);
-
-        this.gizmoManager.attachableMeshes.push(door);
-        addSizeProps(door);
-        door = dotnetProxify(door, {
-            position: {
-                x: true,
-                y: true,
-                z: true
-            },
-            rotation: {
-                y: true
-            },
-            size: {
-                x: true,
-                y: true,
-                z: true
-            }
-        });
-
-        return door;
+        return this._addRoomObject("door");
     }
 
-}
+    addSensor() {
+        return this._addRoomObject("sensor");
+    }
 
-function addSizeProps(mesh) {
-    mesh.size = {
-        get x() {
-            return (mesh.getBoundingInfo().boundingBox.extendSize.x*2) * mesh.scaling.x;
-        },
-        get y() {
-            return (mesh.getBoundingInfo().boundingBox.extendSize.y*2) * mesh.scaling.y;
-        },
-        get z() {
-            return (mesh.getBoundingInfo().boundingBox.extendSize.z*2) * mesh.scaling.z;
-        },
+    _addRoomObject(key) {
+        let mesh = objectInfos[key].meshBuilder(this);
+        this.gizmoManager.attachableMeshes.push(mesh);
 
-        set x(value) {
-            mesh.scaling.x = value / (mesh.getBoundingInfo().boundingBox.extendSize.x*2);
-        },
-        set y(value) {
-            mesh.scaling.y = value / (mesh.getBoundingInfo().boundingBox.extendSize.y*2);
-        },
-        set z(value) {
-            mesh.scaling.z = value / (mesh.getBoundingInfo().boundingBox.extendSize.z*2);
-        },
-    };
+        addSizeProps(mesh);
+        mesh = dotnetProxify(mesh, objectInfos[key].bindedProps);
+
+        mesh.sceneSelect = () => this.setSelected(mesh);
+        mesh.sceneUnselect = () => {
+            if (this.selected === mesh) this.setSelected(null);
+        }
+        return mesh;
+    }
+
 }
 
 export function getScene() {

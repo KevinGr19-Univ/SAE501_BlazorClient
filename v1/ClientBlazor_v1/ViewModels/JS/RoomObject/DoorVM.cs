@@ -1,9 +1,9 @@
 ﻿using ClientBlazor_v1.Models.RoomObjects;
 using ClientBlazor_v1.Models.Transform;
 
-namespace ClientBlazor_v1.ViewModels.JS.RoomObjectVM
+namespace ClientBlazor_v1.ViewModels.JS.RoomObject
 {
-    public class DoorVM : JSObjectVM, IPosition, ISize, IOrientation
+    public class DoorVM : RoomObjectVM, IPosition, ISize, IOrientation
     {
         private Door _door;
         public Door Door
@@ -15,6 +15,8 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjectVM
                 RequireUIUpdate();
             }
         }
+
+        public override Models.RoomObjects.RoomObject RoomObject => Door;
 
         public double Orientation
         {

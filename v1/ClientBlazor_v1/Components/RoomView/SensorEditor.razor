@@ -6,9 +6,15 @@
 
 <FWindow CloseButton="true" OnClose=VM.Close>
     <Header>
-        <span>@VM.Door.GetName()</span>
+        <span>@VM.Sensor.GetName()</span>
     </Header>
     <Content>
+        <FSubWindow>
+            <Header>Informations</Header>
+            <Content>
+                <span>UUID: @VM.Sensor.GUID</span>
+            </Content>
+        </FSubWindow>
         <TransformEditor VM="VM"></TransformEditor>
     </Content>
 </FWindow>
@@ -16,7 +22,10 @@
 @inherits UIUpdatableComponent
 @code {
     [Parameter]
-    public DoorVM VM { get; set; }
+    public SensorVM VM { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
 
     public override IUpdateUI Updatable => VM;
 }

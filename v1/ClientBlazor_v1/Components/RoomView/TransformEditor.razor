@@ -1,6 +1,7 @@
 ﻿@using ClientBlazor_v1.Components.Utils
 @using ClientBlazor_v1.Models.Transform
 @using ClientBlazor_v1.ViewModels.JS
+@using ClientBlazor_v1.ViewModels.JS.RoomObject
 
 <FSubWindow>
     <Header><span>Transform</span></Header>
@@ -79,13 +80,37 @@
                 </div>
             </div>
         }
+        else
+        {
+            double sizeX = RoomObjectVMUtils.GetSizeX(VM);
+            double sizeY = RoomObjectVMUtils.GetSizeY(VM);
+            double sizeZ = RoomObjectVMUtils.GetSizeZ(VM);
+
+            <div>
+                <span>Taille (lecture seule)</span>
+                <div class="sgap-row">
+                    <span>
+                        <label class="xaxis">X:&nbsp;</label>
+                        <input type="number" class="number_box" @bind-value=sizeX readonly>
+                    </span>
+                    <span>
+                        <label class="yaxis">Y:&nbsp;</label>
+                        <input type="number" class="number_box" @bind-value=sizeY readonly>
+                    </span>
+                    <span>
+                        <label class="zaxis">Z:&nbsp;</label>
+                        <input type="number" class="number_box" @bind-value=sizeZ readonly>
+                    </span>
+                </div>
+            </div>
+        }
     </Content>
 </FSubWindow>
 
 @inherits UIUpdatableComponent
 @code {
     [Parameter]
-    public IJSObjectVM VM { get; set; }
+    public RoomObjectVM VM { get; set; }
 
     public override IUpdateUI Updatable => VM;
 }

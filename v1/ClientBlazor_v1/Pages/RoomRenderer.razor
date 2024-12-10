@@ -4,8 +4,9 @@
 @using ClientBlazor_v1.Components.Utils
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Models.RoomObjects
+@using ClientBlazor_v1.Models.Utils
 @using ClientBlazor_v1.ViewModels.JS
-@using ClientBlazor_v1.ViewModels.JS.RoomObjectVM
+@using ClientBlazor_v1.ViewModels.JS.RoomObject
 
 <PageTitle>Salle 3D</PageTitle>
 
@@ -22,9 +23,29 @@
                 </Header>
                 <Content>
                     <FSubWindow>
-                        <Header><span>Actions</span></Header>
+                        <Header><span>Objets</span></Header>
                         <Content>
-                            @* <button class="button_add">Ajouter un capteur</button> *@
+                            @{
+                                RoomObjectSorter<RoomObjectVM> sortedVMs = RoomObjectSorter<RoomObjectVM>.SortObjects(RoomSceneVM.ObjectVMs, (vm) => vm.RoomObject);
+                            }
+
+                            @foreach(var section in new[]{
+                                new{ Title = "Capteurs", VMs = sortedVMs.Sensors },
+                                new{ Title = "Actionneurs", VMs = sortedVMs.Actionnables },
+                                new{ Title = "Equipements", VMs = sortedVMs.Equipments },
+                            }){
+                                <span><b>@(section.Title)</b> (@(section.VMs.Count))</span>
+                                @if(section.VMs.Count > 0)
+                                {
+                                    <ul>
+                                        @foreach(var roomObjectVM in section.VMs)
+                                        {
+                                            <li class="objectLink @(RoomSceneVM.VisibleObjectVMs.Contains(roomObjectVM) ? "isVisible" : "")" 
+                                                @onclick=roomObjectVM.Select>@roomObjectVM.RoomObject.GetName()</li>
+                                        }
+                                    </ul>
+                                }
+                            }
                         </Content>
                     </FSubWindow>
                 </Content>
@@ -35,9 +56,10 @@
     <div class="renderer_ui align-items-end">
         @if(RoomSceneVM is not null)
         {
-            @foreach(var objVM in RoomSceneVM.ObjectVMs)
+            @foreach(var objVM in RoomSceneVM.VisibleObjectVMs)
             {
                 @if(objVM is DoorVM doorVM) { <DoorEditor VM="doorVM"></DoorEditor> }
+                else if(objVM is SensorVM sensorVM) { <SensorEditor VM="sensorVM"></SensorEditor> }
             }
         }
     </div>
@@ -67,6 +89,7 @@
                 Height = 2.75,
                 Objects = [
                     new Door(),
+                    new Sensor()
                 ]
             };
         }
