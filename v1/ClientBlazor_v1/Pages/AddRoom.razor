@@ -56,8 +56,9 @@
 
                                     <span class="me-4"></span>
 
-                                    <button type="button" class="btn btn-secondary base-btn p-1 onHovered" @onclick=@(() => VM.RoundCorner(point, 6, 1, true))>Arrondir</button>
-                                    <button type="button" class="btn btn-danger base-btn p-1 onHovered" @onclick=@(() => VM.DeletePoint(point))>Supprimer</button>
+                                    <button type="button" class="btn btn-secondary base-btn p-1 m-1 onHovered" @onclick=@(() => VM.RoundCorner(point, 6, 1, true))>Arrondi intérieur</button>
+                                    <button type="button" class="btn btn-secondary base-btn p-1 m-1 onHovered" @onclick=@(() => VM.RoundCorner(point, 6, 1, false))>Arrondi extérieur</button>
+                                    <button type="button" class="btn btn-danger base-btn p-1 m-1 onHovered" @onclick=@(() => VM.DeletePoint(point))>Supprimer</button>
                                 </div>
                             }
                         </div>
