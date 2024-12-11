@@ -46,7 +46,7 @@ namespace ClientBlazor_v1.ViewModels
             Vector2D left = BasePoints[MathUtils.ModPositive(index - 1, BasePoints.Count)];
             Vector2D right = BasePoints[MathUtils.ModPositive(index + 1, BasePoints.Count)];
 
-            Vector2D[] vertices = MathUtils.Bevel(point, left, right, vertexCount, radius, true);
+            Vector2D[] vertices = MathUtils.Bevel(point, left, right, vertexCount, radius, inside);
 
             BasePoints.InsertRange(index, vertices);
             BasePoints.Remove(point);

@@ -21,10 +21,8 @@
             toLeft.Normalize();
             toRight.Normalize();
 
-            // TODO: Fix radius && inside
-
             if (inside)
-                return Bevel(point + toLeft + toRight, point + toLeft, point + toRight, vertexCount, maxRadius, false);
+                return Bevel(point + (toLeft + toRight) * radius, point + toLeft * radius, point + toRight * radius, vertexCount, radius, false);
 
             double thetaLeft = Math.Atan2(toLeft.y, toLeft.x);
             if (thetaLeft < 0) thetaLeft = Math.PI * 2 + thetaLeft;
