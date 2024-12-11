@@ -18,10 +18,8 @@
             toRight.Normalize();
 
             double thetaLeft = Math.Atan2(toLeft.y, toLeft.x);
-            double thetaRight = Math.Atan2(toRight.y, toRight.x);
             if (thetaLeft < 0) thetaLeft = Math.PI * 2 + thetaLeft;
-            if (thetaRight < 0) thetaRight = Math.PI * 2 + thetaRight;
-            double thetaStep = (thetaRight - thetaLeft) / (vertexCount - 1);
+            double thetaStep = -Math.Acos(toLeft.x * toRight.x + toLeft.y * toRight.y) / (vertexCount - 1);
 
             Vector2D[] vertices = new Vector2D[vertexCount];
             for (int i = 0; i < vertexCount; i++)
