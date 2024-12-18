@@ -6,5 +6,7 @@ namespace ClientBlazor_v1.Services
     {
         Task<IEnumerable<Building>> GetBuildingsAsync();
         Task<Room?> GetRoomAsync(Guid guid);
+
+        Task<Room> PostRoomAsync(Room room);
     }
 }

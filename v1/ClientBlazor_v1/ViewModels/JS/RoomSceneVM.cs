@@ -61,7 +61,8 @@ namespace ClientBlazor_v1.ViewModels.JS
         #region Updates
         public void UpdateRoomMesh()
         {
-            JSObj.InvokeVoid("updateRoomMesh", Room.Height);
+            object points = Room.Base.Select(v => new {x = v.x, y = v.y}).ToArray();
+            JSObj.InvokeVoid("updateRoomMesh", points, Room.Height);
         }
 
         public void UpdateRoomObjects()

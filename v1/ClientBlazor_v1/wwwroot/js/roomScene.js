@@ -32,12 +32,23 @@ class RoomScene {
         window.addEventListener('resize', () => this.engine.resize());
     }
 
-    updateRoomMesh(height) {
+    updateRoomMesh(points, height) {
         if (this.room) {
             this.room.remove();
         }
 
-        this.room = BABYLON.MeshBuilder.CreateBox("room", { width: 6, height: height, depth: 6 }, this.scene);
+        let options = {
+            shape: points.map(p => new BABYLON.Vector3(p.x, p.y, 0)),
+            path: [
+                new BABYLON.Vector3(0, 0, 0),
+                new BABYLON.Vector3(0, height, 0),
+            ],
+            closeShape: true,
+        }
+
+        this.room = BABYLON.MeshBuilder.ExtrudeShape("room", options, this.scene);
+        this.room.position = this.room.getBoundingInfo().boundingBox.center.scale(-1);
+
         this.room.material = new BABYLON.StandardMaterial("roomMat");
         this.room.flipFaces(true);
         this.room.isPickable = false;

@@ -31,6 +31,12 @@ namespace ClientBlazor_v1.ViewModels
             IsLoaded = true;
         }
 
+        public async Task SaveRoom()
+        {
+            Room.Base = BasePoints.ToArray();
+            await _api.PostRoomAsync(Room);
+        }
+
         public void AddBasePoint()
         {
             BasePoints.Add(new(0, 0));

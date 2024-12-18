@@ -90,5 +90,16 @@ namespace ClientBlazor_v1.Services
         {
             return _rooms.GetValueOrDefault(guid);
         }
+
+        public async Task<Room> PostRoomAsync(Room room)
+        {
+            room.GUID = Guid.NewGuid();
+            room.Building = _buildings[room.BuildingID];
+
+            room.Building.Rooms.Add(room);
+            _rooms.Add(room.GUID, room);
+
+            return room;
+        }
     }
 }

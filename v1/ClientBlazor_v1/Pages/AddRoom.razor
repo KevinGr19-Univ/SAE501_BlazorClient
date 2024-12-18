@@ -36,13 +36,13 @@
                             <button type="button" class="btn btn-primary base-btn m-1 p-1" @onclick=VM.AddBasePoint>Ajouter</button>
                         </div>
                         <canvas id="room-base-renderer"></canvas>
-                        <div class="m-2 d-flex flex-column">
+                        <div class="m-2 d-flex flex-column point-list" style="height: 12em;">
                             @{int i = 0;}
                             @foreach(var point in VM.BasePoints)
                             {
                                 i++;
                                 <div class="d-flex align-items-center p-1 point-box">
-                                    <b>#@i</b>
+                                    <b style="min-width: 5em;">#@i</b>
 
                                     <span class="me-3"></span>
 
@@ -57,7 +57,7 @@
                                     <span class="me-4"></span>
 
                                     <button type="button" class="btn btn-secondary base-btn p-1 m-1 onHovered" @onclick=@(() => VM.RoundCorner(point, 6, 1, true))>Arrondi intérieur</button>
-                                    <button type="button" class="btn btn-secondary base-btn p-1 m-1 onHovered" @onclick=@(() => VM.RoundCorner(point, 6, 1, false))>Arrondi extérieur</button>
+                                    @* <button type="button" class="btn btn-secondary base-btn p-1 m-1 onHovered" @onclick=@(() => VM.RoundCorner(point, 6, 1, false))>Arrondi extérieur</button> *@
                                     <button type="button" class="btn btn-danger base-btn p-1 m-1 onHovered" @onclick=@(() => VM.DeletePoint(point))>Supprimer</button>
                                 </div>
                             }
@@ -65,13 +65,14 @@
                     </div>
                     <div class="input-box">
                         <label for="room-height">Hauteur</label>
-                        <input id="room-height" type="number" @bind-value=VM.Room.Height />
+                        <input id="room-height" type="number" step="any" @bind-value=VM.Room.Height />
                     </div>
                     <div class="input-box">
                         <label for="room-orientation">Orientation (°N)</label>
-                        <input id="room-orientation" type="number" @bind-value=VM.Room.Orientation />
+                        <input id="room-orientation" type="number" step="any" @bind-value=VM.Room.Orientation />
                     </div>
                 </div>
+                <button type="submit" class="btn btn-success">Créer</button>
             </div>
         </EditForm>     
     }
@@ -161,6 +162,7 @@
 
 @inject IAPIService api
 @inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 @code {
     public RoomCreatorVM VM { get; set; }
 
@@ -177,7 +179,8 @@
 
     public async Task Click_SaveChanges()
     {
-        Console.WriteLine("Saving changes.");
+        await VM.SaveRoom();
+        NavigationManager.NavigateTo("/");
     }
 }
 
@@ -217,5 +220,9 @@
 
     .point-box:not(:hover) .onHovered{
         display: none !important;
+    }
+
+    .point-list{
+        overflow-y: scroll;
     }
 </style>
