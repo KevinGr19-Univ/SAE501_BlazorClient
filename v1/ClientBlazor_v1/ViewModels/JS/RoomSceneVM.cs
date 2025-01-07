@@ -1,5 +1,6 @@
 ﻿using ClientBlazor_v1.Models;
 using ClientBlazor_v1.Models.RoomObjects;
+using ClientBlazor_v1.Models.RoomObjects.ConnectedObjects;
 using ClientBlazor_v1.Services;
 using ClientBlazor_v1.ViewModels.JS.RoomObject;
 using Microsoft.JSInterop;
@@ -22,9 +23,9 @@ namespace ClientBlazor_v1.ViewModels.JS
             JSObj = sceneObj;
         }
 
-        public async Task LoadRoom(Guid guid)
+        public async Task LoadRoom(int idRoom)
         {
-            Room? room = await _api.GetRoomAsync(guid);
+            Room? room = await _api.GetRoomAsync(idRoom);
             _room = room;
 
             if (Room is not null)
@@ -61,14 +62,14 @@ namespace ClientBlazor_v1.ViewModels.JS
         #region Updates
         public void UpdateRoomMesh()
         {
-            object points = Room.Base.Select(v => new {x = v.x, y = v.y}).ToArray();
+            object points = Room.Base.Select(v => new {x = v.X, y = v.Y}).ToArray();
             JSObj.InvokeVoid("updateRoomMesh", points, Room.Height);
         }
 
         public void UpdateRoomObjects()
         {
             ObjectVMs.Clear();
-            foreach (var roomObj in Room.Objects)
+            foreach (var roomObj in Room.ObjectsOfRoom)
             {
                 if (roomObj is Door door) AddDoor(door);
                 else if (roomObj is Sensor sensor) AddSensor(sensor);

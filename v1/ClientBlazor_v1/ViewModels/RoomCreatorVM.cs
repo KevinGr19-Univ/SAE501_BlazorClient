@@ -15,7 +15,7 @@ namespace ClientBlazor_v1.ViewModels
         public IEnumerable<Building> Buildings { get; private set; }
         public List<Vector2D> BasePoints { get; private set; }
 
-        private Guid? _idRoom;
+        private int? _idRoom;
         public Room Room { get; private set; }
 
         public RoomCreatorVM(IAPIService api)
@@ -24,14 +24,14 @@ namespace ClientBlazor_v1.ViewModels
             BasePoints = new();
         }
 
-        public async Task Load(Guid? idRoom)
+        public async Task Load(int? idRoom)
         {
             IsLoaded = false;
 
             _idRoom = idRoom;
             await Task.WhenAll(
                 Task.Run(async() => { Buildings = await _api.GetBuildingsAsync(); }),
-                Task.Run(async() => { Room = _idRoom is null ? new Room() : await _api.GetRoomAsync((Guid)_idRoom); })
+                Task.Run(async() => { Room = _idRoom is null ? new Room() : await _api.GetRoomAsync((int)_idRoom); })
             );
 
             IsLoaded = true;
@@ -39,10 +39,10 @@ namespace ClientBlazor_v1.ViewModels
 
         public async Task SaveRoom()
         {
-            Room.Base = BasePoints.ToArray();
+            Room.Base = BasePoints.ToList();
 
             if(_idRoom is null) await _api.PostRoomAsync(Room);
-            else await _api.PutRoomAsync((Guid)_idRoom, Room);
+            else await _api.PutRoomAsync((int)_idRoom, Room);
         }
 
         public void AddBasePoint()

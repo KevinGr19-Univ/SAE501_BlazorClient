@@ -19,11 +19,11 @@
                     </div>
                     <div class="input-box">
                         <label for="room-building">Bâtiment</label>
-                        <InputSelect id="room-building" @bind-Value="VM.Room.BuildingID" class="form-select">
+                        <InputSelect id="room-building" @bind-Value="VM.Room.IdBuilding" class="form-select">
                             <option value="null">- Séléctionnez un bâtiment -</option>
                             @foreach (var building in VM.Buildings)
                             {
-                                <option value="@building.Name">@building.Name</option>
+                                <option value="@building.Id">@building.Name</option>
                             }
                         </InputSelect>
                     </div>
@@ -47,12 +47,12 @@
                                     <span class="me-3"></span>
 
                                     <span class="xaxis m-1">X:</span>
-                                    <input type="number" class="number_box" @bind-value=point.x/>
+                                    <input type="number" class="number_box" @bind-value=point.X/>
 
                                     <span class="me-2"></span>
 
                                     <span class="zaxis m-1">Z:</span>
-                                    <input type="number" class="number_box" @bind-value=point.y/>
+                                    <input type="number" class="number_box" @bind-value=point.Y/>
 
                                     <span class="me-4"></span>
 
@@ -69,7 +69,7 @@
                     </div>
                     <div class="input-box">
                         <label for="room-orientation">Orientation (°N)</label>
-                        <input id="room-orientation" type="number" step="any" @bind-value=VM.Room.Orientation />
+                        <input id="room-orientation" type="number" step="any" @bind-value=VM.Room.NorthOrientation />
                     </div>
                 </div>
                 <button type="submit" class="btn btn-success">@(RoomID is null ? "Créer" : "Modifier")</button>
@@ -169,7 +169,7 @@
     public RoomCreatorVM VM { get; set; }
 
     [SupplyParameterFromQuery]
-    public Guid? RoomID { get; set; } = null;
+    public int? RoomID { get; set; } = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -179,7 +179,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JS.InvokeVoidAsync("drawBaseOnCanvas", (object) VM.BasePoints.Select(p => new{ x = p.x, y = p.y }).ToArray());
+        await JS.InvokeVoidAsync("drawBaseOnCanvas", (object) VM.BasePoints.Select(p => new{ x = p.X, y = p.Y }).ToArray());
     }
 
     public async Task Click_SaveChanges()

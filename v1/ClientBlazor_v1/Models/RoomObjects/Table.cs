@@ -1,10 +1,9 @@
 ﻿using ClientBlazor_v1.Models.Transform;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClientBlazor_v1.Models.RoomObjects
 {
-    public class Door : RoomObject, IPosition, IOrientation, ISize
+    public class Table : RoomObject, IPosition, IOrientation, ISize
     {
         public double PosX { get; set; }
 
@@ -20,6 +19,6 @@ namespace ClientBlazor_v1.Models.RoomObjects
 
         public double SizeZ { get; set; }
 
-        public override string GetName() => "Porte";
+        public override string GetName() => "Table";
     }
 }

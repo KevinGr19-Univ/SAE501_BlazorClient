@@ -71,7 +71,7 @@
 @inherits UIUpdatableComponent
 @code{
     [SupplyParameterFromQuery]
-    public Guid RoomGuid { get; set; }
+    public int RoomId { get; set; }
 
     public RoomSceneVM RoomSceneVM { get; set; } = null;
     public override IUpdateUI Updatable => RoomSceneVM;
@@ -87,7 +87,7 @@
             TryBind();
             UpdateUI();
 
-            await RoomSceneVM.LoadRoom(RoomGuid);
+            await RoomSceneVM.LoadRoom(RoomId);
         }
     }
 

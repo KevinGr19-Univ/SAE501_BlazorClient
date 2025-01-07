@@ -1,4 +1,5 @@
 ﻿using ClientBlazor_v1.Models.RoomObjects;
+using ClientBlazor_v1.Models.RoomObjects.ConnectedObjects;
 using ClientBlazor_v1.Models.Transform;
 using ClientBlazor_v1.Utils;
 

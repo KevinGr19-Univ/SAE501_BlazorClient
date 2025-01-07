@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClientBlazor_v1.Models
 {
-    public class Building
+    public class RoomType
     {
         public int Id { get; set; }
 
         public string Name { get; set; }
 
-        public List<Room> Rooms { get; set; } = new();
+        public ICollection<Room> Rooms { get; set; }
     }
 }

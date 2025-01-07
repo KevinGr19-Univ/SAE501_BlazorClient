@@ -1,0 +1,90 @@
+﻿@page "/edit_building"
+@using ClientBlazor_v1.Services
+@using ClientBlazor_v1.ViewModels
+
+<div class="m-4 d-flex flex-column align-items-center" style="gap: 1em;">
+    <h3>@(BuildingID is null ? "Créer" : "Modifier") un bâtiment</h3>
+
+    @if (VM.IsLoaded)
+    {
+        <EditForm Model="@VM.Building" OnValidSubmit="Click_SaveChanges">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="d-flex flex-column align-items-center" style="gap: 1.5em">
+                <div class="shadow p-3 input-section">
+                    <div class="input-box">
+                        <label for="room-name">Nom</label>
+                        <input id="room-name" type="text" @bind-value=VM.Building.Name />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success">@(BuildingID is null ? "Créer" : "Modifier")</button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+
+@inject IAPIService api
+@inject NavigationManager NavigationManager
+@code {
+    public BuildingCreatorVM VM { get; set; }
+
+    [SupplyParameterFromQuery]
+    public int? BuildingID { get; set; } = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        VM = new(api);
+        await VM.Load(BuildingID);
+    }
+
+    public async Task Click_SaveChanges()
+    {
+        await VM.SaveBuilding();
+        NavigationManager.NavigateTo("/");
+    }
+}
+
+<style>
+    .input-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+        width: fit-content;
+    }
+
+    .input-box {
+        position: relative;
+        margin-top: 1.5em;
+    }
+
+        .input-box > label {
+            position: absolute;
+            left: 0;
+            bottom: 100%;
+        }
+
+    #room-base-renderer {
+        width: 30em;
+        height: 30em;
+        border: solid 1px #0008;
+    }
+
+    .base-btn {
+        font-size: 0.8em;
+    }
+
+    .point-box:hover {
+        background: #0004;
+    }
+
+    .point-box:not(:hover) .onHovered {
+        display: none !important;
+    }
+
+    .point-list {
+        overflow-y: scroll;
+    }
+</style>

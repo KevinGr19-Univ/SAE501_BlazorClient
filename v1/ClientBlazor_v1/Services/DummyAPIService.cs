@@ -5,59 +5,15 @@ namespace ClientBlazor_v1.Services
 {
     public class DummyAPIService : IAPIService
     {
-        private readonly Dictionary<string, Building> _buildings;
-        private readonly Dictionary<Guid, Room> _rooms;
-        private readonly Dictionary<Guid, RoomObject> _roomObjects;
+        private readonly Dictionary<int, Building> _buildings;
+        private readonly Dictionary<int, Room> _rooms;
+        private readonly Dictionary<int, RoomObject> _roomObjects;
+
+        private int _idBuilding, _idRoom, _idRoomObject;
 
         public DummyAPIService()
         {
             _buildings = new() {
-                {
-                    "IUT Annecy",
-                    new()
-                    {
-                        Name = "IUT Annecy",
-                        Rooms = [
-                            new()
-                            {
-                                GUID = Guid.NewGuid(),
-                                Name = "D360",
-                                Orientation = 30,
-                                Height = 3,
-                                Objects = [
-                                    new Door(){ GUID = Guid.NewGuid() },
-                                    new Sensor(){ GUID = Guid.NewGuid() }
-                                ]
-                            },
-                            new()
-                            {
-                                GUID = Guid.NewGuid(),
-                                Name = "D351",
-                                Height = 3,
-                                Orientation = 210,
-                                Objects = []
-                            }
-                        ]
-                    }
-                },
-
-                {
-                    "Tetras",
-                    new()
-                    {
-                        Name = "Tetras",
-                        Rooms = [
-                            new()
-                            {
-                                GUID = Guid.NewGuid(),
-                                Name = "E710",
-                                Height = 5,
-                                Orientation = 42.21,
-                                Objects = []
-                            }
-                        ]
-                    }
-                }
             };
             _rooms = new();
             _roomObjects = new();
@@ -66,14 +22,14 @@ namespace ClientBlazor_v1.Services
             {
                 foreach(var room in building.Rooms)
                 {
-                    _rooms.Add(room.GUID, room);
+                    _rooms.Add(room.Id, room);
 
                     room.Building = building;
-                    room.BuildingID = building.Name;
+                    room.IdBuilding = building.Id;
 
-                    foreach(var roomObject in room.Objects)
+                    foreach(var roomObject in room.ObjectsOfRoom)
                     {
-                        _roomObjects.Add(roomObject.GUID, roomObject);
+                        _roomObjects.Add(roomObject.Id, roomObject);
 
                         roomObject.Room = room;
                     }
@@ -81,7 +37,7 @@ namespace ClientBlazor_v1.Services
             }
         }
 
-        public async Task<Building?> GetBuildingAsync(string idBuilding)
+        public async Task<Building?> GetBuildingAsync(int idBuilding)
         {
             return _buildings.GetValueOrDefault(idBuilding);
         }
@@ -91,35 +47,36 @@ namespace ClientBlazor_v1.Services
             return _buildings.Values;
         }
 
-        public async Task<Room?> GetRoomAsync(Guid guid)
+        public async Task<Room?> GetRoomAsync(int idRoom)
         {
-            return _rooms.GetValueOrDefault(guid);
+            return _rooms.GetValueOrDefault(idRoom);
         }
 
         public async Task<Building> PostBuildingAsync(Building building)
         {
-            _buildings.Add(building.Name, building);
+            building.Id = ++_idBuilding;
+            _buildings.Add(building.Id, building);
             return building;
         }
 
         public async Task<Room> PostRoomAsync(Room room)
         {
-            room.GUID = Guid.NewGuid();
-            room.Building = _buildings[room.BuildingID];
+            room.Id = ++_idRoom;
+            room.Building = _buildings[room.IdBuilding];
 
             room.Building.Rooms.Add(room);
-            _rooms.Add(room.GUID, room);
+            _rooms.Add(room.Id, room);
 
             return room;
         }
 
-        public async Task<Building> PutBuildingAsync(string idBuilding, Building building)
+        public async Task<Building> PutBuildingAsync(int idBuilding, Building building)
         {
             _buildings.Remove(idBuilding);
             return await PostBuildingAsync(building);
         }
 
-        public async Task<Room> PutRoomAsync(Guid idRoom, Room room)
+        public async Task<Room> PutRoomAsync(int idRoom, Room room)
         {
             _rooms.Remove(idRoom);
             return await PostRoomAsync(room);

@@ -1,4 +1,6 @@
-﻿namespace ClientBlazor_v1.Utils
+﻿using ClientBlazor_v1.Models;
+
+namespace ClientBlazor_v1.Utils
 {
     public static class MathUtils
     {
@@ -14,7 +16,7 @@
             Vector2D toLeft = left - point;
             Vector2D toRight = right - point;
 
-            double theta = Math.Atan2(toLeft.x * toRight.y - toLeft.y * toRight.x, toLeft.x * toRight.x + toLeft.y * toRight.y);
+            double theta = Math.Atan2(toLeft.X * toRight.Y - toLeft.Y * toRight.X, toLeft.X * toRight.X + toLeft.Y * toRight.Y);
             if (theta > Math.PI) (toLeft, toRight) = (toRight, toLeft);
 
             double radius = Math.Min(maxRadius, Math.Min(toLeft.Length, toRight.Length));
@@ -24,7 +26,7 @@
             if (inside)
                 return Bevel(point + (toLeft + toRight) * radius, point + toLeft * radius, point + toRight * radius, vertexCount, radius, false);
 
-            double thetaLeft = Math.Atan2(toLeft.y, toLeft.x);
+            double thetaLeft = Math.Atan2(toLeft.Y, toLeft.X);
             if (thetaLeft < 0) thetaLeft = Math.PI * 2 + thetaLeft;
 
             double thetaStep = theta / (vertexCount - 1);
@@ -34,8 +36,8 @@
             {
                 double i_theta = thetaLeft + thetaStep * i;
                 vertices[i] = new(
-                    point.x + Math.Cos(i_theta) * radius,
-                    point.y + Math.Sin(i_theta) * radius
+                    point.X + Math.Cos(i_theta) * radius,
+                    point.Y + Math.Sin(i_theta) * radius
                 );
             }
 
