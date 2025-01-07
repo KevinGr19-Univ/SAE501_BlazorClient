@@ -81,6 +81,11 @@ namespace ClientBlazor_v1.Services
             }
         }
 
+        public async Task<Building?> GetBuildingAsync(string idBuilding)
+        {
+            return _buildings.GetValueOrDefault(idBuilding);
+        }
+
         public async Task<IEnumerable<Building>> GetBuildingsAsync()
         {
             return _buildings.Values;
@@ -89,6 +94,12 @@ namespace ClientBlazor_v1.Services
         public async Task<Room?> GetRoomAsync(Guid guid)
         {
             return _rooms.GetValueOrDefault(guid);
+        }
+
+        public async Task<Building> PostBuildingAsync(Building building)
+        {
+            _buildings.Add(building.Name, building);
+            return building;
         }
 
         public async Task<Room> PostRoomAsync(Room room)
@@ -100,6 +111,18 @@ namespace ClientBlazor_v1.Services
             _rooms.Add(room.GUID, room);
 
             return room;
+        }
+
+        public async Task<Building> PutBuildingAsync(string idBuilding, Building building)
+        {
+            _buildings.Remove(idBuilding);
+            return await PostBuildingAsync(building);
+        }
+
+        public async Task<Room> PutRoomAsync(Guid idRoom, Room room)
+        {
+            _rooms.Remove(idRoom);
+            return await PostRoomAsync(room);
         }
     }
 }

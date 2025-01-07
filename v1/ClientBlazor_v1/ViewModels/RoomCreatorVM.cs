@@ -1,6 +1,7 @@
 ﻿using ClientBlazor_v1.Models;
 using ClientBlazor_v1.Services;
 using ClientBlazor_v1.Utils;
+using Microsoft.VisualBasic;
 using System.Drawing;
 
 namespace ClientBlazor_v1.ViewModels
@@ -12,21 +13,26 @@ namespace ClientBlazor_v1.ViewModels
         public bool IsLoaded { get; private set; } = false;
 
         public IEnumerable<Building> Buildings { get; private set; }
-        public Room Room { get; private set; }
         public List<Vector2D> BasePoints { get; private set; }
+
+        private Guid? _idRoom;
+        public Room Room { get; private set; }
 
         public RoomCreatorVM(IAPIService api)
         {
             _api = api;
-            Room = new();
             BasePoints = new();
         }
 
-        public async Task Load()
+        public async Task Load(Guid? idRoom)
         {
             IsLoaded = false;
 
-            Buildings = await _api.GetBuildingsAsync();
+            _idRoom = idRoom;
+            await Task.WhenAll(
+                Task.Run(async() => { Buildings = await _api.GetBuildingsAsync(); }),
+                Task.Run(async() => { Room = _idRoom is null ? new Room() : await _api.GetRoomAsync((Guid)_idRoom); })
+            );
 
             IsLoaded = true;
         }
@@ -34,7 +40,9 @@ namespace ClientBlazor_v1.ViewModels
         public async Task SaveRoom()
         {
             Room.Base = BasePoints.ToArray();
-            await _api.PostRoomAsync(Room);
+
+            if(_idRoom is null) await _api.PostRoomAsync(Room);
+            else await _api.PutRoomAsync((Guid)_idRoom, Room);
         }
 
         public void AddBasePoint()

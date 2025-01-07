@@ -1,9 +1,9 @@
-﻿@page "/add_room"
+﻿@page "/edit_room"
 @using ClientBlazor_v1.Services
 @using ClientBlazor_v1.ViewModels
 
 <div class="m-4 d-flex flex-column align-items-center" style="gap: 1em;">
-    <h3>Créer une salle</h3>
+    <h3>@(RoomID is null ? "Créer" : "Modifier") une salle</h3>
 
     @if(VM.IsLoaded)
     {
@@ -72,7 +72,7 @@
                         <input id="room-orientation" type="number" step="any" @bind-value=VM.Room.Orientation />
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success">Créer</button>
+                <button type="submit" class="btn btn-success">@(RoomID is null ? "Créer" : "Modifier")</button>
             </div>
         </EditForm>     
     }
@@ -90,6 +90,8 @@
         const fontColor = "white";
 
         let canvas = document.querySelector("#room-base-renderer");
+        if (!canvas) return;
+
         let ctx = canvas.getContext("2d");
         canvas.width = canvas.clientWidth * canvasResolutionFactor;
         canvas.height = canvas.clientHeight * canvasResolutionFactor;
@@ -166,10 +168,13 @@
 @code {
     public RoomCreatorVM VM { get; set; }
 
+    [SupplyParameterFromQuery]
+    public Guid? RoomID { get; set; } = null;
+
     protected override async Task OnInitializedAsync()
     {
         VM = new(api);
-        await VM.Load();
+        await VM.Load(RoomID);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
