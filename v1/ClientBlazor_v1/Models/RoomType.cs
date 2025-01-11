@@ -9,6 +9,6 @@ namespace ClientBlazor_v1.Models
 
         public string Name { get; set; }
 
-        public ICollection<Room> Rooms { get; set; }
+        public List<Room> Rooms { get; set; } = new();
     }
 }

@@ -1,8 +1,6 @@
 ﻿using ClientBlazor_v1.Models;
 using ClientBlazor_v1.Services;
 using ClientBlazor_v1.Utils;
-using Microsoft.VisualBasic;
-using System.Drawing;
 
 namespace ClientBlazor_v1.ViewModels
 {
@@ -13,6 +11,7 @@ namespace ClientBlazor_v1.ViewModels
         public bool IsLoaded { get; private set; } = false;
 
         public IEnumerable<Building> Buildings { get; private set; }
+        public IEnumerable<RoomType> RoomTypes { get; private set; }
         public List<Vector2D> BasePoints { get; private set; }
 
         private int? _idRoom;
@@ -31,6 +30,7 @@ namespace ClientBlazor_v1.ViewModels
             _idRoom = idRoom;
             await Task.WhenAll(
                 Task.Run(async() => { Buildings = await _api.GetBuildingsAsync(); }),
+                Task.Run(async() => { RoomTypes = await _api.GetRoomTypesAsync(); }),
                 Task.Run(async() => { Room = _idRoom is null ? new Room() : await _api.GetRoomAsync((int)_idRoom); })
             );
 

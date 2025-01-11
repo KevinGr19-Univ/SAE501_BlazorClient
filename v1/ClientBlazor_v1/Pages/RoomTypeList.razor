@@ -1,0 +1,142 @@
+﻿@page "/room_types"
+@using ClientBlazor_v1.Components
+@using ClientBlazor_v1.Models
+@using ClientBlazor_v1.Services
+@using ClientBlazor_v1.ViewModels
+
+<div class="m-3 d-flex flex-column align-items-center">
+    <h3>Liste des types de salle</h3>
+
+    @if(ListVM.RoomTypes is null)
+    {
+        <div class="spinner-border" role="status"></div>
+    }
+    else
+    {
+        <div class="mt-4 d-flex flex-column align-items-center">
+            <p>Types : <b>@ListVM.RoomTypes.Count</b></p>
+            <div class="d-flex flex-column align-items-center" style="gap: 1em;">
+                @foreach(var roomType in ListVM.RoomTypes)
+                {
+                    if (roomType == EditVM.RoomType) continue;
+
+                    <div class="p-2 rounded shadow d-flex align-items-center roomtype-card" style="gap: 1em;">
+                        <div class="d-flex flex-column">
+                            <span>#@roomType.Id - <b>@roomType.Name</b></span>
+                            <i>@roomType.Rooms.Count salles</i>
+                        </div>
+                        <div class="roomtype-card-hover d-flex align-items-center" style="gap: 0.5em;">
+                            <button class="btn btn-success" @onclick="() => Click_EditType(roomType)"><i class="bi bi-pen"></i></button>
+                            <button class="btn btn-danger" @onclick="() => Click_DeleteType(roomType)"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div>
+            <EditForm Model="@EditVM.RoomType" OnValidSubmit="Click_SaveChanges" class="mt-4 p-2 rounded bg-white shadow d-flex flex-column" style="gap: 0.5em;">
+                <b class="text-center">@(EditVM.IsNew ? "Créer un type" : "Modifier un type")</b>
+
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+
+                @if(!EditVM.IsNew)
+                {
+                    <span>Id: <b>@EditVM.RoomType.Id</b></span>
+                }
+                <div class="input-box align-self-center">
+                    <label for="room-type-name">Nom</label>
+                    <input id="room-type-name" type="text" @bind-value=EditVM.RoomType.Name />
+                </div>
+
+                <div class="d-flex align-items-center" style="gap: 0.5em;">
+                    <button type="submit" class="btn btn-success align-self-center">Sauvegarder</button>
+                    <button @onclick=Click_CancelChanges class="btn btn-secondary align-self-center">Annuler</button>
+                </div>
+            </EditForm>
+        </div>
+    }
+
+    <Modal @ref=_roomTypeDeleteModal>
+        <Title>Supprimer le type de salle</Title>
+        <Content>
+            <p>Voulez vous vraiment supprimer le type de salle suivant ?</p>
+            <p>#@_roomTypeToDelete!.Id - <b>@_roomTypeToDelete.Name</b></p>
+        </Content>
+        <Buttons>
+            <button type="button" class="btn btn-danger" @onclick=Click_DeleteTypeConfirmed>Supprimer</button>
+            <button type="button" class="btn btn-secondary" @onclick=_roomTypeDeleteModal.Close>Annuler</button>
+        </Buttons>
+    </Modal>
+</div>
+
+@inject IAPIService api;
+@code {
+    public RoomTypeListVM ListVM { get; set; }
+    public RoomTypeEditVM EditVM { get; set; }
+
+    private Modal _roomTypeDeleteModal;
+    private RoomType? _roomTypeToDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListVM = new(api);
+        EditVM = new(api);
+
+        await ListVM.Load();
+    }
+
+    public void Click_EditType(RoomType roomType)
+    {
+        EditVM.SetExistingModel(roomType);
+    }
+
+    public async Task Click_SaveChanges()
+    {
+        await EditVM.Save();
+        EditVM.SetNewModel();
+        await ListVM.Load();
+    }
+
+    public void Click_CancelChanges()
+    {
+        EditVM.SetNewModel();
+    }
+
+    public void Click_DeleteType(RoomType roomType)
+    {
+        _roomTypeToDelete = roomType;
+        _roomTypeDeleteModal.Open();
+    }
+
+    public async Task Click_DeleteTypeConfirmed()
+    {
+        if (_roomTypeToDelete is null) return;
+
+        _roomTypeDeleteModal.Close();
+        await ListVM.DeleteRoomType(_roomTypeToDelete);
+        await ListVM.Load();
+    }
+}
+
+<style>
+    .input-box {
+        position: relative;
+        margin-top: 1.5em;
+    }
+
+        .input-box > label {
+            position: absolute;
+            left: 0;
+            bottom: 100%;
+        }
+
+    .roomtype-card:not(:hover) .roomtype-card-hover{
+        display: none !important;
+    }
+
+    .roomtype-card-hover button{
+        padding: 0.2em;
+    }
+</style>

@@ -27,6 +27,16 @@
                             }
                         </InputSelect>
                     </div>
+                    <div class="input-box">
+                        <label for="room-type">Type de salle</label>
+                        <InputSelect id="room-type" @bind-Value="VM.Room.IdRoomType" class="form-select">
+                            <option value="null">- Séléctionnez un type de salle -</option>
+                            @foreach (var roomType in VM.RoomTypes)
+                            {
+                                <option value="@roomType.Id">@roomType.Name</option>
+                            }
+                        </InputSelect>
+                    </div>
                 </div>
 
                 <div class="shadow p-3 input-section">

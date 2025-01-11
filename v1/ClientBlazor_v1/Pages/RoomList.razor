@@ -18,6 +18,16 @@
         }
         else
         {
+            <div class="d-flex flex-column align-items-center">
+                <div class="d-flex" style="gap: 1em;">
+                    <a href="/edit_building">Ajouter un bâtiment</a>
+                    <a href="/edit_room">Ajouter une salle</a>
+                </div>
+
+                <span>Bâtiments : <b>@BuildingListVM.Buildings.Count</b></span>
+                <span>Salles : <b>@BuildingListVM.Buildings.Sum(b => b.Rooms.Count)</b></span>
+            </div>
+
             @foreach(var building in BuildingListVM.Buildings)
             {
                 <div class="building rounded shadow">
@@ -33,7 +43,7 @@
 
                             <div class="room collapsed">
                                 <div class="room_header" onclick="onHeaderCollapseClick(this)">
-                                    <span><b>@room.Name</b></span>
+                                    <span><b>@room.Name</b> <i>[@room.RoomType.Name]</i></span>
                                     <hr />
                                     <span>@roomObjects.Sensors.Count capteurs</span>
                                 </div>
@@ -101,7 +111,7 @@
 
 <style>
     .building_container {
-        margin: 3em 1em;
+        margin: 1em;
         display: flex;
         flex-direction: column;
         gap: 2em;

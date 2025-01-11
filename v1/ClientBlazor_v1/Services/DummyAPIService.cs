@@ -7,14 +7,27 @@ namespace ClientBlazor_v1.Services
     {
         private readonly Dictionary<int, Building> _buildings;
         private readonly Dictionary<int, Room> _rooms;
+        private readonly Dictionary<int, RoomType> _roomTypes;
         private readonly Dictionary<int, RoomObject> _roomObjects;
 
-        private int _idBuilding, _idRoom, _idRoomObject;
+        private int _idBuilding, _idRoom, _idRoomType, _idRoomObject;
 
         public DummyAPIService()
         {
-            _buildings = new() {
+            _buildings = new()
+            {
+
             };
+
+            _roomTypes = new()
+            {
+                { 1, new() { Id = 1, Name = "TP" } },
+                { 2, new() { Id = 2, Name = "Amphi" } },
+            };
+
+            _idBuilding = _buildings.Count > 0 ? _buildings.Values.Select(b => b.Id).Max() : 0;
+            _idRoomType = _roomTypes.Count > 0 ? _roomTypes.Values.Select(t => t.Id).Max() : 0;
+
             _rooms = new();
             _roomObjects = new();
 
@@ -22,19 +35,27 @@ namespace ClientBlazor_v1.Services
             {
                 foreach(var room in building.Rooms)
                 {
+                    room.Id = ++_idRoom;
                     _rooms.Add(room.Id, room);
+                    room.RoomType = _roomTypes[room.IdRoomType];
 
                     room.Building = building;
                     room.IdBuilding = building.Id;
 
                     foreach(var roomObject in room.ObjectsOfRoom)
                     {
+                        roomObject.Id = ++_idRoomObject;
                         _roomObjects.Add(roomObject.Id, roomObject);
 
                         roomObject.Room = room;
                     }
                 }
             }
+        }
+
+        public async Task DeleteRoomTypeAsync(int idRoomType)
+        {
+            _roomTypes.Remove(idRoomType);
         }
 
         public async Task<Building?> GetBuildingAsync(int idBuilding)
@@ -52,6 +73,16 @@ namespace ClientBlazor_v1.Services
             return _rooms.GetValueOrDefault(idRoom);
         }
 
+        public async Task<RoomType?> GetRoomTypeAsync(int idRoomType)
+        {
+            return _roomTypes.GetValueOrDefault(idRoomType);
+        }
+
+        public async Task<IEnumerable<RoomType>> GetRoomTypesAsync()
+        {
+            return _roomTypes.Values;
+        }
+
         public async Task<Building> PostBuildingAsync(Building building)
         {
             building.Id = ++_idBuilding;
@@ -63,23 +94,27 @@ namespace ClientBlazor_v1.Services
         {
             room.Id = ++_idRoom;
             room.Building = _buildings[room.IdBuilding];
+            room.RoomType = _roomTypes[room.IdRoomType];
 
             room.Building.Rooms.Add(room);
+            room.RoomType.Rooms.Add(room);
             _rooms.Add(room.Id, room);
 
             return room;
         }
 
-        public async Task<Building> PutBuildingAsync(int idBuilding, Building building)
+        public async Task<RoomType> PostRoomTypeAsync(RoomType roomType)
         {
-            _buildings.Remove(idBuilding);
-            return await PostBuildingAsync(building);
+            roomType.Id = ++_idRoomType;
+            _roomTypes.Add(roomType.Id, roomType);
+
+            return roomType;
         }
 
-        public async Task<Room> PutRoomAsync(int idRoom, Room room)
-        {
-            _rooms.Remove(idRoom);
-            return await PostRoomAsync(room);
-        }
+        public async Task PutBuildingAsync(int idBuilding, Building building) {}
+
+        public async Task PutRoomAsync(int idRoom, Room room) {}
+
+        public async Task PutRoomTypeAsync(int idRoomType, RoomType roomType) {}
     }
 }

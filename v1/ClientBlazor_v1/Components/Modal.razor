@@ -1,0 +1,59 @@
+﻿@if(IsDisplayed){
+    <div class="custom-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="close" aria-label="Close">
+                        <span aria-hidden="true" @onclick=Close>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @Content
+                </div>
+                <div class="modal-footer">
+                    @Buttons
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .custom-modal{
+        position: fixed;
+        top:0; left:0;
+        width: 100vw; height: 100vh;
+
+        background: #0008;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        z-index: 10;
+        }
+    </style>
+}
+
+@code {
+    public bool IsDisplayed { get; private set; } = false;
+
+    [Parameter]
+    public RenderFragment Title { get; set; }
+
+    [Parameter]
+    public RenderFragment Content { get; set; }
+
+    [Parameter]
+    public RenderFragment Buttons { get; set; }
+
+    public void Open()
+    {
+        IsDisplayed = true;
+    }
+
+    public void Close()
+    {
+        IsDisplayed = false;
+    }
+}

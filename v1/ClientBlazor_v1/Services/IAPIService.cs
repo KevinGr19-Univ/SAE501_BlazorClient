@@ -6,12 +6,17 @@ namespace ClientBlazor_v1.Services
     {
         Task<IEnumerable<Building>> GetBuildingsAsync();
         Task<Building?> GetBuildingAsync(int idBuilding);
-        Task<Room?> GetRoomAsync(int idRoom);
-
-        Task<Room> PostRoomAsync(Room room);
-        Task<Room> PutRoomAsync(int idRoom, Room room);
-
         Task<Building> PostBuildingAsync(Building building);
-        Task<Building> PutBuildingAsync(int idBuilding, Building building);
+        Task PutBuildingAsync(int idBuilding, Building building);
+
+        Task<Room?> GetRoomAsync(int idRoom);
+        Task<Room> PostRoomAsync(Room room);
+        Task PutRoomAsync(int idRoom, Room room);
+
+        Task<IEnumerable<RoomType>> GetRoomTypesAsync();
+        Task<RoomType?> GetRoomTypeAsync(int idRoomType);
+        Task<RoomType> PostRoomTypeAsync(RoomType roomType);
+        Task PutRoomTypeAsync(int idRoomType, RoomType roomType);
+        Task DeleteRoomTypeAsync(int idRoomType);
     }
 }
