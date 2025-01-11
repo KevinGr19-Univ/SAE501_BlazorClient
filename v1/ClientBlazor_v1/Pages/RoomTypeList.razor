@@ -20,15 +20,24 @@
                 {
                     if (roomType == EditVM.RoomType) continue;
 
-                    <div class="p-2 rounded shadow d-flex align-items-center roomtype-card" style="gap: 1em;">
-                        <div class="d-flex flex-column">
-                            <span>#@roomType.Id - <b>@roomType.Name</b></span>
-                            <i>@roomType.Rooms.Count salles</i>
+                    <div class="p-2 rounded shadow d-flex flex-column roomtype-card collapsed">
+                        <div class="d-flex align-items-center roomtype-card-header" style="gap: 1em;" onclick="onTypeCollapseClick(this)">
+                            <div class="d-flex flex-column">
+                                <span>#@roomType.Id - <b>@roomType.Name</b></span>
+                                <i>@roomType.Rooms.Count salles</i>
+                            </div>
+                            <div class="roomtype-card-hover d-flex align-items-center" style="gap: 0.5em;">
+                                <button class="btn btn-success" @onclick="() => Click_EditType(roomType)"><i class="bi bi-pen"></i></button>
+                                <button class="btn btn-danger" @onclick="() => Click_DeleteType(roomType)"><i class="bi bi-trash"></i></button>
+                            </div>
                         </div>
-                        <div class="roomtype-card-hover d-flex align-items-center" style="gap: 0.5em;">
-                            <button class="btn btn-success" @onclick="() => Click_EditType(roomType)"><i class="bi bi-pen"></i></button>
-                            <button class="btn btn-danger" @onclick="() => Click_DeleteType(roomType)"><i class="bi bi-trash"></i></button>
-                        </div>
+                        <hr class="roomtype-card-collapse"/>
+                        <ul class="roomtype-card-collapse pe-2">
+                            @foreach(var room in roomType.Rooms)
+                            {
+                                <li>@room.Building.Name - @room.Name</li>
+                            }
+                        </ul>
                     </div>
                 }
             </div>
@@ -71,6 +80,52 @@
     </Modal>
 </div>
 
+<script>
+    function onTypeCollapseClick(e){
+        $(e.parentNode).toggleClass("collapsed");
+    }
+</script>
+
+<style>
+    .input-box {
+        position: relative;
+        margin-top: 1.5em;
+    }
+
+        .input-box > label {
+            position: absolute;
+            left: 0;
+            bottom: 100%;
+        }
+
+    .roomtype-card:not(:hover) .roomtype-card-hover {
+        display: none !important;
+    }
+
+    .roomtype-card-hover button {
+        padding: 0.2em;
+    }
+
+    .roomtype-card-header {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .roomtype-card.collapsed .roomtype-card-collapse{
+        display: none !important;
+    }
+
+    .roomtype-card-header::before{
+        content: '▾';
+        font-weight: bold;
+        font-size: 1.5em;
+    }
+
+    .roomtype-card.collapsed .roomtype-card-header::before{
+        content: '▸';
+    }
+</style>
+
 @inject IAPIService api;
 @code {
     public RoomTypeListVM ListVM { get; set; }
@@ -81,7 +136,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ListVM = new(api);
+        ListVM = new(api);  
         EditVM = new(api);
 
         await ListVM.Load();
@@ -119,24 +174,3 @@
         await ListVM.Load();
     }
 }
-
-<style>
-    .input-box {
-        position: relative;
-        margin-top: 1.5em;
-    }
-
-        .input-box > label {
-            position: absolute;
-            left: 0;
-            bottom: 100%;
-        }
-
-    .roomtype-card:not(:hover) .roomtype-card-hover{
-        display: none !important;
-    }
-
-    .roomtype-card-hover button{
-        padding: 0.2em;
-    }
-</style>
