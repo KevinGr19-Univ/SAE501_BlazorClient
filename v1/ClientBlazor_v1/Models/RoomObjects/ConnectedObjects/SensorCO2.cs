@@ -3,20 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClientBlazor_v1.Models.RoomObjects.ConnectedObjects
 {
-    public class SensorCO2 : Sensor, IPosition, IRotation
+    public class SensorCO2 : Sensor
     {
-        public double PosX { get; set; }
-
-        public double PosY { get; set; }
-
-        public double PosZ { get; set; }
-
-        public double RotX { get; set; }
-
-        public double RotY { get; set; }
-
-        public double RotZ { get; set; }
-
-        public override string GetName() => "Capteur CO2";
+        public override string GetRootName() => "Capteur CO2";
     }
 }

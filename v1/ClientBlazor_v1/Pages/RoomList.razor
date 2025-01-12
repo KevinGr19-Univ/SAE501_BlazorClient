@@ -54,7 +54,7 @@
                                             <ul>
                                                 @foreach (var sensor in roomObjects.Sensors)
                                                 {
-                                                    <li>@sensor.GetName()</li>
+                                                    <li>@sensor.GetRootName()</li>
                                                 }
                                             </ul>
                                         </div>
@@ -63,7 +63,7 @@
                                             <ul>
                                                 @foreach (var actionnable in roomObjects.Actionnables)
                                                 { 
-                                                    <li>@actionnable.GetName()</li>
+                                                    <li>@actionnable.GetRootName()</li>
                                                 }
                                             </ul>
                                         </div>
@@ -72,7 +72,7 @@
                                             <ul>
                                                 @foreach (var equipment in roomObjects.Equipments)
                                                 {
-                                                    <li>@equipment.GetName()</li>
+                                                    <li>@equipment.GetRootName()</li>
                                                 }
                                             </ul>
                                         </div>

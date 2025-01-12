@@ -19,6 +19,6 @@ namespace ClientBlazor_v1.Models.RoomObjects
 
         public double SizeZ { get; set; }
 
-        public override string GetName() => "Fenêtre";
+        public override string GetRootName() => "Fenêtre";
     }
 }

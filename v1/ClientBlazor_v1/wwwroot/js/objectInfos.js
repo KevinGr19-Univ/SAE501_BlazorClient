@@ -23,10 +23,10 @@
         }
     },
 
-    sensor: {
+    lamp: {
         meshBuilder: (roomScene) => {
-            let sensor = BABYLON.MeshBuilder.CreateBox("sensor", { width: 0.06, height: 0.02, depth: 0.06 }, roomScene.scene);
-            sensor.material = new BABYLON.StandardMaterial("sensorMat");
+            let sensor = BABYLON.MeshBuilder.CreateBox("lamp", { width: 0.1, height: 0.1, depth: 0.1 }, roomScene.scene);
+            sensor.material = new BABYLON.StandardMaterial("lampMat");
             sensor.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
             return sensor;
         },

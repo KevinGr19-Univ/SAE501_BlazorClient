@@ -3,20 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClientBlazor_v1.Models.RoomObjects.ConnectedObjects
 {
-    public class Sensor6in1 : Sensor, IPosition, IRotation
+    public class Sensor6in1 : Sensor
     {
-        public double PosX { get; set; }
-
-        public double PosY { get; set; }
-
-        public double PosZ { get; set; }
-
-        public double RotX { get; set; }
-
-        public double RotY { get; set; }
-
-        public double RotZ { get; set; }
-
-        public override string GetName() => "Capteur 6-en-1";
+        public override string GetRootName() => "Capteur 6-en-1";
     }
 }

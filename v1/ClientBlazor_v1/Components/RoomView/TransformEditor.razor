@@ -2,7 +2,7 @@
 @using ClientBlazor_v1.Models.Transform
 @using ClientBlazor_v1.Utils
 @using ClientBlazor_v1.ViewModels.JS
-@using ClientBlazor_v1.ViewModels.JS.RoomObject
+@using ClientBlazor_v1.ViewModels.JS.RoomObjects
 
 <FSubWindow>
     <Header><span>Transform</span></Header>
@@ -83,9 +83,9 @@
         }
         else
         {
-            double sizeX = RoomObjectVMUtils.GetSizeX(VM);
-            double sizeY = RoomObjectVMUtils.GetSizeY(VM);
-            double sizeZ = RoomObjectVMUtils.GetSizeZ(VM);
+            double sizeX = VM.GetSizeX();
+            double sizeY = VM.GetSizeY();
+            double sizeZ = VM.GetSizeZ();
 
             <div>
                 <span>Taille (lecture seule)</span>

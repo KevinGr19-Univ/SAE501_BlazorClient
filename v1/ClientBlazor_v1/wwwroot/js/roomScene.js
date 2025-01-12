@@ -159,13 +159,16 @@ class RoomScene {
         }
     }
 
-    addDoor() {
-        return this._addRoomObject("door");
-    }
-
-    addSensor() {
-        return this._addRoomObject("sensor");
-    }
+    addDoor() { return this._addRoomObject("door"); }
+    addTable(){ return this._addRoomObject("table"); }
+    addWindow(){ return this._addRoomObject("window"); }
+    addHeater(){ return this._addRoomObject("heater"); }
+    addSensor6in1(){ return this._addRoomObject("sensor6in1"); }
+    addSensor9in1(){ return this._addRoomObject("sensor9in1"); }
+    addSensorCO2(){ return this._addRoomObject("sensorco2"); }
+    addLamp(){ return this._addRoomObject("lamp"); }
+    addPlug(){ return this._addRoomObject("plug"); }
+    addSiren() { return this._addRoomObject("siren"); }
 
     _addRoomObject(key) {
         let mesh = objectInfos[key].meshBuilder(this);

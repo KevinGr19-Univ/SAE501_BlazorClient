@@ -7,7 +7,7 @@
 @using ClientBlazor_v1.Services
 @using ClientBlazor_v1.Utils
 @using ClientBlazor_v1.ViewModels.JS
-@using ClientBlazor_v1.ViewModels.JS.RoomObject
+@using ClientBlazor_v1.ViewModels.JS.RoomObjects
 
 <PageTitle>Salle 3D</PageTitle>
 
@@ -38,7 +38,7 @@
                         <Header><span>Objets</span></Header>
                         <Content>
                             @{
-                                RoomObjectSorter<RoomObjectVM> sortedVMs = RoomObjectSorter<RoomObjectVM>.SortObjects(RoomSceneVM.ObjectVMs, (vm) => vm.RoomObject);
+                                RoomObjectSorter<RoomObjectVM> sortedVMs = RoomObjectSorter<RoomObjectVM>.SortObjects(RoomSceneVM.ObjectVMs, (vm) => vm.Object);
                             }
 
                             @foreach(var section in new[]{
@@ -53,7 +53,7 @@
                                         @foreach(var roomObjectVM in section.VMs)
                                         {
                                             <li class="objectLink @(RoomSceneVM.VisibleObjectVMs.Contains(roomObjectVM) ? "isVisible" : "")" 
-                                            @onclick=roomObjectVM.Select>@roomObjectVM.RoomObject.GetName()</li>
+                                            @onclick=roomObjectVM.Select>@roomObjectVM.Object.GetFullName()</li>
                                         }
                                     </ul>
                                 }
@@ -63,7 +63,7 @@
                     <FSubWindow>
                         <Header><span>Actions</span></Header>
                         <Content>
-                            <button>Ajouter un équipement</button>
+                            <button @onclick=_addObjectModal.Open>Ajouter un équipement</button>
                             <button style="background: green" @onclick=Click_SaveChanges>Sauvegarder</button>
                         </Content>
                     </FSubWindow>
@@ -77,8 +77,7 @@
         {
             @foreach(var objVM in RoomSceneVM.VisibleObjectVMs)
             {
-                @if(objVM is DoorVM doorVM) { <DoorEditor VM="doorVM"></DoorEditor> }
-                else if(objVM is SensorVM sensorVM) { <SensorEditor VM="sensorVM"></SensorEditor> }
+                <RoomObjectEditor VM=objVM></RoomObjectEditor>
             }
         }
     </div>
@@ -110,17 +109,23 @@
         <Content>
             <div class="input-box">
                 <label for="room-building">Type</label>
-                <InputSelect id="room-building" @bind-Value="RoomSceneVM.RoomObjectTypeToAdd" class="form-select">
-                    <option value="null">- Séléctionnez le type de nouvel objet -</option>
-                    @foreach (var type in RoomSceneVM.RoomObjectTypes)
-                    {
-                        <option value="@type">@type</option>
+                <InputSelect id="room-building" @bind-Value="RoomSceneVM.RoomObjectType_SelectedIndex" class="form-select">
+                    <option value="-1">- Séléctionnez le type de nouvel objet -</option>
+                    @{
+                        int i = 0;
+                        foreach (var type in RoomSceneVM.InputSelect_RoomObjectTypes)
+                        {
+                            <option value="@(i++)">@type.GetRootName()</option>
+                        }
                     }
                 </InputSelect>
             </div>
         </Content>
         <Buttons>
-            <button type="button" class="btn btn-primary" @onclick=Click_AddObject>Ajouter</button>
+            @if(RoomSceneVM.RoomObjectType_Selected is not null)
+            {
+                <button type="button" class="btn btn-primary" @onclick="Click_AddObject">Ajouter</button>
+            }
             <button type="button" class="btn btn-secondary" @onclick=_addObjectModal.Close>Annuler</button>
         </Buttons>
     </Modal>
@@ -141,8 +146,8 @@
 @inject IService<Room> roomService
 @inherits UIUpdatableComponent
 @code{
-        [SupplyParameterFromQuery]
-        public int RoomId { get; set; }
+    [SupplyParameterFromQuery]
+    public int RoomId { get; set; }
 
     public RoomSceneVM RoomSceneVM { get; set; }
     public override IUpdateUI Updatable => RoomSceneVM;
@@ -166,7 +171,11 @@
 
     // Add object modal
     private Modal _addObjectModal;
-    public void Click_AddObject() => _addObjectModal.Close();
+    public void Click_AddObject()
+    {
+        _addObjectModal.Close();
+        RoomSceneVM.AddNewOfSelectedRoomObjectType();
+    }
 
     // Save modal
     private Modal _saveChangesModal;

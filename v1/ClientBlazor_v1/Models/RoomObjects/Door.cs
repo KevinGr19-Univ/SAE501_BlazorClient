@@ -20,6 +20,6 @@ namespace ClientBlazor_v1.Models.RoomObjects
 
         public double SizeZ { get; set; }
 
-        public override string GetName() => "Porte";
+        public override string GetRootName() => "Porte";
     }
 }

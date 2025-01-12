@@ -2,7 +2,7 @@
 using ClientBlazor_v1.Models.RoomObjects;
 using ClientBlazor_v1.Models.RoomObjects.ConnectedObjects;
 using ClientBlazor_v1.Services;
-using ClientBlazor_v1.ViewModels.JS.RoomObject;
+using ClientBlazor_v1.ViewModels.JS.RoomObjects;
 using Microsoft.JSInterop;
 
 namespace ClientBlazor_v1.ViewModels.JS
@@ -25,6 +25,8 @@ namespace ClientBlazor_v1.ViewModels.JS
 
             CompassVM = new();
             CompassVM.JSObj = sceneObj.Invoke<IJSInProcessObjectReference>("getCamera");
+
+            CreateInputSelectRoomObjectTypes();
         }
 
         public async Task LoadRoom(int idRoom)
@@ -49,22 +51,86 @@ namespace ClientBlazor_v1.ViewModels.JS
         #endregion
 
         #region Add RoomObject
-        private readonly Dictionary<string, Type> _roomObjectTypes = new();
-        public IEnumerable<string> RoomObjectTypes => _roomObjectTypes.Keys;
-        public string RoomObjectTypeToAdd { get; set; }
-
-        public DoorVM AddDoor(Door door) => AddRoomObject<DoorVM>(() => new() { Door = door }, "addDoor");
-        public SensorVM AddSensor(Sensor sensor) => AddRoomObject<SensorVM>(() => new() { Sensor = sensor }, "addSensor");
-
-        private T AddRoomObject<T>(Func<T> vmBuilder, string jsBuilderName) where T : RoomObjectVM
+        private class RoomObjectVMBuilder
         {
-            T vm = vmBuilder();
-            vm.JSObj = JSObj.Invoke<IJSInProcessObjectReference>(jsBuilderName);
+            public string JSBuilderName { get; init; }
+            public Func<RoomObject, RoomObjectVM> VMBuilder { get; init; }
+        }
+
+        private readonly Dictionary<Type, RoomObjectVMBuilder> _roomObjectVMBuilders = new()
+        {
+            { typeof(Door), new() {
+                JSBuilderName = "addDoor",
+                VMBuilder = (obj) => new DoorVM() { Object = (Door)obj } 
+            }},
+            { typeof(Table), new() {
+                JSBuilderName = "addTable",
+                VMBuilder = (obj) => new TableVM() { Object = (Table)obj } 
+            }},
+            { typeof(Heater), new() {
+                JSBuilderName = "addHeater",
+                VMBuilder = (obj) => new HeaterVM() { Object = (Heater)obj } 
+            }},
+            { typeof(Window), new() {
+                JSBuilderName = "addWindow",
+                VMBuilder = (obj) => new WindowVM() { Object = (Window)obj } 
+            }},
+            { typeof(Sensor6in1), new() {
+                JSBuilderName = "addSensor6in1",
+                VMBuilder = (obj) => new Sensor6in1VM() { Object = (Sensor6in1)obj } 
+            }},
+            { typeof(Sensor9in1), new() {
+                JSBuilderName = "addSensor9in1",
+                VMBuilder = (obj) => new Sensor9in1VM() { Object = (Sensor9in1)obj } 
+            }},
+            { typeof(SensorCO2), new() {
+                JSBuilderName = "addSensorCO2",
+                VMBuilder = (obj) => new SensorCO2VM() { Object = (SensorCO2)obj } 
+            }},
+            { typeof(Lamp), new() {
+                JSBuilderName = "addLamp",
+                VMBuilder = (obj) => new LampVM() { Object = (Lamp)obj } 
+            }},
+            { typeof(Plug), new() {
+                JSBuilderName = "addPlug",
+                VMBuilder = (obj) => new PlugVM() { Object = (Plug)obj } 
+            }},
+            { typeof(Siren), new() {
+                JSBuilderName = "addSiren",
+                VMBuilder = (obj) => new SirenVM() { Object = (Siren)obj }
+            }},
+        };
+
+        public IList<RoomObject> InputSelect_RoomObjectTypes { get; private set; }
+        public int RoomObjectType_SelectedIndex { get; set; } = -1;
+        public RoomObject? RoomObjectType_Selected => RoomObjectType_SelectedIndex < 0 ? null : InputSelect_RoomObjectTypes[RoomObjectType_SelectedIndex];
+
+        private void CreateInputSelectRoomObjectTypes()
+        {
+            InputSelect_RoomObjectTypes = _roomObjectVMBuilders.Keys
+                .Select(t => (RoomObject)t.GetConstructor([])!.Invoke(null))
+                .ToList().AsReadOnly();
+        }
+
+        public void AddNewOfSelectedRoomObjectType()
+        {
+            var roomObj = RoomObjectType_Selected;
+            if (roomObj is null) return;
+
+            RoomObjectType_SelectedIndex = -1;
+            CreateInputSelectRoomObjectTypes();
+            AddRoomObjectVM(roomObj);
+        }
+
+        private void AddRoomObjectVM(RoomObject roomObj)
+        {
+            var vmBuilder = _roomObjectVMBuilders[roomObj.GetType()];
+            var vm = vmBuilder.VMBuilder(roomObj);
+            vm.JSObj = JSObj.Invoke<IJSInProcessObjectReference>(vmBuilder.JSBuilderName);
 
             vm.OnSelect += OnVMSelect;
             vm.OnClose += OnVMClose;
             ObjectVMs.Add(vm);
-            return vm;
         }
 
         private void AddObjectVMToVisible(RoomObjectVM objectVM)
@@ -87,11 +153,7 @@ namespace ClientBlazor_v1.ViewModels.JS
         public void UpdateRoomObjects()
         {
             ObjectVMs.Clear();
-            foreach (var roomObj in Room.ObjectsOfRoom)
-            {
-                if (roomObj is Door door) AddDoor(door);
-                else if (roomObj is Sensor sensor) AddSensor(sensor);
-            }
+            foreach (var roomObj in Room.ObjectsOfRoom) AddRoomObjectVM(roomObj);
         }
         #endregion
 
