@@ -47,7 +47,7 @@ class RoomScene {
 
     updateRoomMesh(points, height) {
         if (this.room) {
-            this.room.remove();
+            this.room.dispose();
         }
 
         this.room = BABYLON.MeshBuilder.ExtrudePolygon("room", {
@@ -129,13 +129,15 @@ class RoomScene {
     }
 
     setSelected(mesh) {
-        if (this.selected == mesh) return;
+        if (this.selected === mesh) return;
 
         if (this.selected) {
             this.selected.material.emissiveColor = BABYLON.Color3.Black();
         }
 
         this.selected = mesh;
+        this.gizmoManager.attachToMesh(this.selected);
+
         if (this.selected) {
             this.selected.material.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
 
@@ -154,9 +156,8 @@ class RoomScene {
             this.gizmoManager.gizmos.scaleGizmo.uniformScaleGizmo.isEnabled =
                 (bindedProps.size?.x) && (bindedProps.size?.y) && (bindedProps.size?.z);
         }
-        else {
-            this.gizmoManager.attachToMesh(null);
-        }
+
+        this.gizmoManager.attachToMesh(this.selected);
     }
 
     addDoor() { return this._addRoomObject("door"); }
@@ -179,9 +180,20 @@ class RoomScene {
         mesh = dotnetProxify(mesh, objectInfos[key].bindedProps);
 
         mesh.sceneSelect = () => this.setSelected(mesh);
+
         mesh.sceneUnselect = () => {
             if (this.selected === mesh) this.setSelected(null);
         }
+
+        mesh.deleteSelf = () => {
+            mesh.sceneUnselect();
+            mesh.dispose();
+        }
+
+        mesh.setMarkedForDeletion = (deletion) => {
+            mesh.material.alpha = deletion ? 0.3 : 1;
+        }
+
         return mesh;
     }
 

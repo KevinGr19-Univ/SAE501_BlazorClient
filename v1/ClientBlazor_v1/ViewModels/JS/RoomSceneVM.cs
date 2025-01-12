@@ -4,6 +4,7 @@ using ClientBlazor_v1.Models.RoomObjects.ConnectedObjects;
 using ClientBlazor_v1.Services;
 using ClientBlazor_v1.ViewModels.JS.RoomObjects;
 using Microsoft.JSInterop;
+using System.ComponentModel.DataAnnotations;
 
 namespace ClientBlazor_v1.ViewModels.JS
 {
@@ -29,9 +30,11 @@ namespace ClientBlazor_v1.ViewModels.JS
             CreateInputSelectRoomObjectTypes();
         }
 
+        private int _idRoom;
         public async Task LoadRoom(int idRoom)
         {
             Room? room = await _roomService.GetByIdAsync(idRoom);
+            _idRoom = idRoom;
             _room = room;
 
             if (Room is not null)
@@ -50,7 +53,7 @@ namespace ClientBlazor_v1.ViewModels.JS
         public void SetFocusToSelected() => JSObj.InvokeVoid("setFocusToSelected");
         #endregion
 
-        #region Add RoomObject
+        #region Add/Delete RoomObject
         private class RoomObjectVMBuilder
         {
             public string JSBuilderName { get; init; }
@@ -130,6 +133,7 @@ namespace ClientBlazor_v1.ViewModels.JS
 
             vm.OnSelect += OnVMSelect;
             vm.OnClose += OnVMClose;
+            vm.OnMarkedForDeletionChanged += OnVMMarkedForDeletionChanged;
             ObjectVMs.Add(vm);
         }
 
@@ -137,9 +141,39 @@ namespace ClientBlazor_v1.ViewModels.JS
         {
             if (!VisibleObjectVMs.Contains(objectVM))
             {
+                VisibleObjectVMs.Clear(); // Kept visibleVMs as a collection for future changes
                 VisibleObjectVMs.Add(objectVM);
                 RequireUIUpdate();
             }
+        }
+
+        private void DeleteRoomObjectVM(RoomObjectVM vm)
+        {
+            ObjectVMs.Remove(vm);
+            VisibleObjectVMs.Remove(vm);
+            vm.OnSelect -= OnVMSelect;
+            vm.OnClose -= OnVMClose;
+            vm.OnMarkedForDeletionChanged -= OnVMMarkedForDeletionChanged;
+
+            vm.JSObj.InvokeVoid("deleteSelf");
+            vm.Dispose();
+        }
+        #endregion
+
+        #region Save
+        public async Task SaveChanges()
+        {
+            List<RoomObjectVM> objectVMs = new();
+            List<RoomObjectVM> invalidObjectVMs = new();
+
+            if (invalidObjectVMs.Any())
+                throw new Exception($"Certains objets sont invalides :\n{string.Join('\n', invalidObjectVMs.Select(vm => "- " + vm.Object.GetFullName()))}");
+
+            var newRoom = (Room)Room.Clone();
+            newRoom.ObjectsOfRoom = objectVMs.Select(vm => vm.Object).ToList();
+
+            //await _roomService.PutAsync(_idRoom, newRoom);
+            await LoadRoom(_idRoom);
         }
         #endregion
 
@@ -152,7 +186,7 @@ namespace ClientBlazor_v1.ViewModels.JS
 
         public void UpdateRoomObjects()
         {
-            ObjectVMs.Clear();
+            foreach (var vm in ObjectVMs) DeleteRoomObjectVM(vm);
             foreach (var roomObj in Room.ObjectsOfRoom) AddRoomObjectVM(roomObj);
         }
         #endregion
@@ -171,6 +205,15 @@ namespace ClientBlazor_v1.ViewModels.JS
             if (obj is RoomObjectVM objectVM)
             {
                 VisibleObjectVMs.Remove(objectVM);
+                RequireUIUpdate();
+            }
+        }
+
+        private void OnVMMarkedForDeletionChanged(object? obj, EventArgs e)
+        {
+            if(obj is RoomObjectVM objectVM)
+            {
+                if (objectVM.IsNew && objectVM.MarkedForDeletion) DeleteRoomObjectVM(objectVM);
                 RequireUIUpdate();
             }
         }

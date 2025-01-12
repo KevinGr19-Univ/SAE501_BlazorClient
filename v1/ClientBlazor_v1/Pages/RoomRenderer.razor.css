@@ -45,6 +45,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+    user-select: none;
 }
 
 .renderer_navbar_btn:hover{
@@ -172,5 +174,5 @@
 }
 
 .objectLink.isVisible{
-    color: dodgerblue;
+    color: dodgerblue !important;
 }

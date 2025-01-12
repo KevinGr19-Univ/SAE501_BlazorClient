@@ -20,6 +20,7 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
 
         public event EventHandler OnSelect;
         public event EventHandler OnClose;
+        public event EventHandler OnMarkedForDeletionChanged;
 
         public void Select()
         {
@@ -34,11 +35,20 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
         }
 
         protected virtual void ApplyChanges() { }
-        public bool TryValidateModel(out List<ValidationResult> results)
+        public bool TryValidateModel()
         {
-            results = new List<ValidationResult>();
             var context = new ValidationContext(Object);
-            return Validator.TryValidateObject(Object, context, results);
+            return Validator.TryValidateObject(Object, context, null);
+        }
+
+        public bool IsNew => Object.Id == 0;
+        public bool MarkedForDeletion { get; private set; }
+
+        public void SetMarkedForDeletion(bool delete)
+        {
+            MarkedForDeletion = delete;
+            OnMarkedForDeletionChanged?.Invoke(this, EventArgs.Empty);
+            JSObj.InvokeVoid("setMarkedForDeletion", delete);
         }
 
         #region Common utils

@@ -50,10 +50,16 @@
                                 @if(section.VMs.Count > 0)
                                 {
                                     <ul>
-                                        @foreach(var roomObjectVM in section.VMs)
+                                        @foreach(var vm in section.VMs)
                                         {
-                                            <li class="objectLink @(RoomSceneVM.VisibleObjectVMs.Contains(roomObjectVM) ? "isVisible" : "")" 
-                                            @onclick=roomObjectVM.Select>@roomObjectVM.Object.GetFullName()</li>
+                                            <li class="objectLink 
+                                                @(RoomSceneVM.VisibleObjectVMs.Contains(vm) ? "isVisible" : "") 
+                                                @(vm.MarkedForDeletion ? "text-danger" : "") 
+                                                @(vm.IsNew ? "text-success" : "")"
+                                            @onclick=vm.Select
+                                            >
+                                                @(vm.MarkedForDeletion ? "[-] " : (vm.IsNew ? "[+] " : ""))@vm.Object.GetFullName()
+                                            </li>
                                         }
                                     </ul>
                                 }
@@ -180,9 +186,10 @@
     // Save modal
     private Modal _saveChangesModal;
     public void Click_SaveChanges() => _saveChangesModal.Open();
-    public void Click_SaveChangesConfirmed()
+    public async Task Click_SaveChangesConfirmed()
     {
         _saveChangesModal.Close();
+        await RoomSceneVM.SaveChanges();
     }
 
     // Abort modal

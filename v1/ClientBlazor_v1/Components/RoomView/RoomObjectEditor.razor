@@ -4,24 +4,48 @@
 @using ClientBlazor_v1.ViewModels.JS
 @using ClientBlazor_v1.ViewModels.JS.RoomObjects
 
-<FWindow CloseButton="true" OnClose=VM.Close>
-    <Header>
-        <span>@VM.Object.GetFullName()</span>
-    </Header>
-    <Content>
-        <FSubWindow>
-            <Header>Informations</Header>
-            <Content>
-                <span>ID: @VM.Object.Id</span>
-                <div class="input-box">
-                    <label>Nom personnalisé</label>
-                    <input type="text" class="text_box" @bind-value="VM.Object.CustomName"/>
-                </div>
-            </Content>
-        </FSubWindow>
-        <TransformEditor VM="VM"></TransformEditor>
-    </Content>
-</FWindow>
+<EditForm Model="VM.Object">
+    <FWindow CloseButton="true" OnClose=VM.Close>
+        <Header>
+            @if(VM.MarkedForDeletion){
+                <span class="text-danger">[-] @VM.Object.GetFullName()</span>
+            }
+            else if(VM.IsNew){
+                <span class="text-success">[+] @VM.Object.GetFullName()</span>
+            }
+            else{
+                <span>@VM.Object.GetFullName()</span>
+            }
+        </Header>
+        <Content>
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <FSubWindow>
+                <Header>Informations</Header>
+                <Content>
+                    <span>ID: @VM.Object.Id</span>
+                    <div class="input-box">
+                        <label>Nom personnalisé</label>
+                        <InputText class="text_box" @bind-value="VM.Object.CustomName"/>
+                    </div>
+                </Content>
+            </FSubWindow>
+            <TransformEditor VM="VM"></TransformEditor>
+            <FSubWindow>
+                <Header>Actions</Header>
+                <Content>
+                    @if(!VM.MarkedForDeletion){
+                        <button type="button" style="background: red" @onclick="() => VM.SetMarkedForDeletion(true)">Supprimer</button>
+                    }
+                    else{
+                        <button type="button" style="background: gray" @onclick="() => VM.SetMarkedForDeletion(false)">Annuler la suppression</button>
+                    }
+                </Content>
+            </FSubWindow>
+        </Content>
+    </FWindow>
+</EditForm>
 
 @inherits UIUpdatableComponent
 @code {
