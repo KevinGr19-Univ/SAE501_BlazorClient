@@ -47,13 +47,17 @@
     [Parameter]
     public RenderFragment Buttons { get; set; }
 
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
     public void Open()
     {
         IsDisplayed = true;
     }
 
-    public void Close()
+    public async Task Close()
     {
         IsDisplayed = false;
+        await OnClose.InvokeAsync();
     }
 }

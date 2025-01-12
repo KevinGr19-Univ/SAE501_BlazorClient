@@ -162,8 +162,8 @@
 }
 
 ::deep .fwindow button:active {
-    background: white;
-    color: black;
+    background: white !important;
+    color: black !important;
 }
 
 .objectLink:hover{

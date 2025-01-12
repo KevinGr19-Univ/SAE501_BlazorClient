@@ -12,7 +12,7 @@ namespace ClientBlazor_v1.Components.Utils
             TryBind();
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             Unbind();
         }

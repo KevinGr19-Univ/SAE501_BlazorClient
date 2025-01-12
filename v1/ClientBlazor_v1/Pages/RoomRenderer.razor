@@ -15,16 +15,16 @@
 
     <canvas id="renderer" touch-action="none"></canvas>
 
-        @if(RoomSceneVM is not null){
-            <div class="renderer_navbar">
-                <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoPos title="Translation"><img src="images/move.png"/></div>
-                <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoRot title="Rotation"><img src="images/rotate.png" /></div>
-                <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoScale title="Taille"><img src="images/scale.png" /></div>
-                <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetFocusToSelected title="Centrer vers l'objet sélectionné"><img src="images/focus_element.png" /></div>
-                <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetFocusToCenter title="Centrer vers l'origine"><img src="images/focus_world.png" /></div>
-                <Compass VM="RoomSceneVM.CompassVM" OrientationOffset="RoomSceneVM.Room?.NorthOrientation ?? 0"></Compass>
-            </div>
-        }
+    @if(RoomSceneVM is not null){
+        <div class="renderer_navbar">
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoPos title="Translation"><img src="images/move.png"/></div>
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoRot title="Rotation"><img src="images/rotate.png" /></div>
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoScale title="Taille"><img src="images/scale.png" /></div>
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetFocusToSelected title="Centrer vers l'objet sélectionné"><img src="images/focus_element.png" /></div>
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetFocusToCenter title="Centrer vers l'origine"><img src="images/focus_world.png" /></div>
+            <Compass VM="RoomSceneVM.CompassVM" OrientationOffset="RoomSceneVM.Room?.NorthOrientation ?? 0"></Compass>
+        </div>
+    }
 
     <div class="renderer_ui" style="left: 0;">
         @if(RoomSceneVM is not null)
@@ -64,6 +64,7 @@
                         <Header><span>Actions</span></Header>
                         <Content>
                             <button>Ajouter un équipement</button>
+                            <button style="background: green" @onclick=Click_SaveChanges>Sauvegarder</button>
                         </Content>
                     </FSubWindow>
                 </Content>
@@ -82,7 +83,29 @@
         }
     </div>
 
-    <Modal @ref=_addObjectModal>
+    <Modal @ref=_saveChangesModal>
+        <Title>Sauvegarder les changements</Title>
+        <Content>
+            <p>Voulez-vous sauvegarder tous les changements ?</p>
+        </Content>
+        <Buttons>
+            <button type="button" class="btn btn-success" @onclick=Click_SaveChangesConfirmed>Sauvegarder</button>
+            <button type="button" class="btn btn-secondary" @onclick=_saveChangesModal.Close>Annuler</button>
+        </Buttons>
+    </Modal>
+
+    <Modal @ref=_abortChangesModal>
+        <Title>Quitter ?</Title>
+        <Content>
+            <p>Êtes-vous sûr de vouloir quitter ?</p>
+        </Content>
+        <Buttons>
+            <button type="button" class="btn btn-danger" @onclick=Click_AbortChangesConfirmed>Quitter</button>
+            <button type="button" class="btn btn-secondary" @onclick=_abortChangesModal.Close>Annuler</button>
+        </Buttons>
+    </Modal>
+
+    <Modal @ref=_addObjectModal OnClose="OnClose_AbortModal">
         <Title>Ajouter un équipement</Title>
         <Content>
             <div class="input-box">
@@ -103,18 +126,26 @@
     </Modal>
 </div>
 
+<script>
+    window.onbeforeunload = function() {
+    return "Êtes-vous sûr de vouloir quitter ?";
+    }
+
+    function removeAbortMessage(){
+    window.onbeforeunload = () => {};
+    }
+</script>
+
 @inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 @inject IService<Room> roomService
 @inherits UIUpdatableComponent
 @code{
-    [SupplyParameterFromQuery]
-    public int RoomId { get; set; }
+        [SupplyParameterFromQuery]
+        public int RoomId { get; set; }
 
     public RoomSceneVM RoomSceneVM { get; set; }
-
     public override IUpdateUI Updatable => RoomSceneVM;
-
-    private Modal _addObjectModal;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -129,12 +160,50 @@
             UpdateUI();
 
             await RoomSceneVM.LoadRoom(RoomId);
+            _locationChangingHandler = NavigationManager.RegisterLocationChangingHandler(LocationChangingHandler);
         }
     }
 
-    public void Click_AddObject()
+    // Add object modal
+    private Modal _addObjectModal;
+    public void Click_AddObject() => _addObjectModal.Close();
+
+    // Save modal
+    private Modal _saveChangesModal;
+    public void Click_SaveChanges() => _saveChangesModal.Open();
+    public void Click_SaveChangesConfirmed()
     {
-        _addObjectModal.Close();
+        _saveChangesModal.Close();
     }
 
+    // Abort modal
+    private Modal _abortChangesModal;
+    private IDisposable _locationChangingHandler;
+    private TaskCompletionSource<bool> _locationChangingTask;
+
+    public void Click_AbortChangesConfirmed() => _locationChangingTask?.SetResult(true);
+    public void OnClose_AbortModal() => _locationChangingTask?.SetResult(false);
+    public async ValueTask LocationChangingHandler(LocationChangingContext context)
+    {
+        _abortChangesModal.Open();
+        await InvokeAsync(StateHasChanged);
+
+        _locationChangingTask = new();
+        bool abort = await _locationChangingTask.Task;
+        _locationChangingTask = null;
+
+        if (!abort){
+            context.PreventNavigation();
+            return;
+        }
+
+        await JS.InvokeVoidAsync("removeAbortMessage");
+    }
+    // END
+
+    public override void Dispose()
+    {
+        _locationChangingHandler.Dispose();
+        base.Dispose();
+    }
 }
