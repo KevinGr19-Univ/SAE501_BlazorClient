@@ -1,16 +1,21 @@
 ﻿@using ClientBlazor_v1.Components.Utils
 @using ClientBlazor_v1.ViewModels.JS
 
-<div class="d-flex flex-column align-items-center">
-    <img src="/images/compass.png"/>
-    <span>@($"{Orientation:0.0}")° N</span>
+<div class="d-flex flex-column align-items-center compass">
+    <img class="compass-img" src="/images/compass.png" />
+    <span style="background: #0008;">@($"{Orientation:0.0}")° N</span>
 </div>
 
 <style>
-    img{
-    width: 3em;
-    height: 3em;
-    transform: rotate(@($"{Orientation:0.0}".Replace(",", "."))deg);
+    .compass{
+        color: white;
+        min-width: 5em;
+    }
+
+    .compass-img{
+        width: 2.5em;
+        height: 2.5em;
+        transform: rotate(@($"{Orientation:0.0}".Replace(",", "."))deg);
     }
 </style>
 

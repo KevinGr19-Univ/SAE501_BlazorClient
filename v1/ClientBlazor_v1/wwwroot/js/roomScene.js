@@ -80,7 +80,12 @@ class RoomScene {
 
     initGizmo() {
         this.gizmoManager = new BABYLON.GizmoManager(this.scene);
+
         this.gizmoManager.positionGizmoEnabled = true;
+        this.gizmoManager.rotationGizmoEnabled = true;
+        this.gizmoManager.scaleGizmoEnabled = true;
+        this.resetGizmo();
+
         this.gizmoManager.clearGizmoOnEmptyPointerEvent = false;
         this.gizmoManager.updateGizmoRotationToMatchAttachedMesh = false;
 
@@ -99,23 +104,9 @@ class RoomScene {
 
 
         this.canvas.addEventListener("keydown", (e) => {
-            if (e.key == 'g') {
-                this.gizmoManager.positionGizmoEnabled = true;
-                this.gizmoManager.rotationGizmoEnabled = false;
-                this.gizmoManager.scaleGizmoEnabled = false;
-            }
-
-            else if (e.key == 'r') {
-                this.gizmoManager.positionGizmoEnabled = false;
-                this.gizmoManager.rotationGizmoEnabled = true;
-                this.gizmoManager.scaleGizmoEnabled = false;
-            }
-
-            else if (e.key == 's') {
-                this.gizmoManager.positionGizmoEnabled = false;
-                this.gizmoManager.rotationGizmoEnabled = false;
-                this.gizmoManager.scaleGizmoEnabled = true;
-            }
+            if (e.key == 'g') this.setGizmoPos();
+            else if (e.key == 'r') this.setGizmoRot();
+            else if (e.key == 's') this.setGizmoScale();
         });
 
         this.gizmoManager.attachableMeshes = [];
@@ -138,6 +129,8 @@ class RoomScene {
     }
 
     setSelected(mesh) {
+        if (this.selected == mesh) return;
+
         if (this.selected) {
             this.selected.material.emissiveColor = BABYLON.Color3.Black();
         }
@@ -145,11 +138,25 @@ class RoomScene {
         this.selected = mesh;
         if (this.selected) {
             this.selected.material.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
-        }
 
-        this.gizmoManager.positionGizmoEnabled = false;
-        this.gizmoManager.rotationGizmoEnabled = false;
-        this.gizmoManager.scaleGizmoEnabled = false;
+            let bindedProps = objectInfos[this.selected.roomObjectKey].bindedProps;
+            this.gizmoManager.gizmos.positionGizmo.xGizmo.isEnabled = bindedProps.position?.x;
+            this.gizmoManager.gizmos.positionGizmo.yGizmo.isEnabled = bindedProps.position?.y;
+            this.gizmoManager.gizmos.positionGizmo.zGizmo.isEnabled = bindedProps.position?.z;
+
+            this.gizmoManager.gizmos.rotationGizmo.xGizmo.isEnabled = bindedProps.rotation?.x;
+            this.gizmoManager.gizmos.rotationGizmo.yGizmo.isEnabled = bindedProps.rotation?.y;
+            this.gizmoManager.gizmos.rotationGizmo.zGizmo.isEnabled = bindedProps.rotation?.z;
+
+            this.gizmoManager.gizmos.scaleGizmo.xGizmo.isEnabled = bindedProps.size?.x;
+            this.gizmoManager.gizmos.scaleGizmo.yGizmo.isEnabled = bindedProps.size?.y;
+            this.gizmoManager.gizmos.scaleGizmo.zGizmo.isEnabled = bindedProps.size?.z;
+            this.gizmoManager.gizmos.scaleGizmo.uniformScaleGizmo.isEnabled =
+                (bindedProps.size?.x) && (bindedProps.size?.y) && (bindedProps.size?.z);
+        }
+        else {
+            this.gizmoManager.attachToMesh(null);
+        }
     }
 
     addDoor() {
@@ -165,6 +172,7 @@ class RoomScene {
         this.gizmoManager.attachableMeshes.push(mesh);
 
         addSizeProps(mesh);
+        mesh.roomObjectKey = key;
         mesh = dotnetProxify(mesh, objectInfos[key].bindedProps);
 
         mesh.sceneSelect = () => this.setSelected(mesh);
@@ -176,6 +184,57 @@ class RoomScene {
 
     getCamera() {
         return this.camera;
+    }
+
+    resetGizmo() {
+        this.gizmoManager.positionGizmoEnabled = false;
+        this.gizmoManager.rotationGizmoEnabled = false;
+        this.gizmoManager.scaleGizmoEnabled = false;
+        this.currentGizmo = null;
+    }
+
+    setGizmoPos() {
+        if (this.currentGizmo == "position") {
+            this.resetGizmo();
+            return;
+        }
+
+        this.gizmoManager.positionGizmoEnabled = true;
+        this.gizmoManager.rotationGizmoEnabled = false;
+        this.gizmoManager.scaleGizmoEnabled = false;
+        this.currentGizmo = "position";
+    }
+
+    setGizmoRot() {
+        if (this.currentGizmo == "rotation") {
+            this.resetGizmo();
+            return;
+        }
+
+        this.gizmoManager.positionGizmoEnabled = false;
+        this.gizmoManager.rotationGizmoEnabled = true;
+        this.gizmoManager.scaleGizmoEnabled = false;
+        this.currentGizmo = "rotation";
+    }
+
+    setGizmoScale() {
+        if (this.currentGizmo == "scale") {
+            this.resetGizmo();
+            return;
+
+        }
+        this.gizmoManager.positionGizmoEnabled = false;
+        this.gizmoManager.rotationGizmoEnabled = false;
+        this.gizmoManager.scaleGizmoEnabled = true;
+        this.currentGizmo = "scale";
+    }
+
+    setFocusToCenter() {
+        this.camera.setTarget(BABYLON.Vector3.Zero());
+    }
+
+    setFocusToSelected() {
+        if(this.selected) this.camera.setTarget(this.selected.position.clone());
     }
 
 }

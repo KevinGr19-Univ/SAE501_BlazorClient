@@ -40,6 +40,14 @@ namespace ClientBlazor_v1.ViewModels.JS
             }
         }
 
+        #region Buttons
+        public void SetGizmoPos() => JSObj.InvokeVoid("setGizmoPos");
+        public void SetGizmoRot() => JSObj.InvokeVoid("setGizmoRot");
+        public void SetGizmoScale() => JSObj.InvokeVoid("setGizmoScale");
+        public void SetFocusToCenter() => JSObj.InvokeVoid("setFocusToCenter");
+        public void SetFocusToSelected() => JSObj.InvokeVoid("setFocusToSelected");
+        #endregion
+
         #region Add RoomObject
         private readonly Dictionary<string, Type> _roomObjectTypes = new();
         public IEnumerable<string> RoomObjectTypes => _roomObjectTypes.Keys;

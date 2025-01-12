@@ -23,6 +23,43 @@
     max-height: calc(100% - 4em);
 }
 
+.renderer_navbar{
+    position: absolute;
+    bottom: 1em;
+    left: 50%;
+    translate: -50% 0;
+
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.renderer_navbar_btn{
+    width: 2em;
+    height: 2em;
+    padding: 0.2em;
+    border-radius: 50%;
+    background: #0008;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.renderer_navbar_btn:hover{
+    background: #fff8;
+}
+
+.renderer_navbar_btn:active{
+    background: white;
+}
+
+.renderer_navbar_btn > *{
+    max-width: 100%;
+    max-height: 100%;
+}
+
 ::deep .fwindow {
     background-color: #0008;
     color: white;
