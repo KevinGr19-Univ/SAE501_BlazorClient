@@ -39,11 +39,11 @@
                     <div class="room_list">
                         @foreach(var room in building.Rooms)
                         {
-                            RoomObjectSorter<RoomObject> roomObjects = RoomObjectSorter<RoomObject>.SortObjects(room.ObjectsOfRoom, obj => obj);
+                            RoomObjectSorter<RoomObject> roomObjects = RoomObjectSorter<RoomObject>.SortObjects(room.ObjectsOfRoom ?? new(), obj => obj);
 
                             <div class="room collapsed">
                                 <div class="room_header" onclick="onHeaderCollapseClick(this)">
-                                    <span><b>@room.Name</b> <i>[@room.RoomType.Name]</i></span>
+                                    <span><b>@room.Name</b> <i>[@(room.RoomType?.Name ?? "null")]</i></span>
                                     <hr />
                                     <span>@roomObjects.Sensors.Count capteurs</span>
                                 </div>
@@ -79,7 +79,7 @@
                                     </div>
 
                                     <div class="bottom_bar">
-                                        <a class="btn btn-success" href="/renderer?RoomId=@room.Id">Modifier</a>
+                                        <a class="btn btn-primary" href="/renderer?RoomId=@room.Id">Modifier</a>
                                         <a class="btn btn-danger">Supprimer</a>
                                     </div>
                                 </div>
@@ -98,13 +98,13 @@
     }
 </script>
 
-@inject IAPIService api;
+@inject IService<Building> buildingService;
 @code {
     public BuildingListVM BuildingListVM { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        BuildingListVM = new(api);
+        BuildingListVM = new(buildingService);
         await BuildingListVM.LoadBuildings();
     }
 }

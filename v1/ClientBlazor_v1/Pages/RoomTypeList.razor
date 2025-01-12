@@ -21,14 +21,14 @@
                     if (roomType == EditVM.RoomType) continue;
 
                     <div class="p-2 rounded shadow d-flex flex-column roomtype-card collapsed">
-                        <div class="d-flex align-items-center roomtype-card-header" style="gap: 1em;" onclick="onTypeCollapseClick(this)">
-                            <div class="d-flex flex-column">
+                        <div class="d-flex align-items-center roomtype-card-header" style="gap: 1em;">
+                            <div class="d-flex flex-column" style="cursor: pointer;" onclick="onTypeCollapseClick(this)">
                                 <span>#@roomType.Id - <b>@roomType.Name</b></span>
                                 <i>@roomType.Rooms.Count salles</i>
                             </div>
                             <div class="roomtype-card-hover d-flex align-items-center" style="gap: 0.5em;">
-                                <button class="btn btn-success" @onclick="() => Click_EditType(roomType)"><i class="bi bi-pen"></i></button>
-                                <button class="btn btn-danger" @onclick="() => Click_DeleteType(roomType)"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-primary" @onclick="() => Click_EditType(roomType)" @onclick:stopPropagation=true><i class="bi bi-pen"></i></button>
+                                <button class="btn btn-danger" @onclick="() => Click_DeleteType(roomType)" @onclick:stopPropagation=true><i class="bi bi-trash"></i></button>
                             </div>
                         </div>
                         <hr class="roomtype-card-collapse"/>
@@ -44,7 +44,7 @@
         </div>
 
         <div>
-            <EditForm Model="@EditVM.RoomType" OnValidSubmit="Click_SaveChanges" class="mt-4 p-2 rounded bg-white shadow d-flex flex-column" style="gap: 0.5em;">
+            <EditForm Model="@EditVM.RoomType" OnValidSubmit="Click_SaveChanges" class="mt-4 p-2 rounded bg-white shadow d-flex flex-column align-items-center" style="gap: 0.5em;">
                 <b class="text-center">@(EditVM.IsNew ? "Créer un type" : "Modifier un type")</b>
 
                 <DataAnnotationsValidator/>
@@ -82,51 +82,39 @@
 
 <script>
     function onTypeCollapseClick(e){
-        $(e.parentNode).toggleClass("collapsed");
+        $(e).closest(".roomtype-card").toggleClass("collapsed");
     }
 </script>
 
 <style>
-    .input-box {
-        position: relative;
-        margin-top: 1.5em;
-    }
-
-        .input-box > label {
-            position: absolute;
-            left: 0;
-            bottom: 100%;
-        }
-
     .roomtype-card:not(:hover) .roomtype-card-hover {
-        display: none !important;
+    display: none !important;
     }
 
     .roomtype-card-hover button {
-        padding: 0.2em;
+    padding: 0.2em;
     }
 
     .roomtype-card-header {
-        cursor: pointer;
-        user-select: none;
+    user-select: none;
     }
 
     .roomtype-card.collapsed .roomtype-card-collapse{
-        display: none !important;
+    display: none !important;
     }
 
     .roomtype-card-header::before{
-        content: '▾';
-        font-weight: bold;
-        font-size: 1.5em;
+    content: '▾';
+    font-weight: bold;
+    font-size: 1.5em;
     }
 
     .roomtype-card.collapsed .roomtype-card-header::before{
-        content: '▸';
+    content: '▸';
     }
 </style>
 
-@inject IAPIService api;
+@inject IService<RoomType> roomTypeService;
 @code {
     public RoomTypeListVM ListVM { get; set; }
     public RoomTypeEditVM EditVM { get; set; }
@@ -136,8 +124,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ListVM = new(api);  
-        EditVM = new(api);
+        ListVM = new(roomTypeService);
+        EditVM = new(roomTypeService);
 
         await ListVM.Load();
     }

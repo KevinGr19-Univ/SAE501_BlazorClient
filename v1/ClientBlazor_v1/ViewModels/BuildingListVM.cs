@@ -5,17 +5,17 @@ namespace ClientBlazor_v1.ViewModels
 {
     public class BuildingListVM
     {
-        private readonly IAPIService _api;
+        private readonly IService<Building> _buildingService;
         public List<Building> Buildings { get; set; } = null;
 
-        public BuildingListVM(IAPIService api)
+        public BuildingListVM(IService<Building> buildingService)
         {
-            _api = api;
+            _buildingService = buildingService;
         }
 
         public async Task LoadBuildings()
         {
-            Buildings = (await _api.GetBuildingsAsync()).ToList();
+            Buildings = (await _buildingService.GetAllAsync()).ToList();
         }
     }
 }

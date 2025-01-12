@@ -1,0 +1,35 @@
+﻿@using ClientBlazor_v1.Components.Utils
+@using ClientBlazor_v1.ViewModels.JS
+
+<div class="d-flex flex-column align-items-center">
+    <img src="/images/compass.png"/>
+    <span>@($"{Orientation:0.0}")° N</span>
+</div>
+
+<style>
+    img{
+    width: 3em;
+    height: 3em;
+    transform: rotate(@($"{Orientation:0.0}".Replace(",", "."))deg);
+    }
+</style>
+
+@inherits UIUpdatableComponent
+@code {
+    [Parameter]
+    public CompassVM VM { get; set; }
+    public override IUpdateUI Updatable => VM;
+
+    [Parameter]
+    public double OrientationOffset { get; set; }
+
+    public double Orientation
+    {
+        get
+        {
+            var angle = (VM.Orientation + OrientationOffset)%360;
+            if (angle < 0) angle = 360 + angle;
+            return angle;
+        }
+    }
+}

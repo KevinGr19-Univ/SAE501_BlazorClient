@@ -20,7 +20,9 @@ export function dotnetProxify(object, notifiedProps) {
     addDotnetMutators(object);
 
     const notifyProp = (dotnetRef, notifiedProp) => {
-        if (notifiedProp) dotnetRef.invokeMethod("RequireUIUpdate");
+        if (notifiedProp) {
+            dotnetRef.invokeMethod("RequireUIUpdate");
+        }
     };
 
     const createProxy = (root, object, notifiedProps) => {

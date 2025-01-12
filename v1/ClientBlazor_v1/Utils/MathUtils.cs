@@ -4,6 +4,9 @@ namespace ClientBlazor_v1.Utils
 {
     public static class MathUtils
     {
+        public const double RAD2DEG = 180 / Math.PI;
+        public const double DEG2RAD = Math.PI / 180;
+
         public static int ModPositive(int value, int mod)
         {
             int res = value % mod;

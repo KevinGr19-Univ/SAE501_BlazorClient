@@ -1,6 +1,7 @@
 ﻿import { clamp, addSizeProps } from './utils.js';
 import { dotnetProxify, addDotnetMutators } from './interop.js';
 import { objectInfos } from './objectInfos.js';
+import earcut from 'https://cdn.jsdelivr.net/npm/earcut@3.0.1/+esm';
 
 class RoomScene {
 
@@ -13,12 +14,15 @@ class RoomScene {
         this.scene.useRightHandedSystem = true;
         this.scene.clearColor = new BABYLON.Color3(0.3, 0.35, 0.4);
 
-        this.camera = new BABYLON.ArcRotateCamera("camera1", 90, 45, 10, BABYLON.Vector3.Zero(), this.scene);
+        this.camera = new BABYLON.ArcRotateCamera("camera1", 90, 45, 10, BABYLON.Vector3.Zero());
         this.camera.allowUpsideDown = false;
         this.camera.minZ = 0.01;
         this.camera.setPosition(BABYLON.Vector3.One().scale(10));
         this.camera.attachControl(this.canvas, true);
         this.camera.wheelPrecision = 30;
+
+        addDotnetMutators(this.camera);
+        this.scene.addCamera(this.camera);
 
         this.ambientLight = new BABYLON.HemisphericLight("ambientLight", new BABYLON.Vector3(0, 0, 0), this.scene);
         this.pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 3, 3), this.scene);
@@ -30,6 +34,15 @@ class RoomScene {
 
         this.engine.runRenderLoop(() => this.scene.render());
         window.addEventListener('resize', () => this.engine.resize());
+
+        this.scene.onAfterRenderCameraObservable.add(() => {
+            let direction = this.camera.getDirection(new BABYLON.Vector3(0, 0, 1));
+            let angle = Math.atan2(direction.z, direction.x);
+            if (angle < 0) angle = Math.PI*2 + angle;
+
+            this.camera.orientation = angle;
+            if (this.camera.dotnetRef) this.camera.dotnetRef.invokeMethod("RequireUIUpdate");
+        });
     }
 
     updateRoomMesh(points, height) {
@@ -37,17 +50,14 @@ class RoomScene {
             this.room.remove();
         }
 
-        let options = {
-            shape: points.map(p => new BABYLON.Vector3(p.x, p.y, 0)),
-            path: [
-                new BABYLON.Vector3(0, 0, 0),
-                new BABYLON.Vector3(0, height, 0),
-            ],
-            closeShape: true,
-        }
-
-        this.room = BABYLON.MeshBuilder.ExtrudeShape("room", options, this.scene);
-        this.room.position = this.room.getBoundingInfo().boundingBox.center.scale(-1);
+        this.room = BABYLON.MeshBuilder.ExtrudePolygon("room", {
+            shape: points.map(p => new BABYLON.Vector3(p.x, 0, p.y)),
+            depth: height
+        }, this.scene, earcut);
+        this.room.rotation.x = Math.PI;
+        
+        let translation = this.room.getBoundingInfo().boundingBox.center.scale(-1);
+        this.room.setPivotMatrix(BABYLON.Matrix.Translation(translation.x, translation.y, translation.z), false);
 
         this.room.material = new BABYLON.StandardMaterial("roomMat");
         this.room.flipFaces(true);
@@ -86,6 +96,7 @@ class RoomScene {
                 this.setSelected(null);
             }
         });
+
 
         this.canvas.addEventListener("keydown", (e) => {
             if (e.key == 'g') {
@@ -161,6 +172,10 @@ class RoomScene {
             if (this.selected === mesh) this.setSelected(null);
         }
         return mesh;
+    }
+
+    getCamera() {
+        return this.camera;
     }
 
 }

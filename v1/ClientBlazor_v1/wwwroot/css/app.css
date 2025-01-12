@@ -140,3 +140,14 @@ code {
 .zaxis {
     color: #77f;
 }
+
+.input-box {
+    position: relative;
+    margin-top: 1.5em;
+}
+
+.input-box > label {
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+}

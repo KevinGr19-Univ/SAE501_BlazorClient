@@ -1,4 +1,5 @@
 ﻿@page "/edit_building"
+@using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Services
 @using ClientBlazor_v1.ViewModels
 
@@ -26,7 +27,7 @@
 </div>
 
 
-@inject IAPIService api
+@inject IService<Building> buildingService
 @inject NavigationManager NavigationManager
 @code {
     public BuildingCreatorVM VM { get; set; }
@@ -36,7 +37,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        VM = new(api);
+        VM = new(buildingService);
         await VM.Load(BuildingID);
     }
 
@@ -54,17 +55,6 @@
         gap: 1em;
         width: fit-content;
     }
-
-    .input-box {
-        position: relative;
-        margin-top: 1.5em;
-    }
-
-        .input-box > label {
-            position: absolute;
-            left: 0;
-            bottom: 100%;
-        }
 
     #room-base-renderer {
         width: 30em;

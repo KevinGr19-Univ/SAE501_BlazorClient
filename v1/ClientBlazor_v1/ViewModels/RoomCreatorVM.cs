@@ -6,7 +6,9 @@ namespace ClientBlazor_v1.ViewModels
 {
     public class RoomCreatorVM
     {
-        private readonly IAPIService _api;
+        private readonly IService<Room> _roomService;
+        private readonly IService<Building> _buildingService;
+        private readonly IService<RoomType> _roomTypeService;
 
         public bool IsLoaded { get; private set; } = false;
 
@@ -17,9 +19,11 @@ namespace ClientBlazor_v1.ViewModels
         private int? _idRoom;
         public Room Room { get; private set; }
 
-        public RoomCreatorVM(IAPIService api)
+        public RoomCreatorVM(IService<Room> roomService, IService<Building> buildingService, IService<RoomType> roomTypeService)
         {
-            _api = api;
+            _roomService = roomService;
+            _buildingService = buildingService;
+            _roomTypeService = roomTypeService;
             BasePoints = new();
         }
 
@@ -29,9 +33,9 @@ namespace ClientBlazor_v1.ViewModels
 
             _idRoom = idRoom;
             await Task.WhenAll(
-                Task.Run(async() => { Buildings = await _api.GetBuildingsAsync(); }),
-                Task.Run(async() => { RoomTypes = await _api.GetRoomTypesAsync(); }),
-                Task.Run(async() => { Room = _idRoom is null ? new Room() : await _api.GetRoomAsync((int)_idRoom); })
+                Task.Run(async() => { Buildings = await _buildingService.GetAllAsync(); }),
+                Task.Run(async() => { RoomTypes = await _roomTypeService.GetAllAsync(); }),
+                Task.Run(async() => { Room = _idRoom is null ? new Room() : await _roomService.GetByIdAsync((int)_idRoom); })
             );
 
             IsLoaded = true;
@@ -41,8 +45,8 @@ namespace ClientBlazor_v1.ViewModels
         {
             Room.Base = BasePoints.ToList();
 
-            if(_idRoom is null) await _api.PostRoomAsync(Room);
-            else await _api.PutRoomAsync((int)_idRoom, Room);
+            if(_idRoom is null) await _roomService.PostAsync(Room);
+            else await _roomService.PutAsync((int)_idRoom, Room);
         }
 
         public void AddBasePoint()

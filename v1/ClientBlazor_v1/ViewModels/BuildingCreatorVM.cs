@@ -5,16 +5,16 @@ namespace ClientBlazor_v1.ViewModels
 {
     public class BuildingCreatorVM
     {
-        private readonly IAPIService _api;
+        private readonly IService<Building> _buildingService;
 
         public bool IsLoaded { get; private set; } = false;
 
         private int? _idBuilding;
         public Building Building { get; set; }
 
-        public BuildingCreatorVM(IAPIService api)
+        public BuildingCreatorVM(IService<Building> api)
         {
-            _api = api;
+            _buildingService = api;
         }
 
         public async Task Load(int? idBuilding)
@@ -22,15 +22,15 @@ namespace ClientBlazor_v1.ViewModels
             IsLoaded = false;
 
             _idBuilding = idBuilding;
-            Building = _idBuilding is null ? new Building() : await _api.GetBuildingAsync((int)_idBuilding);
+            Building = _idBuilding is null ? new Building() : await _buildingService.GetByIdAsync((int)_idBuilding);
 
             IsLoaded = true;
         }
 
         public async Task SaveBuilding()
         {
-            if(_idBuilding is null) await _api.PostBuildingAsync(Building);
-            else await _api.PutBuildingAsync((int)_idBuilding, Building);
+            if(_idBuilding is null) await _buildingService.PostAsync(Building);
+            else await _buildingService.PutAsync((int)_idBuilding, Building);
         }
     }
 }

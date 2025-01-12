@@ -1,4 +1,5 @@
 ﻿@page "/edit_room"
+@using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Services
 @using ClientBlazor_v1.ViewModels
 
@@ -57,12 +58,12 @@
                                     <span class="me-3"></span>
 
                                     <span class="xaxis m-1">X:</span>
-                                    <input type="number" class="number_box" @bind-value=point.X/>
+                                    <input type="number" class="number_box" step="any" @bind-value=point.X/>
 
                                     <span class="me-2"></span>
 
                                     <span class="zaxis m-1">Z:</span>
-                                    <input type="number" class="number_box" @bind-value=point.Y/>
+                                    <input type="number" class="number_box" step="any" @bind-value=point.Y/>
 
                                     <span class="me-4"></span>
 
@@ -172,7 +173,10 @@
     }
 </script>
 
-@inject IAPIService api
+@inject IService<Room> roomService;
+@inject IService<Building> buildingService;
+@inject IService<RoomType> roomTypeService;
+
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 @code {
@@ -183,7 +187,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        VM = new(api);
+        VM = new(roomService, buildingService, roomTypeService);
         await VM.Load(RoomID);
     }
 
@@ -206,17 +210,6 @@
         gap: 1em;
 
         width: fit-content;
-    }
-
-    .input-box{
-        position: relative;
-        margin-top: 1.5em;
-    }
-
-    .input-box > label{
-        position: absolute;
-        left: 0;
-        bottom: 100%;
     }
 
     #room-base-renderer{

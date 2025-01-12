@@ -5,14 +5,14 @@ namespace ClientBlazor_v1.ViewModels
 {
     public class RoomTypeEditVM
     {
-        private readonly IAPIService _api;
+        private readonly IService<RoomType> _roomTypeService;
 
         public RoomType RoomType { get; private set; }
         public bool IsNew { get; private set; }
 
-        public RoomTypeEditVM(IAPIService api)
+        public RoomTypeEditVM(IService<RoomType> roomTypeService)
         {
-            _api = api;
+            _roomTypeService = roomTypeService;
             SetNewModel();
         }
 
@@ -32,10 +32,10 @@ namespace ClientBlazor_v1.ViewModels
         {
             if (IsNew)
             {
-                var roomType = await _api.PostRoomTypeAsync(RoomType);
+                var roomType = await _roomTypeService.PostAsync(RoomType);
                 SetExistingModel(roomType);
             }
-            else await _api.PutRoomTypeAsync(RoomType.Id, RoomType);
+            else await _roomTypeService.PutAsync(RoomType.Id, RoomType);
         }
     }
 }

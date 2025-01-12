@@ -4,16 +4,13 @@ namespace ClientBlazor_v1.Utils
 {
     public static class RoomObjectVMUtils
     {
-        private const double RAD2DEG = 180 / Math.PI;
-        private const double DEG2RAD = Math.PI / 180;
-
         public static double GetPosX(RoomObjectVM jsObj) => jsObj.JSGet<double>("position.x");
         public static double GetPosY(RoomObjectVM jsObj) => jsObj.JSGet<double>("position.y");
         public static double GetPosZ(RoomObjectVM jsObj) => jsObj.JSGet<double>("position.z");
 
-        public static double GetRotX(RoomObjectVM jsObj) => jsObj.JSGet<double>("rotation.x") * RAD2DEG;
-        public static double GetRotY(RoomObjectVM jsObj) => jsObj.JSGet<double>("rotation.y") * RAD2DEG;
-        public static double GetRotZ(RoomObjectVM jsObj) => jsObj.JSGet<double>("rotation.z") * RAD2DEG;
+        public static double GetRotX(RoomObjectVM jsObj) => jsObj.JSGet<double>("rotation.x") * MathUtils.RAD2DEG;
+        public static double GetRotY(RoomObjectVM jsObj) => jsObj.JSGet<double>("rotation.y") * MathUtils.RAD2DEG;
+        public static double GetRotZ(RoomObjectVM jsObj) => jsObj.JSGet<double>("rotation.z") * MathUtils.RAD2DEG;
 
         public static double GetSizeX(RoomObjectVM jsObj) => jsObj.JSGet<double>("size.x");
         public static double GetSizeY(RoomObjectVM jsObj) => jsObj.JSGet<double>("size.y");
@@ -37,17 +34,17 @@ namespace ClientBlazor_v1.Utils
 
         public static void SetRotX(RoomObjectVM jsObj, double value)
         {
-            jsObj.JSSet("rotation.x", value * DEG2RAD);
+            jsObj.JSSet("rotation.x", value * MathUtils.DEG2RAD);
             jsObj.RequireUIUpdate();
         }
         public static void SetRotY(RoomObjectVM jsObj, double value)
         {
-            jsObj.JSSet("rotation.y", value * DEG2RAD);
+            jsObj.JSSet("rotation.y", value * MathUtils.DEG2RAD);
             jsObj.RequireUIUpdate();
         }
         public static void SetRotZ(RoomObjectVM jsObj, double value)
         {
-            jsObj.JSSet("rotation.z", value * DEG2RAD);
+            jsObj.JSSet("rotation.z", value * MathUtils.DEG2RAD);
             jsObj.RequireUIUpdate();
         }
 

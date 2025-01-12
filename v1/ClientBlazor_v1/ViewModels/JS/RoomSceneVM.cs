@@ -9,23 +9,27 @@ namespace ClientBlazor_v1.ViewModels.JS
 {
     public class RoomSceneVM : JSObjectVM
     {
-        private readonly IAPIService _api;
+        private readonly IService<Room> _roomService;
 
         private Room? _room;
         public Room? Room => _room;
 
         public readonly ICollection<RoomObjectVM> ObjectVMs = new HashSet<RoomObjectVM>();
         public readonly ICollection<RoomObjectVM> VisibleObjectVMs = new HashSet<RoomObjectVM>();
+        public readonly CompassVM CompassVM;
 
-        public RoomSceneVM(IAPIService api, IJSInProcessObjectReference sceneObj)
+        public RoomSceneVM(IService<Room> roomService, IJSInProcessObjectReference sceneObj)
         {
-            _api = api;
+            _roomService = roomService;
             JSObj = sceneObj;
+
+            CompassVM = new();
+            CompassVM.JSObj = sceneObj.Invoke<IJSInProcessObjectReference>("getCamera");
         }
 
         public async Task LoadRoom(int idRoom)
         {
-            Room? room = await _api.GetRoomAsync(idRoom);
+            Room? room = await _roomService.GetByIdAsync(idRoom);
             _room = room;
 
             if (Room is not null)
@@ -35,6 +39,11 @@ namespace ClientBlazor_v1.ViewModels.JS
                 RequireUIUpdate();
             }
         }
+
+        #region Add RoomObject
+        private readonly Dictionary<string, Type> _roomObjectTypes = new();
+        public IEnumerable<string> RoomObjectTypes => _roomObjectTypes.Keys;
+        public string RoomObjectTypeToAdd { get; set; }
 
         public DoorVM AddDoor(Door door) => AddRoomObject<DoorVM>(() => new() { Door = door }, "addDoor");
         public SensorVM AddSensor(Sensor sensor) => AddRoomObject<SensorVM>(() => new() { Sensor = sensor }, "addSensor");
@@ -58,6 +67,7 @@ namespace ClientBlazor_v1.ViewModels.JS
                 RequireUIUpdate();
             }
         }
+        #endregion
 
         #region Updates
         public void UpdateRoomMesh()

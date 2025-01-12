@@ -5,11 +5,11 @@ namespace ClientBlazor_v1.ViewModels
 {
     public class RoomTypeListVM
     {
-        private readonly IAPIService _api;
+        private readonly IService<RoomType> _roomTypeService;
 
-        public RoomTypeListVM(IAPIService api)
+        public RoomTypeListVM(IService<RoomType> roomTypeService)
         {
-            _api = api;
+            _roomTypeService = roomTypeService;
         }
 
         public bool IsLoaded { get; private set; } = false;
@@ -20,7 +20,7 @@ namespace ClientBlazor_v1.ViewModels
             IsLoaded = false;
 
             RoomTypes = null;
-            RoomTypes = (await _api.GetRoomTypesAsync()).ToList();
+            RoomTypes = (await _roomTypeService.GetAllAsync()).ToList();
 
             IsLoaded = true;
         }
@@ -31,7 +31,7 @@ namespace ClientBlazor_v1.ViewModels
             if (roomType.Rooms.Count > 0)
                 throw new Exception("Rooms are associated with this type");
 
-            await _api.DeleteRoomTypeAsync(roomType.Id);
+            await _roomTypeService.DeleteAsync(roomType.Id);
             RoomTypes.Remove(roomType);
         }
     }

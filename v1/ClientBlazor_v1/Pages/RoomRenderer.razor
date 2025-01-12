@@ -49,6 +49,13 @@
                             }
                         </Content>
                     </FSubWindow>
+                    <FSubWindow>
+                        <Header><span>Actions</span></Header>
+                        <Content>
+                            <button>Ajouter un équipement</button>
+                            <Compass VM="RoomSceneVM.CompassVM" OrientationOffset="RoomSceneVM.Room?.NorthOrientation ?? 0"></Compass>
+                        </Content>
+                    </FSubWindow>
                 </Content>
             </FWindow>
         }
@@ -64,17 +71,40 @@
             }
         }
     </div>
+
+    <Modal @ref=_addObjectModal>
+        <Title>Ajouter un équipement</Title>
+        <Content>
+            <div class="input-box">
+                <label for="room-building">Type</label>
+                <InputSelect id="room-building" @bind-Value="RoomSceneVM.RoomObjectTypeToAdd" class="form-select">
+                    <option value="null">- Séléctionnez le type de nouvel objet -</option>
+                    @foreach (var type in RoomSceneVM.RoomObjectTypes)
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </InputSelect>
+            </div>
+        </Content>
+        <Buttons>
+            <button type="button" class="btn btn-primary" @onclick=Click_AddObject>Ajouter</button>
+            <button type="button" class="btn btn-secondary" @onclick=_addObjectModal.Close>Annuler</button>
+        </Buttons>
+    </Modal>
 </div>
 
 @inject IJSRuntime JS
-@inject IAPIService api
+@inject IService<Room> roomService
 @inherits UIUpdatableComponent
 @code{
     [SupplyParameterFromQuery]
     public int RoomId { get; set; }
 
-    public RoomSceneVM RoomSceneVM { get; set; } = null;
+    public RoomSceneVM RoomSceneVM { get; set; }
+
     public override IUpdateUI Updatable => RoomSceneVM;
+
+    private Modal _addObjectModal;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -83,12 +113,18 @@
             var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/roomScene.js");
             var sceneObj = await module.InvokeAsync<IJSInProcessObjectReference>("getScene");
 
-            RoomSceneVM = new RoomSceneVM(api, sceneObj);
+            RoomSceneVM = new(roomService, sceneObj);
+
             TryBind();
             UpdateUI();
 
             await RoomSceneVM.LoadRoom(RoomId);
         }
+    }
+
+    public void Click_AddObject()
+    {
+        _addObjectModal.Close();
     }
 
 }
