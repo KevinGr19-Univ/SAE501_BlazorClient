@@ -43,6 +43,8 @@ class RoomScene {
             this.camera.orientation = angle;
             if (this.camera.dotnetRef) this.camera.dotnetRef.invokeMethod("RequireUIUpdate");
         });
+
+        this.roomObjects = new Set();
     }
 
     updateRoomMesh(points, height) {
@@ -62,6 +64,10 @@ class RoomScene {
         this.room.material = new BABYLON.StandardMaterial("roomMat");
         this.room.flipFaces(true);
         this.room.isPickable = false;
+    }
+
+    clearRoomObjects() {
+        [...this.roomObjects].forEach(obj => obj.deleteSelf());
     }
 
     initMeshes() {
@@ -173,28 +179,34 @@ class RoomScene {
 
     _addRoomObject(key) {
         let mesh = objectInfos[key].meshBuilder(this);
+
         this.gizmoManager.attachableMeshes.push(mesh);
-
-        addSizeProps(mesh);
         mesh.roomObjectKey = key;
-        mesh = dotnetProxify(mesh, objectInfos[key].bindedProps);
+        addSizeProps(mesh);
 
-        mesh.sceneSelect = () => this.setSelected(mesh);
+        let obj = dotnetProxify(mesh, objectInfos[key].bindedProps);
+        this.roomObjects.add(obj);
 
-        mesh.sceneUnselect = () => {
-            if (this.selected === mesh) this.setSelected(null);
+        obj.sceneSelect = () => this.setSelected(obj);
+
+        obj.sceneUnselect = () => {
+            if (this.selected === obj) this.setSelected(null);
         }
 
-        mesh.deleteSelf = () => {
-            mesh.sceneUnselect();
-            mesh.dispose();
+        obj.deleteSelf = () => {
+            obj.sceneUnselect();
+            obj.dispose();
+
+            this.roomObjects.delete(obj);
+            let i = this.gizmoManager.attachableMeshes.indexOf(mesh);
+            if (i >= 0) this.gizmoManager.attachableMeshes.splice(i, 1);
         }
 
-        mesh.setMarkedForDeletion = (deletion) => {
-            mesh.material.alpha = deletion ? 0.3 : 1;
+        obj.setMarkedForDeletion = (deletion) => {
+            obj.material.alpha = deletion ? 0.3 : 1;
         }
 
-        return mesh;
+        return obj;
     }
 
     getCamera() {

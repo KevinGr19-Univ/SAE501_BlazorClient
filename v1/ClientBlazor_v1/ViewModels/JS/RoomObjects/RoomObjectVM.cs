@@ -1,4 +1,5 @@
 ﻿using ClientBlazor_v1.Models.RoomObjects;
+using ClientBlazor_v1.Models.Transform;
 using ClientBlazor_v1.Utils;
 using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
@@ -34,13 +35,6 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
             OnClose?.Invoke(this, EventArgs.Empty);
         }
 
-        protected virtual void ApplyChanges() { }
-        public bool TryValidateModel()
-        {
-            var context = new ValidationContext(Object);
-            return Validator.TryValidateObject(Object, context, null);
-        }
-
         public bool IsNew => Object.Id == 0;
         public bool MarkedForDeletion { get; private set; }
 
@@ -49,6 +43,30 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
             MarkedForDeletion = delete;
             OnMarkedForDeletionChanged?.Invoke(this, EventArgs.Empty);
             JSObj.InvokeVoid("setMarkedForDeletion", delete);
+        }
+
+        public bool TryValidateModel()
+        {
+            var context = new ValidationContext(Object);
+            return Validator.TryValidateObject(Object, context, null);
+        }
+
+        public virtual void ApplyObjectToVM()
+        {
+            TransformCopySourceToTarget(Object, this);
+        }
+
+        public virtual void ApplyVMTOObject()
+        {
+            TransformCopySourceToTarget(this, Object);
+        }
+
+        private void TransformCopySourceToTarget(object source, object target)
+        {
+            if (target is IPosition targetPos) targetPos.CopyPosFrom((IPosition)source);
+            if (target is IRotation targetRot) targetRot.CopyRotFrom((IRotation)source);
+            if (target is IOrientation targetOrt) targetOrt.Orientation = ((IOrientation)source).Orientation;
+            if (target is ISize targetSize) targetSize.CopySizeFrom((ISize)source);
         }
 
         #region Common utils

@@ -12,13 +12,5 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
         public double PosX { get => GetPosX(); set => SetPosX(value); }
         public double PosY { get => GetPosY(); set => SetPosY(value); }
         public double PosZ { get => GetPosZ(); set => SetPosZ(value); }
-
-        protected override void ApplyChanges()
-        {
-            base.ApplyChanges();
-            ((IPosition)Object).CopyPosFrom(this);
-            ((ISize)Object).CopySizeFrom(this);
-            Object.Orientation = Orientation;
-        }
     }
 }

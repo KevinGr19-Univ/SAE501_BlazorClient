@@ -4,7 +4,6 @@ using ClientBlazor_v1.Models.RoomObjects.ConnectedObjects;
 using ClientBlazor_v1.Services;
 using ClientBlazor_v1.ViewModels.JS.RoomObjects;
 using Microsoft.JSInterop;
-using System.ComponentModel.DataAnnotations;
 
 namespace ClientBlazor_v1.ViewModels.JS
 {
@@ -130,6 +129,7 @@ namespace ClientBlazor_v1.ViewModels.JS
             var vmBuilder = _roomObjectVMBuilders[roomObj.GetType()];
             var vm = vmBuilder.VMBuilder(roomObj);
             vm.JSObj = JSObj.Invoke<IJSInProcessObjectReference>(vmBuilder.JSBuilderName);
+            vm.ApplyObjectToVM();
 
             vm.OnSelect += OnVMSelect;
             vm.OnClose += OnVMClose;
@@ -163,16 +163,14 @@ namespace ClientBlazor_v1.ViewModels.JS
         #region Save
         public async Task SaveChanges()
         {
-            List<RoomObjectVM> objectVMs = new();
-            List<RoomObjectVM> invalidObjectVMs = new();
-
-            if (invalidObjectVMs.Any())
-                throw new Exception($"Certains objets sont invalides :\n{string.Join('\n', invalidObjectVMs.Select(vm => "- " + vm.Object.GetFullName()))}");
+            // TODO: Object validation
+            List<RoomObjectVM> objectVMs = ObjectVMs.Where(vm => !vm.MarkedForDeletion).ToList();
+            objectVMs.ForEach(vm => vm.ApplyVMTOObject());
 
             var newRoom = (Room)Room.Clone();
             newRoom.ObjectsOfRoom = objectVMs.Select(vm => vm.Object).ToList();
 
-            //await _roomService.PutAsync(_idRoom, newRoom);
+            await _roomService.PutAsync(_idRoom, newRoom);
             await LoadRoom(_idRoom);
         }
         #endregion
@@ -186,6 +184,7 @@ namespace ClientBlazor_v1.ViewModels.JS
 
         public void UpdateRoomObjects()
         {
+            JSObj.InvokeVoid("clearRoomObjects");
             foreach (var vm in ObjectVMs) DeleteRoomObjectVM(vm);
             foreach (var roomObj in Room.ObjectsOfRoom) AddRoomObjectVM(roomObj);
         }

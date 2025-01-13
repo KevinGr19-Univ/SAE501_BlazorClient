@@ -12,12 +12,5 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
         public double RotX { get => GetSizeX(); set => SetRotX(value); }
         public double RotY { get => GetSizeY(); set => SetRotY(value); }
         public double RotZ { get => GetSizeZ(); set => SetRotZ(value); }
-
-        protected override void ApplyChanges()
-        {
-            base.ApplyChanges();
-            ((IPosition)Object).CopyPosFrom(this);
-            ((IRotation)Object).CopyRotFrom(this);
-        }
     }
 }
