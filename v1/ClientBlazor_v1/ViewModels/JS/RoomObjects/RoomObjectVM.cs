@@ -54,11 +54,13 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
         public virtual void ApplyObjectToVM()
         {
             TransformCopySourceToTarget(Object, this);
+            if (Object is ISize objSize && !IsNew) ((ISize)this).CopySizeFrom(objSize); // Default size depends on 3d model (JS)
         }
 
         public virtual void ApplyVMTOObject()
         {
             TransformCopySourceToTarget(this, Object);
+            if (Object is ISize objSize) objSize.CopySizeFrom((ISize)this);
         }
 
         private void TransformCopySourceToTarget(object source, object target)
@@ -66,7 +68,6 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
             if (target is IPosition targetPos) targetPos.CopyPosFrom((IPosition)source);
             if (target is IRotation targetRot) targetRot.CopyRotFrom((IRotation)source);
             if (target is IOrientation targetOrt) targetOrt.Orientation = ((IOrientation)source).Orientation;
-            if (target is ISize targetSize) targetSize.CopySizeFrom((ISize)source);
         }
 
         #region Common utils

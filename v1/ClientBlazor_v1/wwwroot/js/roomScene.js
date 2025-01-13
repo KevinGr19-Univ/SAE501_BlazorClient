@@ -172,7 +172,7 @@ class RoomScene {
     addHeater(){ return this._addRoomObject("heater"); }
     addSensor6in1(){ return this._addRoomObject("sensor6in1"); }
     addSensor9in1(){ return this._addRoomObject("sensor9in1"); }
-    addSensorCO2(){ return this._addRoomObject("sensorco2"); }
+    addSensorCO2(){ return this._addRoomObject("sensorCO2"); }
     addLamp(){ return this._addRoomObject("lamp"); }
     addPlug(){ return this._addRoomObject("plug"); }
     addSiren() { return this._addRoomObject("siren"); }
