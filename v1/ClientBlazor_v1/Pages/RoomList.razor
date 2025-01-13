@@ -36,61 +36,99 @@
                         <hr />
                         <span>@building.Rooms.Count salles</span>
                     </div>
-                    <div class="room_list">
-                        @foreach(var room in building.Rooms)
-                        {
-                            RoomObjectSorter<RoomObject> roomObjects = RoomObjectSorter<RoomObject>.SortObjects(room.ObjectsOfRoom ?? new(), obj => obj);
+                    <div class="building_content">
+                        <div class="d-flex" style="gap: 1em;">
+                            <a class="btn btn-primary" title="Modifier le bâtiment" href="/edit_building?BuildingId=@building.Id"><i class="bi bi-pen"></i></a>
+                            <button class="btn btn-danger" title="Supprimer le bâtiment" @onclick="() => Click_DeleteBuilding(building)"><i class="bi bi-trash"></i></button>
+                        </div>
+                        <hr />
+                        <div class="room_list">
+                            @foreach (var room in building.Rooms)
+                            {
+                                RoomObjectSorter<RoomObject> roomObjects = RoomObjectSorter<RoomObject>.SortObjects(room.ObjectsOfRoom ?? new(), obj => obj);
 
-                            <div class="room collapsed">
-                                <div class="room_header" onclick="onHeaderCollapseClick(this)">
-                                    <span><b>@room.Name</b> <i>[@(room.RoomType?.Name ?? "null")]</i></span>
-                                    <hr />
-                                    <span>@roomObjects.Sensors.Count capteurs</span>
-                                </div>
-                                <div class="room_content">
-                                    <div class="room_description">
-                                        <div>
-                                            <b>Capteurs (@roomObjects.Sensors.Count)</b>
-                                            <ul>
-                                                @foreach (var sensor in roomObjects.Sensors)
-                                                {
-                                                    <li>@sensor.GetRootName()</li>
-                                                }
-                                            </ul>
+                                <div class="room collapsed">
+                                    <div class="room_header" onclick="onHeaderCollapseClick(this)">
+                                        <span><b>@room.Name</b> <i>[@(room.RoomType?.Name ?? "null")]</i></span>
+                                        <hr />
+                                        <span>@roomObjects.Sensors.Count capteurs</span>
+                                    </div>
+                                    <div class="room_content">
+                                        <div class="room_description">
+                                            <div>
+                                                <b>Capteurs (@roomObjects.Sensors.Count)</b>
+                                                <ul>
+                                                    @foreach (var sensor in roomObjects.Sensors)
+                                                    {
+                                                        <li>@sensor.GetRootName()</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <b>Actionneurs (@roomObjects.Actionnables.Count)</b>
+                                                <ul>
+                                                    @foreach (var actionnable in roomObjects.Actionnables)
+                                                    {
+                                                        <li>@actionnable.GetRootName()</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <b>Equipements (@roomObjects.Equipments.Count)</b>
+                                                <ul>
+                                                    @foreach (var equipment in roomObjects.Equipments)
+                                                    {
+                                                        <li>@equipment.GetRootName()</li>
+                                                    }
+                                                </ul>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <b>Actionneurs (@roomObjects.Actionnables.Count)</b>
-                                            <ul>
-                                                @foreach (var actionnable in roomObjects.Actionnables)
-                                                { 
-                                                    <li>@actionnable.GetRootName()</li>
-                                                }
-                                            </ul>
-                                        </div>
-                                        <div>
-                                            <b>Equipements (@roomObjects.Equipments.Count)</b>
-                                            <ul>
-                                                @foreach (var equipment in roomObjects.Equipments)
-                                                {
-                                                    <li>@equipment.GetRootName()</li>
-                                                }
-                                            </ul>
+
+                                        <div class="bottom_bar">
+                                            <a class="btn btn-primary" title="Modifier les objets de la salle" href="/renderer?RoomId=@room.Id">Modifier objets</a>
+                                            <a class="btn btn-primary" title="Modifier la salle" href="/edit_room?RoomId=@room.Id"><i class="bi bi-pen"></i></a>
+                                            <button class="btn btn-danger" title="Supprimer la salle" @onclick="() => Click_DeleteRoom(room)"><i class="bi bi-trash"></i></button>
                                         </div>
                                     </div>
-
-                                    <div class="bottom_bar">
-                                        <a class="btn btn-primary" href="/renderer?RoomId=@room.Id">Modifier</a>
-                                        <a class="btn btn-danger">Supprimer</a>
-                                    </div>
                                 </div>
-                            </div>
-                        }
+                            }
+                        </div>
                     </div>
-                </div>
+                </div>   
             }
         }
     </div>
 </div>
+
+<Modal @ref="_deleteBuildingModal">
+    <Title>Supprimer le bâtiment ?</Title>
+    <Content>
+        <p>
+            Êtes-vous sûr de vouloir supprimer le bâtiment ?
+            <br />
+            - <b>@_buildingToDelete!.Name</b>
+        </p>
+    </Content>
+    <Buttons>
+        <button class="btn btn-danger" @onclick="Click_DeleteBuildingConfirmed">Supprimer</button>
+        <button class="btn btn-secondary" @onclick="_deleteBuildingModal.Close">Annuler</button>
+    </Buttons>
+</Modal>
+
+<Modal @ref="_deleteRoomModal">
+    <Title>Supprimer la salle ?</Title>
+    <Content>
+        <p>
+            Êtes-vous sûr de vouloir supprimer la salle ?
+            <br />
+            - @_roomToDelete!.Building?.Name : <b>@_roomToDelete.Name</b>
+        </p>
+    </Content>
+    <Buttons>
+        <button class="btn btn-danger" @onclick="Click_DeleteRoomConfirmed">Supprimer</button>
+        <button class="btn btn-secondary" @onclick="_deleteRoomModal.Close">Annuler</button>
+    </Buttons>
+</Modal>
 
 <script type="text/javascript">
     function onHeaderCollapseClick(btn){
@@ -99,83 +137,46 @@
 </script>
 
 @inject IService<Building> buildingService;
+@inject IService<Room> roomService;
 @code {
     public BuildingListVM BuildingListVM { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        BuildingListVM = new(buildingService);
+        BuildingListVM = new(buildingService, roomService);
         await BuildingListVM.LoadBuildings();
+    }
+
+    // Delete building modal
+    private Modal _deleteBuildingModal;
+    private Building? _buildingToDelete;
+
+    public void Click_DeleteBuilding(Building building)
+    {
+        _buildingToDelete = building;
+        _deleteBuildingModal.Open();
+    }
+
+    public async Task Click_DeleteBuildingConfirmed()
+    {
+        _deleteBuildingModal.Close();
+        await BuildingListVM.DeleteBuilding(_buildingToDelete);
+    }
+
+    // Delete room modal
+    private Modal _deleteRoomModal;
+    private Room? _roomToDelete;
+
+    public void Click_DeleteRoom(Room room)
+    {
+        _roomToDelete = room;
+        _deleteRoomModal.Open();
+    }
+
+    public async Task Click_DeleteRoomConfirmed()
+    {
+        _deleteRoomModal.Close();
+        await BuildingListVM.DeleteRoom(_roomToDelete);
     }
 }
 
-<style>
-    .building_container {
-        margin: 1em;
-        display: flex;
-        flex-direction: column;
-        gap: 2em;
-    }
-
-    .building_header, .room_list {
-        padding: 1em;
-    }
-
-    .building_header, .room_header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1em;
-        cursor: pointer;
-    }
-
-        .building_header > hr, .room_header > hr {
-            flex: 1;
-            min-width: 2em;
-        }
-
-    .room_header, .room_content {
-        padding: 0.4em;
-    }
-
-    .room_content {
-        border-top: solid 1px #AAA7;
-    }
-
-    .building_header:hover, .room_header:hover {
-        background: #EEE;
-    }
-
-    .room_list {
-        border-top: solid 1px #8888;
-        padding-left: 2em;
-    }
-
-    .room_header::before {
-        content: '▾';
-        font-weight: bold;
-        font-size: 1.5em;
-    }
-
-    .room_description {
-        display: flex;
-        justify-content: space-around;
-        gap: 1em;
-    }
-
-    .bottom_bar {
-        display: flex;
-        gap: 1em;
-        justify-content: end;
-        padding: 0.4em;
-    }
-
-    .building.collapsed > .room_list, .room.collapsed > .room_content {
-        display: none;
-    }
-
-    .collapsed > .room_header::before{
-        content: '▸'
-    }
-
-</style>

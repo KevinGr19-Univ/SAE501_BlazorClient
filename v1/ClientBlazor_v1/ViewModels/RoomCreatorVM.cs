@@ -49,6 +49,11 @@ namespace ClientBlazor_v1.ViewModels
             else await _roomService.PutAsync((int)_idRoom, Room);
         }
 
+        public async Task Delete()
+        {
+            if(_idRoom is not null) await _roomService.DeleteAsync((int)_idRoom);
+        }
+
         public void AddBasePoint()
         {
             BasePoints.Add(new(0, 0));

@@ -1,4 +1,5 @@
 ﻿@page "/edit_room"
+@using ClientBlazor_v1.Components
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Services
 @using ClientBlazor_v1.ViewModels
@@ -83,93 +84,114 @@
                         <input id="room-orientation" type="number" step="any" @bind-value=VM.Room.NorthOrientation />
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success">@(RoomID is null ? "Créer" : "Modifier")</button>
+                <div class="d-flex" style="gap: 1em;">
+                    <button type="submit" class="btn btn-success">@(RoomID is null ? "Créer" : "Modifier")</button>
+                    @if(RoomID is not null)
+                    {
+                        <button type="button" class="btn btn-danger" @onclick=Click_DeleteRoom>Supprimer</button>
+                    }
+                </div>
             </div>
         </EditForm>     
     }
 </div>
 
+<Modal @ref="_deleteRoomModal">
+    <Title>Supprimer la salle ?</Title>
+    <Content>
+        <p>
+            Êtes-vous sûr de vouloir supprimer la salle ?
+            <br />
+            - @VM.Buildings.FirstOrDefault(b => b.Id == VM.Room.IdBuilding)?.Name : <b>@VM.Room.Name</b>
+        </p>
+    </Content>
+    <Buttons>
+        <button class="btn btn-danger" @onclick="Click_DeleteRoomConfirmed">Supprimer</button>
+        <button class="btn btn-secondary" @onclick="_deleteRoomModal.Close">Annuler</button>
+    </Buttons>
+</Modal>
+
 <script type="text/javascript">
     function drawBaseOnCanvas(points){
-        const canvasResolutionFactor = 4;
-        const bgColor = "black";
-        const circleColor = "dodgerblue";
-        const circleRadius = 7 * canvasResolutionFactor;
-        const edgeColor = "blue";
-        const edgeThickness = 2 * canvasResolutionFactor;
-        const font = `${14*canvasResolutionFactor}px Helvetica`;
-        const fontColor = "white";
+    const canvasResolutionFactor = 4;
+    const bgColor = "black";
+    const circleColor = "dodgerblue";
+    const circleRadius = 7 * canvasResolutionFactor;
+    const edgeColor = "blue";
+    const edgeThickness = 2 * canvasResolutionFactor;
+    const font = `${14*canvasResolutionFactor}px Helvetica`;
+    const fontColor = "white";
 
-        let canvas = document.querySelector("#room-base-renderer");
-        if (!canvas) return;
+    let canvas = document.querySelector("#room-base-renderer");
+    if (!canvas) return;
 
-        let ctx = canvas.getContext("2d");
-        canvas.width = canvas.clientWidth * canvasResolutionFactor;
-        canvas.height = canvas.clientHeight * canvasResolutionFactor;
+    let ctx = canvas.getContext("2d");
+    canvas.width = canvas.clientWidth * canvasResolutionFactor;
+    canvas.height = canvas.clientHeight * canvasResolutionFactor;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = bgColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        if(points.length == 0) return;
+    if(points.length == 0) return;
 
-        let padding = 10 * canvasResolutionFactor;
-        let totalWidth = canvas.width - padding*2;
-        let totalHeight = canvas.height - padding*2;
+    let padding = 10 * canvasResolutionFactor;
+    let totalWidth = canvas.width - padding*2;
+    let totalHeight = canvas.height - padding*2;
 
-        let minX = null, minY = null, maxX = null, maxY = null;
-        for(let point of points){
-            if(minX === null || minX > point.x) minX = point.x;
-            if(minY === null || minY > point.y) minY = point.y;
-            if(maxX === null || maxX < point.x) maxX = point.x;
-            if(maxY === null || maxY < point.y) maxY = point.y;
-        }
+    let minX = null, minY = null, maxX = null, maxY = null;
+    for(let point of points){
+    if(minX === null || minX > point.x) minX = point.x;
+    if(minY === null || minY > point.y) minY = point.y;
+    if(maxX === null || maxX < point.x) maxX = point.x;
+    if(maxY === null || maxY < point.y) maxY = point.y;
+    }
 
-        let diffX = maxX - minX;
-        let diffY = maxY - minY;
+    let diffX = maxX - minX;
+    let diffY = maxY - minY;
 
-        let midX = minX + diffX/2;
-        let midY = minY + diffY/2;
-        
-        // Scaling
-        let scaleX = diffX ? totalWidth/diffX : null;
-        let scaleY = diffY ? totalHeight/diffY : null;
-        
-        let scale = 1;
-        if(scaleX && scaleY) scale = Math.min(scaleX, scaleY);
-        else if(scaleX) scale = scaleX;
-        else if(scaleY) scale = scaleY;
+    let midX = minX + diffX/2;
+    let midY = minY + diffY/2;
 
-        let scaledPoints = points.map(point => ({
-            x: (point.x - midX) * scale + (totalWidth/2 + padding),
-            y: (midY - point.y) * scale + (totalHeight/2 + padding),
-        }));
+    // Scaling
+    let scaleX = diffX ? totalWidth/diffX : null;
+    let scaleY = diffY ? totalHeight/diffY : null;
 
-        // Edges
-        ctx.strokeStyle = edgeColor;
-        ctx.lineWidth = edgeThickness;
-        scaledPoints.forEach((point, i) => {
-            let nextPoint = scaledPoints[(i+1)%scaledPoints.length];
-            ctx.beginPath();
-            ctx.moveTo(point.x, point.y);
-            ctx.lineTo(nextPoint.x, nextPoint.y);
-            ctx.stroke();
-        });
+    let scale = 1;
+    if(scaleX && scaleY) scale = Math.min(scaleX, scaleY);
+    else if(scaleX) scale = scaleX;
+    else if(scaleY) scale = scaleY;
 
-        // Points
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        scaledPoints.forEach((point, i) => {
-            ctx.fillStyle = circleColor;
-            ctx.beginPath();
-            ctx.arc(point.x, point.y, circleRadius, 0, Math.PI*2);
-            ctx.fill();
+    let scaledPoints = points.map(point => ({
+    x: (point.x - midX) * scale + (totalWidth/2 + padding),
+    y: (midY - point.y) * scale + (totalHeight/2 + padding),
+    }));
 
-            ctx.fillStyle = fontColor;
-            ctx.font = font;
-            ctx.beginPath();
-            ctx.fillText(`${i+1}`, point.x, point.y);
-        });
+    // Edges
+    ctx.strokeStyle = edgeColor;
+    ctx.lineWidth = edgeThickness;
+    scaledPoints.forEach((point, i) => {
+    let nextPoint = scaledPoints[(i+1)%scaledPoints.length];
+    ctx.beginPath();
+    ctx.moveTo(point.x, point.y);
+    ctx.lineTo(nextPoint.x, nextPoint.y);
+    ctx.stroke();
+    });
+
+    // Points
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    scaledPoints.forEach((point, i) => {
+    ctx.fillStyle = circleColor;
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, circleRadius, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = fontColor;
+    ctx.font = font;
+    ctx.beginPath();
+    ctx.fillText(`${i+1}`, point.x, point.y);
+    });
     }
 </script>
 
@@ -199,6 +221,24 @@
     public async Task Click_SaveChanges()
     {
         await VM.SaveRoom();
+        ExitPage();
+    }
+
+    // Delete room modal
+    private Modal _deleteRoomModal;
+    public void Click_DeleteRoom()
+    {
+        _deleteRoomModal.Open();
+    }
+    public async Task Click_DeleteRoomConfirmed()
+    {
+        _deleteRoomModal.Close();
+        await VM.Delete();
+        ExitPage();
+    }
+
+    private void ExitPage()
+    {
         NavigationManager.NavigateTo("/");
     }
 }

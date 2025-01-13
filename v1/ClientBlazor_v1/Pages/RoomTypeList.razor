@@ -27,8 +27,10 @@
                                 <i>@roomType.Rooms.Count salles</i>
                             </div>
                             <div class="roomtype-card-hover d-flex align-items-center" style="gap: 0.5em;">
-                                <button class="btn btn-primary" @onclick="() => Click_EditType(roomType)" @onclick:stopPropagation=true><i class="bi bi-pen"></i></button>
-                                <button class="btn btn-danger" @onclick="() => Click_DeleteType(roomType)" @onclick:stopPropagation=true><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-primary" title="Modifier le type de salle"
+                                    @onclick="() => Click_EditType(roomType)" @onclick:stopPropagation=true><i class="bi bi-pen"></i></button>
+                                <button class="btn btn-danger" title="Supprimer le type de salle"
+                                    @onclick="() => Click_DeleteType(roomType)" @onclick:stopPropagation=true><i class="bi bi-trash"></i></button>
                             </div>
                         </div>
                         <hr class="roomtype-card-collapse"/>

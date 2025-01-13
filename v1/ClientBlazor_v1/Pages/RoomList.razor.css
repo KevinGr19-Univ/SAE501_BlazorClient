@@ -1,0 +1,67 @@
+﻿.building_container {
+    margin: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}
+
+.building_header, .building_content {
+    padding: 1em;
+}
+
+.building_header, .room_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    cursor: pointer;
+}
+
+    .building_header > hr, .room_header > hr {
+        flex: 1;
+        min-width: 2em;
+    }
+
+.room_header, .room_content {
+    padding: 0.4em;
+}
+
+.room_content {
+    border-top: solid 1px #AAA7;
+}
+
+.building_header:hover, .room_header:hover {
+    background: #EEE;
+}
+
+.building_content {
+    border-top: solid 1px #8888;
+    padding-left: 2em;
+}
+
+.room_header::before {
+    content: '▾';
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.room_description {
+    display: flex;
+    justify-content: space-around;
+    gap: 1em;
+}
+
+.bottom_bar {
+    display: flex;
+    gap: 1em;
+    justify-content: end;
+    padding: 0.4em;
+}
+
+.building.collapsed > .building_content, .room.collapsed > .room_content {
+    display: none;
+}
+
+.collapsed > .room_header::before {
+    content: '▸'
+}

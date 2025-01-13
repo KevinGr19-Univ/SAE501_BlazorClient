@@ -1,4 +1,5 @@
 ﻿@page "/edit_building"
+@using ClientBlazor_v1.Components
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Services
 @using ClientBlazor_v1.ViewModels
@@ -20,12 +21,32 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-success">@(BuildingID is null ? "Créer" : "Modifier")</button>
+                <div class="d-flex" style="gap: 1em;">
+                    <button type="submit" class="btn btn-success">@(BuildingID is null ? "Créer" : "Modifier")</button>
+                    @if(BuildingID is not null)
+                    {
+                        <button type="button" class="btn btn-danger" @onclick=Click_DeleteBuilding>Supprimer</button>
+                    }
+                </div>
             </div>
         </EditForm>
     }
 </div>
 
+<Modal @ref="_deleteBuildingModal">
+    <Title>Supprimer le bâtiment ?</Title>
+    <Content>
+        <p>
+            Êtes-vous sûr de vouloir supprimer le bâtiment ?
+            <br />
+            - <b>@VM.Building.Name</b>
+        </p>
+    </Content>
+    <Buttons>
+        <button class="btn btn-danger" @onclick="Click_DeleteBuildingConfirmed">Supprimer</button>
+        <button class="btn btn-secondary" @onclick="_deleteBuildingModal.Close">Annuler</button>
+    </Buttons>
+</Modal>
 
 @inject IService<Building> buildingService
 @inject NavigationManager NavigationManager
@@ -44,37 +65,24 @@
     public async Task Click_SaveChanges()
     {
         await VM.SaveBuilding();
+        ExitPage();
+    }
+
+    // Delete building modal
+    private Modal _deleteBuildingModal;
+    public void Click_DeleteBuilding()
+    {
+        _deleteBuildingModal.Open();
+    }
+    public async Task Click_DeleteBuildingConfirmed()
+    {
+        _deleteBuildingModal.Close();
+        await VM.Delete();
+        ExitPage();
+    }
+
+    private void ExitPage()
+    {
         NavigationManager.NavigateTo("/");
     }
 }
-
-<style>
-    .input-section {
-        display: flex;
-        flex-direction: column;
-        gap: 1em;
-        width: fit-content;
-    }
-
-    #room-base-renderer {
-        width: 30em;
-        height: 30em;
-        border: solid 1px #0008;
-    }
-
-    .base-btn {
-        font-size: 0.8em;
-    }
-
-    .point-box:hover {
-        background: #0004;
-    }
-
-    .point-box:not(:hover) .onHovered {
-        display: none !important;
-    }
-
-    .point-list {
-        overflow-y: scroll;
-    }
-</style>

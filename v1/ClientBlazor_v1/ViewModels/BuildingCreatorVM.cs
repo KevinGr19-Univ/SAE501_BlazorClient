@@ -32,5 +32,10 @@ namespace ClientBlazor_v1.ViewModels
             if(_idBuilding is null) await _buildingService.PostAsync(Building);
             else await _buildingService.PutAsync((int)_idBuilding, Building);
         }
+
+        public async Task Delete()
+        {
+            if(_idBuilding is not null) await _buildingService.DeleteAsync((int)_idBuilding);
+        }
     }
 }
