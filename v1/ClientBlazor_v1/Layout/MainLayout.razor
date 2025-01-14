@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using BlazorBootstrap
+@using ClientBlazor_v1.Components
+@inherits LayoutComponentBase
 
 <div id="wrapper">
     <aside id="sidebar">
@@ -11,3 +13,7 @@
         </main>
     </div>
 </div>
+
+<Toasts 
+    class="p-3" 
+    Placement="ToastsPlacement.TopRight" />
