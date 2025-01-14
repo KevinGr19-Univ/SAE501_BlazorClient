@@ -1,0 +1,27 @@
+﻿.input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    width: fit-content;
+}
+
+.base-btn {
+    font-size: 0.8em;
+}
+
+.point-box:nth-child(even) {
+    background: #eeeeee;
+}
+
+.point-box:hover {
+    background: #7774;
+}
+
+.point-box:not(:hover) .onHovered {
+    visibility: hidden;
+}
+
+.point-list {
+    border: solid 1px #0008;
+    overflow-y: scroll;
+}

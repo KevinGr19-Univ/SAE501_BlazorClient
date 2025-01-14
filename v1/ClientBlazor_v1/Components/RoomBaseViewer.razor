@@ -1,0 +1,20 @@
+﻿@using ClientBlazor_v1.ViewModels
+<canvas id="@_canvasID"></canvas>
+
+@{
+    _module?.InvokeVoid("drawBaseOnCanvas", _canvasID, (object)VM.Points.Select(p => new { x = p.X, y = p.Y }).ToArray());
+}
+
+@inject IJSRuntime JS
+@code {
+    [Parameter]
+    public RoomBaseVM VM { get; set; }
+
+    private string _canvasID => $"c{this.GetHashCode()}";
+
+    private IJSInProcessObjectReference _module;
+    protected override async Task OnInitializedAsync()
+    {
+        _module = await JS.InvokeAsync<IJSInProcessObjectReference>("import", "/js/roomBaseViewer.js");
+    }
+}
