@@ -1,4 +1,4 @@
-﻿import { clamp, addSizeProps } from './utils.js';
+﻿import { clamp, addSizeProps, isClockwiseXZ } from './utils.js';
 import { dotnetProxify, addDotnetMutators } from './interop.js';
 import { objectInfos } from './objectInfos.js';
 import earcut from 'https://cdn.jsdelivr.net/npm/earcut@3.0.1/+esm';
@@ -52,18 +52,23 @@ class RoomScene {
             this.room.dispose();
         }
 
+        // Set points in the right order (for normals)
+        let shape = points.map(p => new BABYLON.Vector3(p.x, 0, -p.y));
+        if (isClockwiseXZ(shape)) shape.reverse();
+
         this.room = BABYLON.MeshBuilder.ExtrudePolygon("room", {
-            shape: points.map(p => new BABYLON.Vector3(p.x, 0, p.y)),
-            depth: height
+            shape: shape,
+            depth: height,
         }, this.scene, earcut);
-        this.room.rotation.x = Math.PI;
-        
-        let translation = this.room.getBoundingInfo().boundingBox.center.scale(-1);
-        this.room.setPivotMatrix(BABYLON.Matrix.Translation(translation.x, translation.y, translation.z), false);
+
+        let center = this.room.getBoundingInfo().boundingBox.center;
+        this.room.setPivotMatrix(BABYLON.Matrix.Translation(-center.x, height, -center.z), false);
 
         this.room.material = new BABYLON.StandardMaterial("roomMat");
         this.room.flipFaces(true);
         this.room.isPickable = false;
+
+        setTimeout(() => this.setFocusToCenter(), 0);
     }
 
     clearRoomObjects() {
@@ -179,6 +184,7 @@ class RoomScene {
 
     _addRoomObject(key) {
         let mesh = objectInfos[key].meshBuilder(this);
+        mesh.position = this.getSceneCenter();
 
         this.gizmoManager.attachableMeshes.push(mesh);
         mesh.roomObjectKey = key;
@@ -257,13 +263,17 @@ class RoomScene {
     }
 
     setFocusToCenter() {
-        this.camera.setTarget(BABYLON.Vector3.Zero());
+        this.camera.setTarget(this.getSceneCenter());
     }
 
     setFocusToSelected() {
         if(this.selected) this.camera.setTarget(this.selected.position.clone());
     }
 
+    getSceneCenter() {
+        if (this.room) return this.room.getBoundingInfo().boundingBox.centerWorld.clone();
+        return BABYLON.Vector3.Zero();
+    }
 }
 
 export function getScene() {

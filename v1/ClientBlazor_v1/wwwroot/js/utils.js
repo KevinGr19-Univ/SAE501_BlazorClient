@@ -31,3 +31,13 @@ export function addSizeProps(mesh){
         },
     };
 }
+
+export function isClockwiseXZ(points) {
+    let twiceEnclosedArea = 0;
+    for (let i = 0; i < points.length; i++) {
+        let p1 = points[i];
+        let p2 = points[(i + 1) % points.length];
+        twiceEnclosedArea += (p2.x - p1.x) * (p2.z + p1.z);
+    }
+    return twiceEnclosedArea >= 0;
+}

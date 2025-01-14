@@ -14,15 +14,15 @@
                 <div class="sgap-row">
                     <span>
                         <label class="xaxis">X:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=positionable.PosX>
+                        <InputMath @bind-Value=positionable.PosX></InputMath>
                     </span>
                     <span>
                         <label class="yaxis">Y:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=positionable.PosY>
+                        <InputMath @bind-Value=positionable.PosY></InputMath>
                     </span>
                     <span>
                         <label class="zaxis">Z:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=positionable.PosZ>
+                        <InputMath @bind-Value=positionable.PosZ></InputMath>
                     </span>
                 </div>
             </div>
@@ -35,15 +35,15 @@
                 <div class="sgap-row">
                     <span>
                         <label class="xaxis">X:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=rotationable.RotX>
+                        <InputMath @bind-Value=rotationable.RotX></InputMath>
                     </span>
                     <span>
                         <label class="yaxis">Y:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=rotationable.RotY>
+                        <InputMath @bind-Value=rotationable.RotY></InputMath>
                     </span>
                     <span>
                         <label class="zaxis">Z:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=rotationable.RotZ>
+                        <InputMath @bind-Value=rotationable.RotZ></InputMath>
                     </span>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                 <div class="sgap-row">
                     <span>
                         <label class="yaxis">Y:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=orientable.Orientation>
+                        <InputMath @bind-Value=orientable.Orientation></InputMath>
                     </span>
                 </div>
             </div>
@@ -68,15 +68,15 @@
                 <div class="sgap-row">
                     <span>
                         <label class="xaxis">X:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=sizable.SizeX>
+                        <InputMath @bind-Value=sizable.SizeX></InputMath>
                     </span>
                     <span>
                         <label class="yaxis">Y:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=sizable.SizeY>
+                        <InputMath @bind-Value=sizable.SizeY></InputMath>
                     </span>
                     <span>
                         <label class="zaxis">Z:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=sizable.SizeZ>
+                        <InputMath @bind-Value=sizable.SizeZ></InputMath>
                     </span>
                 </div>
             </div>
@@ -92,15 +92,15 @@
                 <div class="sgap-row">
                     <span>
                         <label class="xaxis">X:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=sizeX readonly>
+                        <InputMath @bind-value=sizeX readonly></InputMath>
                     </span>
                     <span>
                         <label class="yaxis">Y:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=sizeY readonly>
+                        <InputMath @bind-value=sizeY readonly></InputMath>
                     </span>
                     <span>
                         <label class="zaxis">Z:&nbsp;</label>
-                        <input type="number" class="number_box" @bind-value=sizeZ readonly>
+                        <InputMath @bind-value=sizeZ readonly></InputMath>
                     </span>
                 </div>
             </div>
@@ -114,4 +114,6 @@
     public RoomObjectVM VM { get; set; }
 
     public override IUpdateUI Updatable => VM;
+
+    public string test;
 }

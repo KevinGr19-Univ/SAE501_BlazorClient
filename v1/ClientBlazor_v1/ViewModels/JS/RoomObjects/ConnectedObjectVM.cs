@@ -9,8 +9,8 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
         public double PosX { get => GetPosX(); set => SetPosX(value); }
         public double PosY { get => GetPosY(); set => SetPosY(value); }
         public double PosZ { get => GetPosZ(); set => SetPosZ(value); }
-        public double RotX { get => GetSizeX(); set => SetRotX(value); }
-        public double RotY { get => GetSizeY(); set => SetRotY(value); }
-        public double RotZ { get => GetSizeZ(); set => SetRotZ(value); }
+        public double RotX { get => GetRotX(); set => SetRotX(value); }
+        public double RotY { get => GetRotY(); set => SetRotY(value); }
+        public double RotZ { get => GetRotZ(); set => SetRotZ(value); }
     }
 }

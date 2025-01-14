@@ -34,45 +34,56 @@
                     <span>@(RoomSceneVM.Room?.Name ?? "Chargement...")</span>
                 </Header>
                 <Content>
-                    <FSubWindow>
-                        <Header><span>Objets</span></Header>
-                        <Content>
-                            @{
-                                RoomObjectSorter<RoomObjectVM> sortedVMs = RoomObjectSorter<RoomObjectVM>.SortObjects(RoomSceneVM.ObjectVMs, (vm) => vm.Object);
-                            }
-
-                            @foreach(var section in new[]{
-                                new{ Title = "Capteurs", VMs = sortedVMs.Sensors },
-                                new{ Title = "Actionneurs", VMs = sortedVMs.Actionnables },
-                                new{ Title = "Equipements", VMs = sortedVMs.Equipments },
-                            }){
-                                <span><b>@(section.Title)</b> (@(section.VMs.Count))</span>
-                                @if(section.VMs.Count > 0)
-                                {
-                                    <ul>
-                                        @foreach(var vm in section.VMs)
-                                        {
-                                            <li class="objectLink 
-                                                @(RoomSceneVM.VisibleObjectVMs.Contains(vm) ? "isVisible" : "") 
-                                                @(vm.MarkedForDeletion ? "text-danger" : "") 
-                                                @(vm.IsNew ? "text-success" : "")"
-                                            @onclick=vm.Select
-                                            >
-                                                @(vm.MarkedForDeletion ? "[-] " : (vm.IsNew ? "[+] " : ""))@vm.Object.GetFullName()
-                                            </li>
-                                        }
-                                    </ul>
+                    @if(RoomSceneVM.Room is not null)
+                    {
+                        <FSubWindow>
+                            <Header><span>Informations</span></Header>
+                            <Content>
+                                <span>Bâtiment : <b>@(RoomSceneVM.Room.Building?.Name)</b></span>
+                                <span>Orientation : <b>@(RoomSceneVM.Room.NorthOrientation)° N</b></span>
+                                <span>Hauteur : <b>@(RoomSceneVM.Room.Height)m</b></span>
+                            </Content>
+                        </FSubWindow>
+                        <FSubWindow>
+                            <Header><span>Objets</span></Header>
+                            <Content>
+                                @{
+                                    RoomObjectSorter<RoomObjectVM> sortedVMs = RoomObjectSorter<RoomObjectVM>.SortObjects(RoomSceneVM.ObjectVMs, (vm) => vm.Object);
                                 }
-                            }
-                        </Content>
-                    </FSubWindow>
-                    <FSubWindow>
-                        <Header><span>Actions</span></Header>
-                        <Content>
-                            <button @onclick=_addObjectModal.Open>Ajouter un équipement</button>
-                            <button style="background: green" @onclick=Click_SaveChanges>Sauvegarder</button>
-                        </Content>
-                    </FSubWindow>
+
+                                @foreach(var section in new[]{
+                                    new{ Title = "Capteurs", VMs = sortedVMs.Sensors },
+                                    new{ Title = "Actionneurs", VMs = sortedVMs.Actionnables },
+                                    new{ Title = "Equipements", VMs = sortedVMs.Equipments },
+                                }){
+                                    <span><b>@(section.Title)</b> (@(section.VMs.Count))</span>
+                                    @if(section.VMs.Count > 0)
+                                    {
+                                        <ul>
+                                            @foreach(var vm in section.VMs)
+                                            {
+                                                <li class="objectLink 
+                                                    @(RoomSceneVM.VisibleObjectVMs.Contains(vm) ? "isVisible" : "") 
+                                                    @(vm.MarkedForDeletion ? "text-danger" : "") 
+                                                    @(vm.IsNew ? "text-success" : "")"
+                                                @onclick=vm.Select
+                                                >
+                                                    @(vm.MarkedForDeletion ? "[-] " : (vm.IsNew ? "[+] " : ""))@vm.Object.GetFullName()
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                }
+                            </Content>
+                        </FSubWindow>
+                        <FSubWindow>
+                            <Header><span>Actions</span></Header>
+                            <Content>
+                                <button @onclick=_addObjectModal.Open>Ajouter un équipement</button>
+                                <button style="background: green" @onclick=Click_SaveChanges>Sauvegarder</button>
+                            </Content>
+                        </FSubWindow>
+                    }
                 </Content>
             </FWindow>
         }

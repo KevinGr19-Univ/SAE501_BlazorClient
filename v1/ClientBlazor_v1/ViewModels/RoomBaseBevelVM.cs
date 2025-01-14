@@ -21,7 +21,7 @@ namespace ClientBlazor_v1.ViewModels
         public void RecalculatePoints()
         {
             Points = BaseVM.Points.ToList();
-            if (Points.Count < 3 || VertexCount < 2) return;
+            if (Points.Count < 3 || VertexCount < 2 || Radius <= 0) return;
 
             int index = Points.IndexOf(PointToBevel);
             if (index == -1) return;
