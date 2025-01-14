@@ -20,8 +20,7 @@ namespace ClientBlazor_v1
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7053") });
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://sae-501-api-cxedf5ffhqe4e7c0.francecentral-01.azurewebsites.net") });
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration["API:Url"]!) });
             builder.Services.AddScoped(sp =>
             {
                 var options = new JsonSerializerOptions(JsonSerializerOptions.Default);
