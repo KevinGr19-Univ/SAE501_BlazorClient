@@ -29,8 +29,8 @@ namespace ClientBlazor_v1.Models
             }
             else
             {
-                X /= Length;
-                Y /= Length;
+                X /= length;
+                Y /= length;
             }
         }
 

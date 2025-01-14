@@ -11,7 +11,7 @@ namespace ClientBlazor_v1.ViewModels
         public Vector2D PointToBevel { get; set; }
 
         private int _vertexCount = 6;
-        public int VertexCount { get => _vertexCount; set => _vertexCount = Math.Clamp(value, 2, 20); }
+        public int VertexCount { get => _vertexCount; set => _vertexCount = Math.Clamp(value, 1, 20); }
 
         private double _radius = 1;
         public double Radius { get => _radius; set => _radius = Math.Max(0, value); }
@@ -21,7 +21,7 @@ namespace ClientBlazor_v1.ViewModels
         public void RecalculatePoints()
         {
             Points = BaseVM.Points.ToList();
-            if (Points.Count < 3) return;
+            if (Points.Count < 3 || VertexCount < 2) return;
 
             int index = Points.IndexOf(PointToBevel);
             if (index == -1) return;
