@@ -53,7 +53,7 @@ class RoomScene {
         }
 
         // Set points in the right order (for normals)
-        let shape = points.map(p => new BABYLON.Vector3(p.x, 0, -p.y));
+        let shape = points.map(p => new BABYLON.Vector3(-p.y, 0, -p.x));
         if (isClockwiseXZ(shape)) shape.reverse();
 
         this.room = BABYLON.MeshBuilder.ExtrudePolygon("room", {
