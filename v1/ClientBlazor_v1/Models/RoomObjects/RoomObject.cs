@@ -1,6 +1,6 @@
 ﻿namespace ClientBlazor_v1.Models.RoomObjects
 {
-    public abstract class RoomObject
+    public abstract class RoomObject : ICloneable
     {
         public int Id { get; set; }
         public string? CustomName { get; set; }
@@ -9,5 +9,7 @@
 
         abstract public string GetRootName();
         public string GetFullName() => GetRootName() + (string.IsNullOrEmpty(CustomName) ? "" : $" \"{CustomName}\"");
+
+        public object Clone() => MemberwiseClone();
     }
 }

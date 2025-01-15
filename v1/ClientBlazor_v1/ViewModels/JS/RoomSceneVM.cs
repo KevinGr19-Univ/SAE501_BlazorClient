@@ -121,20 +121,42 @@ namespace ClientBlazor_v1.ViewModels.JS
 
             RoomObjectType_SelectedIndex = -1;
             CreateInputSelectRoomObjectTypes();
-            AddRoomObjectVM(roomObj);
+            
+            var vm = AddRoomObjectVM(roomObj);
+            vm.Select();
         }
 
-        private void AddRoomObjectVM(RoomObject roomObj)
+        private RoomObjectVM AddRoomObjectVM(RoomObject roomObj, bool duplicated = false)
         {
             var vmBuilder = _roomObjectVMBuilders[roomObj.GetType()];
             var vm = vmBuilder.VMBuilder(roomObj);
             vm.JSObj = JSObj.Invoke<IJSInProcessObjectReference>(vmBuilder.JSBuilderName);
-            vm.ApplyObjectToVM();
+            vm.ApplyObjectToVM(duplicated);
 
             vm.OnSelect += OnVMSelect;
             vm.OnClose += OnVMClose;
             vm.OnMarkedForDeletionChanged += OnVMMarkedForDeletionChanged;
+
+            vm.DuplicateHandler = DuplicateRoomObject;
+
             ObjectVMs.Add(vm);
+            return vm;
+        }
+
+        private async Task DuplicateRoomObject(RoomObject newRoomObject)
+        {
+            newRoomObject.Id = 0;
+
+            var name = newRoomObject.CustomName;
+            if(string.IsNullOrEmpty(name)) name = newRoomObject.GetRootName();
+            string[] parts = name.Split('.');
+
+            newRoomObject.CustomName = parts.Length > 1 && int.TryParse(parts[^1], out int number) 
+                ? $"{string.Join(".", parts[..^1])}.{number + 1}"
+                : $"{name}.1";
+
+            var vm = AddRoomObjectVM(newRoomObject, true);
+            vm.Select();
         }
 
         private void AddObjectVMToVisible(RoomObjectVM objectVM)

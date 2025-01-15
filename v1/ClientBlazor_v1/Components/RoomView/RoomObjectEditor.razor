@@ -43,6 +43,7 @@
             <FSubWindow>
                 <Header>Actions</Header>
                 <Content>
+                    <button type="button" @onclick="() => VM.Duplicate()">Dupliquer</button>
                     @if(!VM.MarkedForDeletion){
                         <button type="button" style="background: red" @onclick="() => VM.SetMarkedForDeletion(true)">Supprimer</button>
                     }

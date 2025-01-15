@@ -45,15 +45,28 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
             JSObj.InvokeVoid("setMarkedForDeletion", delete);
         }
 
+        public Func<RoomObject, Task> DuplicateHandler { get; set; }
+        public async Task Duplicate()
+        {
+            var duplicate = (RoomObject)Object.Clone();
+            var original = Object;
+
+            _object = duplicate;
+            ApplyVMTOObject();
+            _object = original;
+
+            await DuplicateHandler?.Invoke(duplicate);
+        }
+
         public bool TryValidateModel()
         {
             var context = new ValidationContext(Object);
             return Validator.TryValidateObject(Object, context, null);
         }
 
-        public virtual void ApplyObjectToVM()
+        public virtual void ApplyObjectToVM(bool ignoreNew)
         {
-            if(!IsNew) TransformCopySourceToTarget(Object, this);
+            if(!IsNew || ignoreNew) TransformCopySourceToTarget(Object, this);
         }
 
         public virtual void ApplyVMTOObject()
