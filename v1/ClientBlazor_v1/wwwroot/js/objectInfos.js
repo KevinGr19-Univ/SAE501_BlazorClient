@@ -1,6 +1,6 @@
 ﻿export var objectInfos = {
     door: {
-        meshBuilder: (roomScene) => {
+        meshBuilder: async (roomScene) => {
             let door = BABYLON.MeshBuilder.CreateBox("door", { width: 1, height: 2, depth: 0.15 }, roomScene.scene);
             door.material = new BABYLON.StandardMaterial("doorMat");
             door.material.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0);
@@ -23,7 +23,7 @@
         }
     },
     table: {
-        meshBuilder: (roomScene) => {
+        meshBuilder: async (roomScene) => {
             let table = BABYLON.MeshBuilder.CreateBox("table", { width: 2, height: 1, depth: 1.2 }, roomScene.scene);
             table.material = new BABYLON.StandardMaterial("tableMat");
             table.material.diffuseColor = new BABYLON.Color3(0, 0, 0.5);
@@ -46,7 +46,7 @@
         }
     },
     window: {
-        meshBuilder: (roomScene) => {
+        meshBuilder: async (roomScene) => {
             let window = BABYLON.MeshBuilder.CreateBox("window", { width: 1, height: 1.4, depth: 0.15 }, roomScene.scene);
             window.material = new BABYLON.StandardMaterial("windowMat");
             window.material.diffuseColor = new BABYLON.Color3(0, 0.5, 0.5);
@@ -69,7 +69,7 @@
         }
     },
     heater: {
-        meshBuilder: (roomScene) => {
+        meshBuilder: async (roomScene) => {
             let heater = BABYLON.MeshBuilder.CreateBox("heater", { width: 1.6, height: 0.8, depth: 0.4 }, roomScene.scene);
             heater.material = new BABYLON.StandardMaterial("doorMat");
             heater.material.diffuseColor = new BABYLON.Color3(0.5, 0, 0);
@@ -92,7 +92,7 @@
         }
     },
     siren: {
-        meshBuilder: (roomScene) => {
+        meshBuilder: async (roomScene) => {
             let siren = BABYLON.MeshBuilder.CreateBox("siren", { width: 0.3, height: 0.3, depth: 0.3 }, roomScene.scene);
             siren.material = new BABYLON.StandardMaterial("sirenMat");
             siren.material.diffuseColor = new BABYLON.Color3(1, 0, 1);
@@ -112,7 +112,7 @@
         }
     },
     plug: {
-        meshBuilder: (roomScene) => {
+        meshBuilder: async (roomScene) => {
             let plug = BABYLON.MeshBuilder.CreateBox("plug", { width: 0.3, height: 0.3, depth: 0.3 }, roomScene.scene);
             plug.material = new BABYLON.StandardMaterial("plugMat");
             plug.material.diffuseColor = new BABYLON.Color3(1, 1, 0);
@@ -132,7 +132,7 @@
         }
     },
     lamp: {
-        meshBuilder: (roomScene) => {
+        meshBuilder: async (roomScene) => {
             let sensor = BABYLON.MeshBuilder.CreateBox("lamp", { width: 0.3, height: 0.3, depth: 0.3 }, roomScene.scene);
             sensor.material = new BABYLON.StandardMaterial("lampMat");
             sensor.material.diffuseColor = new BABYLON.Color3(1, 0.5, 0);
@@ -152,7 +152,7 @@
         }
     },
     sensor6in1: {
-        meshBuilder: (roomScene) => {
+        meshBuilder: async (roomScene) => {
             let sensor6in1 = BABYLON.MeshBuilder.CreateBox("sensor6in1", { width: 0.3, height: 0.3, depth: 0.3 }, roomScene.scene);
             sensor6in1.material = new BABYLON.StandardMaterial("sensor6in1Mat");
             sensor6in1.material.diffuseColor = new BABYLON.Color3(0, 0, 1);
@@ -172,7 +172,7 @@
         }
     },
     sensor9in1: {
-        meshBuilder: (roomScene) => {
+        meshBuilder: async (roomScene) => {
             let sensor9in1 = BABYLON.MeshBuilder.CreateBox("sensor9in1", { width: 0.3, height: 0.3, depth: 0.3 }, roomScene.scene);
             sensor9in1.material = new BABYLON.StandardMaterial("sensor9in1Mat");
             sensor9in1.material.diffuseColor = new BABYLON.Color3(0, 1, 0);
@@ -192,7 +192,7 @@
         }
     },
     sensorCO2: {
-        meshBuilder: (roomScene) => {
+        meshBuilder: async (roomScene) => {
             let sensorCO2 = BABYLON.MeshBuilder.CreateBox("sensorCO2", { width: 0.3, height: 0.3, depth: 0.3 }, roomScene.scene);
             sensorCO2.material = new BABYLON.StandardMaterial("sensorCO2Mat");
             sensorCO2.material.diffuseColor = new BABYLON.Color3(1, 0, 0);

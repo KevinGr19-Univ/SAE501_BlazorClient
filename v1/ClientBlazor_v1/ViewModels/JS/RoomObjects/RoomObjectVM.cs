@@ -41,8 +41,8 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
         public void SetMarkedForDeletion(bool delete)
         {
             MarkedForDeletion = delete;
-            OnMarkedForDeletionChanged?.Invoke(this, EventArgs.Empty);
             JSObj.InvokeVoid("setMarkedForDeletion", delete);
+            OnMarkedForDeletionChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public Func<RoomObject, Task> DuplicateHandler { get; set; }

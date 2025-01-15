@@ -8,7 +8,7 @@
 @code {
     public string FormattedCurrentValue
     {
-        get => Value.ToString(CultureInfo.GetCultureInfo("en-GB"));
+        get => double.Round(Value, 3).ToString(CultureInfo.GetCultureInfo("en-GB"));
         set => CurrentValueAsString = value;
     }
 

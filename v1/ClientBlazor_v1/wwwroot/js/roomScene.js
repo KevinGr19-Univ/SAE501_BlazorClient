@@ -181,8 +181,8 @@ class RoomScene {
     addPlug(){ return this._addRoomObject("plug"); }
     addSiren() { return this._addRoomObject("siren"); }
 
-    _addRoomObject(key) {
-        let mesh = objectInfos[key].meshBuilder(this);
+    async _addRoomObject(key) {
+        let mesh = await objectInfos[key].meshBuilder(this);
         mesh.position = this.getSceneCenter();
 
         this.gizmoManager.attachableMeshes.push(mesh);

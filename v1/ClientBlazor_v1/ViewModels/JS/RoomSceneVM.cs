@@ -39,7 +39,7 @@ namespace ClientBlazor_v1.ViewModels.JS
             if (Room is not null)
             {
                 UpdateRoomMesh();
-                UpdateRoomObjects();
+                await UpdateRoomObjects();
                 RequireUIUpdate();
             }
         }
@@ -114,7 +114,7 @@ namespace ClientBlazor_v1.ViewModels.JS
                 .ToList().AsReadOnly();
         }
 
-        public void AddNewOfSelectedRoomObjectType()
+        public async Task AddNewOfSelectedRoomObjectType()
         {
             var roomObj = RoomObjectType_Selected;
             if (roomObj is null) return;
@@ -122,15 +122,15 @@ namespace ClientBlazor_v1.ViewModels.JS
             RoomObjectType_SelectedIndex = -1;
             CreateInputSelectRoomObjectTypes();
             
-            var vm = AddRoomObjectVM(roomObj);
+            var vm = await AddRoomObjectVM(roomObj);
             vm.Select();
         }
 
-        private RoomObjectVM AddRoomObjectVM(RoomObject roomObj, bool duplicated = false)
+        private async Task<RoomObjectVM> AddRoomObjectVM(RoomObject roomObj, bool duplicated = false)
         {
             var vmBuilder = _roomObjectVMBuilders[roomObj.GetType()];
             var vm = vmBuilder.VMBuilder(roomObj);
-            vm.JSObj = JSObj.Invoke<IJSInProcessObjectReference>(vmBuilder.JSBuilderName);
+            vm.JSObj = await JSObj.InvokeAsync<IJSInProcessObjectReference>(vmBuilder.JSBuilderName);
             vm.ApplyObjectToVM(duplicated);
 
             vm.OnSelect += OnVMSelect;
@@ -155,7 +155,7 @@ namespace ClientBlazor_v1.ViewModels.JS
                 ? $"{string.Join(".", parts[..^1])}.{number + 1}"
                 : $"{name}.1";
 
-            var vm = AddRoomObjectVM(newRoomObject, true);
+            var vm = await AddRoomObjectVM(newRoomObject, true);
             vm.Select();
         }
 
@@ -204,11 +204,13 @@ namespace ClientBlazor_v1.ViewModels.JS
             JSObj.InvokeVoid("updateRoomMesh", points, Room.Height);
         }
 
-        public void UpdateRoomObjects()
+        public async Task UpdateRoomObjects()
         {
             JSObj.InvokeVoid("clearRoomObjects");
             foreach (var vm in ObjectVMs) DeleteRoomObjectVM(vm);
-            foreach (var roomObj in Room.ObjectsOfRoom) AddRoomObjectVM(roomObj);
+
+            if(Room is not null) 
+                await Task.WhenAll(Room.ObjectsOfRoom.Select(roomObj => AddRoomObjectVM(roomObj)));
         }
         #endregion
 
