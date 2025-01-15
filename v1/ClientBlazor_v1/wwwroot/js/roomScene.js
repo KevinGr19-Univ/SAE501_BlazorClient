@@ -78,6 +78,9 @@ class RoomScene {
 
     initGizmo() {
         this.gizmoManager = new BABYLON.GizmoManager(this.scene);
+        this.scene.layers.push(this.gizmoManager.utilityLayer);
+        console.log(this.scene.layers);
+        console.log("----------------");
 
         this.gizmoManager.positionGizmoEnabled = true;
         this.gizmoManager.rotationGizmoEnabled = true;
@@ -129,14 +132,14 @@ class RoomScene {
         if (this.selected === mesh) return;
 
         if (this.selected) {
-            //this.selected.material.emissiveColor = BABYLON.Color3.Black();
+            this.selected.material.emissiveColor = BABYLON.Color3.Black();
         }
 
         this.selected = mesh;
         this.gizmoManager.attachToMesh(this.selected);
 
         if (this.selected) {
-            //this.selected.material.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+            this.selected.material.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
 
             let bindedProps = objectInfos[this.selected.roomObjectKey].bindedProps;
             this.gizmoManager.gizmos.positionGizmo.xGizmo.isEnabled = bindedProps.position?.x;

@@ -12,7 +12,7 @@ async function loadModel(path, filename, scene) {
 
 export async function startLoadingModels(scene) {
     models = {
-        door: loadModel("/3d/_models/", "door.glb", scene),
+        //door: loadModel("/3d/_models/", "door.glb", scene),
         //table: loadModel("/3d/models/table.glb", "glb"),
         //window: loadModel("/3d/models/window.glb", "glb"),
         //heater: loadModel("/3d/models/heater.glb", "glb"),
@@ -35,11 +35,11 @@ async function createModel(modelKey) {
 export var objectInfos = {
     door: {
         meshBuilder: async (roomScene) => {
-            //let door = BABYLON.MeshBuilder.CreateBox("door", { width: 1, height: 2, depth: 0.15 }, roomScene.scene);
-            //door.material = new BABYLON.StandardMaterial("doorMat");
-            //door.material.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0);
-            //return door;
-            return await createModel("door");
+            let door = BABYLON.MeshBuilder.CreateBox("door", { width: 1, height: 2, depth: 0.15 }, roomScene.scene);
+            door.material = new BABYLON.StandardMaterial("doorMat");
+            door.material.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0);
+            return door;
+            //return await createModel("door");
         },
         bindedProps: {
             position: {
