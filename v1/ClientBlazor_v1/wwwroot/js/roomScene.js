@@ -26,8 +26,8 @@ class RoomScene {
 
         this.ambientLight = new BABYLON.HemisphericLight("ambientLight", new BABYLON.Vector3(0, 0, 0), this.scene);
         this.pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 3, 3), this.scene);
-        this.ambientLight.intensity = 0.7;
-        this.pointLight.intensity = 0.7;
+        this.ambientLight.intensity = 0.9;
+        this.pointLight.intensity = 0.3;
 
         this.initMeshes();
         this.initGizmo();
@@ -68,7 +68,7 @@ class RoomScene {
         this.room.flipFaces(true);
         this.room.isPickable = false;
 
-        setTimeout(() => this.setFocusToCenter(), 0);
+        setTimeout(() => this.setFocusToCenter(), 1);
     }
 
     clearRoomObjects() {
@@ -112,7 +112,6 @@ class RoomScene {
                 this.setSelected(null);
             }
         });
-
 
         this.canvas.addEventListener("keydown", (e) => {
             if (e.key == 'g') this.setGizmoPos();

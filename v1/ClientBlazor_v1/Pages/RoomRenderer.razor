@@ -231,6 +231,7 @@
     public override void Dispose()
     {
         _locationChangingHandler.Dispose();
+        RoomSceneVM.Dispose();
         base.Dispose();
     }
 }

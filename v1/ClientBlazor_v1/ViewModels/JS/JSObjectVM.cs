@@ -32,6 +32,7 @@ namespace ClientBlazor_v1.ViewModels.JS
         public void Dispose()
         {
             _dotnetRef?.Dispose();
+            JSObj?.Dispose();
         }
 
     }
