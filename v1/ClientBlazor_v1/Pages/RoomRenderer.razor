@@ -20,8 +20,8 @@
             <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoPos title="Translation (G)"><img src="images/move.png"/></div>
             <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoRot title="Rotation (R)"><img src="images/rotate.png" /></div>
             <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoScale title="Taille (S)"><img src="images/scale.png" /></div>
-            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetFocusToSelected title="Centrer vers l'objet sélectionné"><img src="images/focus_element.png" /></div>
-            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetFocusToCenter title="Centrer vers l'origine"><img src="images/focus_world.png" /></div>
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetFocusToSelected title="Centrer vers l'objet sélectionné (F)"><img src="images/focus_element.png" /></div>
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetFocusToCenter title="Centrer vers l'origine (W)"><img src="images/focus_world.png" /></div>
             <Compass VM="RoomSceneVM.CompassVM" OrientationOffset="RoomSceneVM.Room?.NorthOrientation ?? 0"></Compass>
         </div>
     }

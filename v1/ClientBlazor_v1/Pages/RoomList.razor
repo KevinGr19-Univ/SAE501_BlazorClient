@@ -59,27 +59,27 @@
                                             <div>
                                                 <b>Capteurs (@roomObjects.Sensors.Count)</b>
                                                 <ul>
-                                                    @foreach (var sensor in roomObjects.Sensors)
+                                                    @foreach (var sensor in GetGroupedNames(roomObjects.Sensors.Select(s => s.GetFullName())) )
                                                     {
-                                                        <li>@sensor.GetFullName()</li>
+                                                        <li>@sensor</li>
                                                     }
                                                 </ul>
                                             </div>
                                             <div>
                                                 <b>Actionneurs (@roomObjects.Actionnables.Count)</b>
                                                 <ul>
-                                                    @foreach (var actionnable in roomObjects.Actionnables)
+                                                    @foreach (var actionnable in GetGroupedNames(roomObjects.Actionnables.Select(s => s.GetFullName())) )
                                                     {
-                                                        <li>@actionnable.GetFullName()</li>
+                                                        <li>@actionnable</li>
                                                     }
                                                 </ul>
                                             </div>
                                             <div>
                                                 <b>Equipements (@roomObjects.Equipments.Count)</b>
                                                 <ul>
-                                                    @foreach (var equipment in roomObjects.Equipments)
+                                                    @foreach (var equipment in GetGroupedNames(roomObjects.Equipments.Select(s => s.GetRootName())) )
                                                     {
-                                                        <li>@equipment.GetFullName()</li>
+                                                        <li>@equipment</li>
                                                     }
                                                 </ul>
                                             </div>
@@ -179,6 +179,19 @@
     {
         _deleteRoomModal.Close();
         await BuildingListVM.DeleteRoom(_roomToDelete);
+    }
+
+    public IEnumerable<string> GetGroupedNames(IEnumerable<string> names)
+    {
+        Dictionary<string, int> groupedNames = new();
+
+        foreach (string name in names)
+        {
+            if (!groupedNames.ContainsKey(name)) groupedNames[name] = 0;
+            groupedNames[name]++;
+        }
+
+        return groupedNames.Select(kvp => kvp.Value > 1 ? $"(x{kvp.Value}) {kvp.Key}" : kvp.Key);
     }
 }
 

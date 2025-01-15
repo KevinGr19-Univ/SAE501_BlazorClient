@@ -64,12 +64,13 @@ class RoomScene {
 
         let center = this.room.getBoundingInfo().boundingBox.center;
         this.room.setPivotMatrix(BABYLON.Matrix.Translation(-center.x, height, -center.z), false);
+        this.room.computeWorldMatrix(true);
 
         this.room.material = new BABYLON.StandardMaterial("roomMat");
         this.room.flipFaces(true);
         this.room.isPickable = false;
 
-        setTimeout(() => this.setFocusToCenter(), 1);
+        this.setFocusToCenter();
     }
 
     clearRoomObjects() {
@@ -78,9 +79,6 @@ class RoomScene {
 
     initGizmo() {
         this.gizmoManager = new BABYLON.GizmoManager(this.scene);
-        this.scene.layers.push(this.gizmoManager.utilityLayer);
-        console.log(this.scene.layers);
-        console.log("----------------");
 
         this.gizmoManager.positionGizmoEnabled = true;
         this.gizmoManager.rotationGizmoEnabled = true;
@@ -107,23 +105,25 @@ class RoomScene {
             if (e.key == 'g') this.setGizmoPos();
             else if (e.key == 'r') this.setGizmoRot();
             else if (e.key == 's') this.setGizmoScale();
+            else if (e.key == 'f') this.setFocusToSelected();
+            else if (e.key == 'w') this.setFocusToCenter();
         });
 
         this.gizmoManager.attachableMeshes = [];
 
         this.gizmoManager.gizmos.positionGizmo.onDragObservable.add(() => {
-            var bb_room = this.room.getBoundingInfo().boundingBox;
+            let bb_room = this.room.getBoundingInfo().boundingBox;
+            let mesh = this.gizmoManager.attachedMesh;
 
-            var mesh = this.gizmoManager.attachedMesh;
-            var { min, max } = mesh.getHierarchyBoundingVectors();
-            var size = max.subtract(min).scale(0.5);
+            mesh.getBoundingInfo().update(mesh.getWorldMatrix());
+            let bb_mesh = mesh.getBoundingInfo().boundingBox;
 
             for (let dim of ["x", "y", "z"]) {
                 mesh.position[dim] = clamp(
                     mesh.position[dim],
-                    bb_room.minimumWorld[dim] + size[dim],
-                    bb_room.maximumWorld[dim] - size[dim],
-                );
+                    bb_room.minimumWorld[dim] + (mesh.position[dim] - bb_mesh.minimumWorld[dim]),
+                    bb_room.maximumWorld[dim] - (bb_mesh.maximumWorld[dim] - mesh.position[dim]),
+                ); 
             }
         });
     }
@@ -131,15 +131,14 @@ class RoomScene {
     setSelected(mesh) {
         if (this.selected === mesh) return;
 
-        if (this.selected) {
-            this.selected.material.emissiveColor = BABYLON.Color3.Black();
-        }
-
+        let oldSelected = this.selected;
         this.selected = mesh;
+
+        oldSelected?.updateHitboxMaterial();
         this.gizmoManager.attachToMesh(this.selected);
 
         if (this.selected) {
-            this.selected.material.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+            this.selected.updateHitboxMaterial();
 
             let bindedProps = objectInfos[this.selected.roomObjectKey].bindedProps;
             this.gizmoManager.gizmos.positionGizmo.xGizmo.isEnabled = bindedProps.position?.x;
@@ -172,23 +171,25 @@ class RoomScene {
     addSiren() { return this._addRoomObject("siren"); }
 
     async _addRoomObject(key) {
-        let mesh = await objectInfos[key].meshBuilder(this);
-        this.scene.addMesh(mesh);
-        mesh.position = this.getSceneCenter();
+        let mesh = await objectInfos[key].meshBuilder(this.scene);
+
+        // Custom mesh attributes
+        let offset = mesh.getBoundingInfo().boundingBox.centerWorld.subtract(mesh.position);
+        mesh.position = this.getSceneCenter().subtract(offset);
+        mesh.rotationQuaternion = null;
 
         this.gizmoManager.attachableMeshes.push(mesh);
         mesh.roomObjectKey = key;
         addSizeProps(mesh);
 
+        // Proxy object
         let obj = dotnetProxify(mesh, objectInfos[key].bindedProps);
         this.roomObjects.add(obj);
 
         obj.sceneSelect = () => this.setSelected(obj);
-
         obj.sceneUnselect = () => {
             if (this.selected === obj) this.setSelected(null);
         }
-
         obj.deleteSelf = () => {
             obj.sceneUnselect();
             obj.dispose();
@@ -197,11 +198,27 @@ class RoomScene {
             let i = this.gizmoManager.attachableMeshes.indexOf(mesh);
             if (i >= 0) this.gizmoManager.attachableMeshes.splice(i, 1);
         }
-
         obj.setMarkedForDeletion = (deletion) => {
-            obj.material.alpha = deletion ? 0.3 : 1;
+            obj.markedDeleted = deletion;
+            obj.updateHitboxMaterial();
+        }
+        obj.updateHitboxMaterial = () => {
+            if (this.selected === obj) {
+
+                obj.material.emissiveColor = obj.markedDeleted ? new BABYLON.Color3(0.5, 0.5, 0) :  new BABYLON.Color3(0, 1, 0);
+                obj.material.alpha = 0.3;
+            }
+            else if (obj.markedDeleted) {
+                obj.material.emissiveColor = new BABYLON.Color3(1, 0, 0);
+                obj.material.alpha = 0.3;
+            }
+            else {
+                obj.material.emissiveColor = new BABYLON.Color3(0, 0, 0);
+                obj.material.alpha = 0;
+            }
         }
 
+        obj.updateHitboxMaterial();
         return obj;
     }
 
@@ -257,7 +274,7 @@ class RoomScene {
     }
 
     setFocusToSelected() {
-        if(this.selected) this.camera.setTarget(this.selected.position.clone());
+        if(this.selected) this.camera.setTarget(this.selected.getBoundingInfo().boundingBox.centerWorld.clone());
     }
 
     getSceneCenter() {

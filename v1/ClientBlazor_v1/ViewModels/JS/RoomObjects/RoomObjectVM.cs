@@ -86,7 +86,7 @@ namespace ClientBlazor_v1.ViewModels.JS.RoomObjects
         public double GetPosX() => JSGet<double>("position.x");
         public double GetPosY() => JSGet<double>("position.y");
         public double GetPosZ() => JSGet<double>("position.z");
-
+          
         public double GetRotX() => JSGet<double>("rotation.x") * MathUtils.RAD2DEG;
         public double GetRotY() => JSGet<double>("rotation.y") * MathUtils.RAD2DEG;
         public double GetRotZ() => JSGet<double>("rotation.z") * MathUtils.RAD2DEG;

@@ -28,7 +28,10 @@
                     <span>ID: @VM.Object.Id</span>
                     <div class="input-box">
                         <label>Nom personnalisé</label>
-                        <InputText class="text_box" @bind-Value="VM.Object.CustomName"/>
+                        <div class="d-flex align-items-center" style="gap: 1em;">
+                            <InputText class="text_box" @bind-Value="VM.Object.CustomName"/>
+                            <button type="button" style="background: #800;" title="Supprimer le nom personnalisé" @onclick=Click_ClearCustomName><i class="bi bi-trash"></i></button>
+                        </div>
                     </div>
                     @if(VM.Object is ConnectedObject connectedObj)
                     {
@@ -61,4 +64,9 @@
     [Parameter]
     public RoomObjectVM VM { get; set; }
     public override IUpdateUI Updatable => VM;
+
+    public void Click_ClearCustomName()
+    {
+        VM.Object.CustomName = null;
+    }
 }

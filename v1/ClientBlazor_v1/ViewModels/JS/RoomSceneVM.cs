@@ -38,6 +38,8 @@ namespace ClientBlazor_v1.ViewModels.JS
 
             if (Room is not null)
             {
+                _room.ObjectsOfRoom.Sort(new Comparison<RoomObject>((obj1, obj2) => Comparer<int>.Default.Compare(obj1.Id, obj2.Id)));
+
                 UpdateRoomMesh();
                 await UpdateRoomObjects();
                 RequireUIUpdate();
@@ -147,13 +149,36 @@ namespace ClientBlazor_v1.ViewModels.JS
         {
             newRoomObject.Id = 0;
 
-            var name = newRoomObject.CustomName;
-            if(string.IsNullOrEmpty(name)) name = newRoomObject.GetRootName();
-            string[] parts = name.Split('.');
+            var newName = newRoomObject.CustomName;
+            if(string.IsNullOrEmpty(newName)) newName = "Copie";
+            List<string> parts = newName.Split('.').ToList();
 
-            newRoomObject.CustomName = parts.Length > 1 && int.TryParse(parts[^1], out int number) 
-                ? $"{string.Join(".", parts[..^1])}.{number + 1}"
-                : $"{name}.1";
+            HashSet<string?> reservedNames = ObjectVMs
+                .Select(vm => vm.Object.CustomName)
+                .ToHashSet();
+
+            if (parts.Count == 1)
+            {
+                newRoomObject.CustomName = $"{newName}.1";
+                parts.Add("1");
+            }
+
+            while(reservedNames.Contains(newRoomObject.CustomName))
+            {
+                if (int.TryParse(parts[^1], out int number))
+                {
+                    string newPart = $"{number + 1}";
+                    newRoomObject.CustomName = $"{string.Join(".", parts[..^1])}.{newPart}";
+                    parts.RemoveAt(parts.Count-1);
+                    parts.Add(newPart);
+                }
+
+                else
+                {
+                    newRoomObject.CustomName = $"{newRoomObject.CustomName}.1";
+                    parts.Add("1");
+                }
+            }
 
             var vm = await AddRoomObjectVM(newRoomObject, true);
             vm.Select();

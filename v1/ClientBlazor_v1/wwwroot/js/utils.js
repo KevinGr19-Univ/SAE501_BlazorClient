@@ -8,26 +8,26 @@ export function getNestedObject(object, path){
     return [object, path[path.length-1]];
 }
 
-export function addSizeProps(mesh){
-    mesh.size = {
+export function addSizeProps(node){
+    node.size = {
         get x() {
-            return (mesh.getBoundingInfo().boundingBox.extendSize.x * 2) * mesh.scaling.x;
+            return (node.getBoundingInfo().boundingBox.extendSize.x * 2) * node.scaling.x;
         },
         get y() {
-            return (mesh.getBoundingInfo().boundingBox.extendSize.y * 2) * mesh.scaling.y;
+            return (node.getBoundingInfo().boundingBox.extendSize.y * 2) * node.scaling.y;
         },
         get z() {
-            return (mesh.getBoundingInfo().boundingBox.extendSize.z * 2) * mesh.scaling.z;
+            return (node.getBoundingInfo().boundingBox.extendSize.z * 2) * node.scaling.z;
         },
 
         set x(value) {
-            mesh.scaling.x = value / (mesh.getBoundingInfo().boundingBox.extendSize.x * 2);
+            node.scaling.x = value / (node.getBoundingInfo().boundingBox.extendSize.x * 2);
         },
         set y(value) {
-            mesh.scaling.y = value / (mesh.getBoundingInfo().boundingBox.extendSize.y * 2);
+            node.scaling.y = value / (node.getBoundingInfo().boundingBox.extendSize.y * 2);
         },
         set z(value) {
-            mesh.scaling.z = value / (mesh.getBoundingInfo().boundingBox.extendSize.z * 2);
+            node.scaling.z = value / (node.getBoundingInfo().boundingBox.extendSize.z * 2);
         },
     };
 }
