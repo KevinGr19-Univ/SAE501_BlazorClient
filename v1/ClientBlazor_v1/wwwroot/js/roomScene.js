@@ -1,6 +1,6 @@
 ﻿import { clamp, addSizeProps, isClockwiseXZ } from './utils.js';
 import { dotnetProxify, addDotnetMutators } from './interop.js';
-import { objectInfos } from './objectInfos.js';
+import { objectInfos, startLoadingModels } from './objectInfos.js';
 import earcut from 'https://cdn.jsdelivr.net/npm/earcut@3.0.1/+esm';
 
 class RoomScene {
@@ -29,7 +29,8 @@ class RoomScene {
         this.ambientLight.intensity = 0.9;
         this.pointLight.intensity = 0.3;
 
-        this.initMeshes();
+        BABYLON.SceneLoader.ShowLoadingScreen = false;
+        startLoadingModels(this.scene);
         this.initGizmo();
 
         this.engine.runRenderLoop(() => this.scene.render());
@@ -73,20 +74,6 @@ class RoomScene {
 
     clearRoomObjects() {
         [...this.roomObjects].forEach(obj => obj.deleteSelf());
-    }
-
-    initMeshes() {
-        this.templates = {};
-        BABYLON.SceneLoader.ShowLoadingScreen = false;
-
-        const loadTemplate = (key, modelPath, ext) => {
-            let meshLoading = BABYLON.SceneLoader.AppendAsync(modelPath, undefined, this.scene, (event) => { }, ext);
-            return meshLoading.then((scene) => {
-                this.templates[key] = scene.getNodeByName("__root__").getChildMeshes()[0];
-                this.templates[key].setParent(null);
-                this.templates[key].setEnabled(false);
-            });
-        };
     }
 
     initGizmo() {
@@ -142,14 +129,14 @@ class RoomScene {
         if (this.selected === mesh) return;
 
         if (this.selected) {
-            this.selected.material.emissiveColor = BABYLON.Color3.Black();
+            //this.selected.material.emissiveColor = BABYLON.Color3.Black();
         }
 
         this.selected = mesh;
         this.gizmoManager.attachToMesh(this.selected);
 
         if (this.selected) {
-            this.selected.material.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+            //this.selected.material.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
 
             let bindedProps = objectInfos[this.selected.roomObjectKey].bindedProps;
             this.gizmoManager.gizmos.positionGizmo.xGizmo.isEnabled = bindedProps.position?.x;
@@ -183,6 +170,7 @@ class RoomScene {
 
     async _addRoomObject(key) {
         let mesh = await objectInfos[key].meshBuilder(this);
+        this.scene.addMesh(mesh);
         mesh.position = this.getSceneCenter();
 
         this.gizmoManager.attachableMeshes.push(mesh);

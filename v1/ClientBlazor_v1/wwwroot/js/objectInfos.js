@@ -1,10 +1,45 @@
-﻿export var objectInfos = {
+﻿let models = {};
+
+async function loadModel(path, filename, scene) {
+    //let imported = await BABYLON.SceneLoader.AppendAsync(path, undefined, undefined, (event) => { }, ext);
+    //let model = imported.getNodeByName("__root__").getChildMeshes()[0];
+    let imported = await BABYLON.SceneLoader.ImportMeshAsync("", path, filename, scene);
+    let model = imported.meshes[0];
+    model.setParent(null);
+    //model.setEnabled(false);
+    return model;
+}
+
+export async function startLoadingModels(scene) {
+    models = {
+        door: loadModel("/3d/_models/", "door.glb", scene),
+        //table: loadModel("/3d/models/table.glb", "glb"),
+        //window: loadModel("/3d/models/window.glb", "glb"),
+        //heater: loadModel("/3d/models/heater.glb", "glb"),
+        //sensor6in1: loadModel("/3d/models/sensor6in1.glb", "glb"),
+        //sensor9in1: loadModel("/3d/models/sensor9in1.glb", "glb"),
+        //sensorCO2: loadModel("/3d/models/sensorCO2.glb", "glb"),
+        //lamp: loadModel("/3d/models/lamp.glb", "glb"),
+        //plug: loadModel("/3d/models/plug.glb", "glb"),
+        //siren: loadModel("/3d/models/siren.glb", "glb"),
+    };
+}
+
+async function createModel(modelKey) {
+    let original = await models[modelKey];
+    let clone = original.clone();
+    clone.setEnabled(true);
+    return clone;
+}
+
+export var objectInfos = {
     door: {
         meshBuilder: async (roomScene) => {
-            let door = BABYLON.MeshBuilder.CreateBox("door", { width: 1, height: 2, depth: 0.15 }, roomScene.scene);
-            door.material = new BABYLON.StandardMaterial("doorMat");
-            door.material.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0);
-            return door;
+            //let door = BABYLON.MeshBuilder.CreateBox("door", { width: 1, height: 2, depth: 0.15 }, roomScene.scene);
+            //door.material = new BABYLON.StandardMaterial("doorMat");
+            //door.material.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0);
+            //return door;
+            return await createModel("door");
         },
         bindedProps: {
             position: {
