@@ -4,7 +4,7 @@ namespace ClientBlazor_v1.Models.RoomObjects.ConnectedObjects
 {
     public abstract class ConnectedObject : RoomObject, IPosition, IRotation
     {
-        public string CustomId;
+        public string? CustomId { get; set; }
         public double PosX { get; set; }
         public double PosY { get; set; }
         public double PosZ { get; set; }

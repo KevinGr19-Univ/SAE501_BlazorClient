@@ -4,49 +4,67 @@ using System.Text.Json;
 
 namespace ClientBlazor_v1.Services
 {
-    public class WSService<TEntity> : IService<TEntity>
+    public abstract class WSService
     {
-        private readonly HttpClient _httpClient;
-        private readonly JsonSerializerOptions _jsonSettings;
-        private readonly string _entityRoute;
+        protected readonly HttpClient httpClient;
+        protected readonly JsonSerializerOptions jsonSettings;
 
-        public WSService(string entityRoute, HttpClient client, JsonSerializerOptions jsonSettings)
+        public WSService(HttpClient client, JsonSerializerOptions jsonSettings)
         {
-            _entityRoute = entityRoute;
-            _httpClient = client;
-            _jsonSettings = jsonSettings;
+            httpClient = client;
+            this.jsonSettings = jsonSettings;
 
-            _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public virtual async Task<List<TEntity>> GetAllAsync()
+        protected async Task<List<TEntity>> _GetAllAsync<TEntity>(string route)
         {
-            return await _httpClient.GetFromJsonAsync<List<TEntity>>(_entityRoute, options: _jsonSettings);
+            return await httpClient.GetFromJsonAsync<List<TEntity>>(route, options: jsonSettings);
         }
 
-        public virtual async Task<TEntity?> GetByIdAsync(int id)
+        protected async Task<TEntity?> _GetByIdAsync<TEntity>(string prefix_route, int id)
         {
-            return await _httpClient.GetFromJsonAsync<TEntity>($"{_entityRoute}/GetById/{id}", options: _jsonSettings);
+            return await httpClient.GetFromJsonAsync<TEntity>($"{prefix_route}/{id}", options: jsonSettings);
         }
 
-        public virtual async Task<TEntity> PostAsync(TEntity entity)
+        protected async Task<TEntity> _PostAsync<TEntity>(string route, TEntity entity)
         {
-            var res = await _httpClient.PostAsJsonAsync(_entityRoute, entity, options: _jsonSettings);
+            var res = await httpClient.PostAsJsonAsync(route, entity, options: jsonSettings);
             res.EnsureSuccessStatusCode();
             return await res.Content.ReadFromJsonAsync<TEntity>();
         }
 
-        public virtual async Task PutAsync(int id, TEntity entity)
+        protected async Task _PutAsync<TEntity>(string prefix_route, int id, TEntity entity)
         {
-            var res = await _httpClient.PutAsJsonAsync($"{_entityRoute}/{id}", entity, options: _jsonSettings);
+            var res = await httpClient.PutAsJsonAsync($"{prefix_route}/{id}", entity, options: jsonSettings);
             res.EnsureSuccessStatusCode();
         }
 
-        public virtual async Task DeleteAsync(int id)
+        protected async Task _DeleteAsync(string prefix_route, int id)
         {
-            var res = await _httpClient.DeleteAsync($"{_entityRoute}/{id}");
+            var res = await httpClient.DeleteAsync($"{prefix_route}/{id}");
             res.EnsureSuccessStatusCode();
         }
+    }
+
+    public class WSService<TEntity> : WSService, IService<TEntity>
+    {
+        private readonly string _entityRoute;
+
+        public WSService(string entityRoute, HttpClient client, JsonSerializerOptions jsonSettings) : base(client, jsonSettings)
+        {
+            _entityRoute = entityRoute;
+        }
+
+        public virtual Task<List<TEntity>> GetAllAsync() => _GetAllAsync<TEntity>(_entityRoute);
+
+        public virtual Task<TEntity?> GetByIdAsync(int id) => _GetByIdAsync<TEntity>($"{_entityRoute}/GetById", id);
+
+        public virtual Task<TEntity> PostAsync(TEntity entity) => _PostAsync(_entityRoute, entity);
+
+        public virtual Task PutAsync(int id, TEntity entity) => _PutAsync(_entityRoute, id, entity);
+
+        public virtual Task DeleteAsync(int id) => _DeleteAsync(_entityRoute, id);
     }
 }

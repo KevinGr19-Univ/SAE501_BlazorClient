@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using ClientBlazor_v1.Components
 @using ClientBlazor_v1.Models
+@using ClientBlazor_v1.Models.DTO
 @using ClientBlazor_v1.Models.RoomObjects
 @using ClientBlazor_v1.Services
 @using ClientBlazor_v1.Utils
@@ -12,7 +13,7 @@
     <h3>Liste des salles</h3>
 
     <div class="building_container">
-        @if(BuildingListVM.Buildings is null)
+        @if(BuildingListVM.BuildingDTOs is null)
         {
             <div class="spinner-border" role="status"></div>
         }
@@ -24,11 +25,11 @@
                     <a href="/edit_room">Ajouter une salle</a>
                 </div>
 
-                <span>Bâtiments : <b>@BuildingListVM.Buildings.Count</b></span>
-                <span>Salles : <b>@BuildingListVM.Buildings.Sum(b => b.Rooms.Count)</b></span>
+                <span>Bâtiments : <b>@BuildingListVM.BuildingDTOs.Count</b></span>
+                <span>Salles : <b>@BuildingListVM.BuildingDTOs.Sum(b => b.Rooms.Count)</b></span>
             </div>
 
-            @foreach(var building in BuildingListVM.Buildings)
+            @foreach (var building in BuildingListVM.BuildingDTOs)
             {
                 <div class="building rounded shadow">
                     <div class="building_header" onclick="onHeaderCollapseClick(this)">
@@ -45,11 +46,11 @@
                         <div class="room_list">
                             @foreach (var room in building.Rooms)
                             {
-                                RoomObjectSorter<RoomObject> roomObjects = RoomObjectSorter<RoomObject>.SortObjects(room.ObjectsOfRoom ?? new(), obj => obj);
+                                RoomObjectSorter<RoomObject> roomObjects = RoomObjectSorter<RoomObject>.SortObjects(room.EmptyObjects ?? new(), obj => obj);
 
                                 <div class="room collapsed">
                                     <div class="room_header" onclick="onHeaderCollapseClick(this)">
-                                        <span><b>@room.Name</b> <i>[@(room.RoomType?.Name ?? "null")]</i></span>
+                                        <span><b>@room.Name</b> <i>[@room.RoomTypeName]</i></span>
                                         <hr />
                                         <span>@roomObjects.Sensors.Count capteurs</span>
                                     </div>
@@ -60,7 +61,7 @@
                                                 <ul>
                                                     @foreach (var sensor in roomObjects.Sensors)
                                                     {
-                                                        <li>@sensor.GetRootName()</li>
+                                                        <li>@sensor.GetFullName()</li>
                                                     }
                                                 </ul>
                                             </div>
@@ -69,7 +70,7 @@
                                                 <ul>
                                                     @foreach (var actionnable in roomObjects.Actionnables)
                                                     {
-                                                        <li>@actionnable.GetRootName()</li>
+                                                        <li>@actionnable.GetFullName()</li>
                                                     }
                                                 </ul>
                                             </div>
@@ -78,7 +79,7 @@
                                                 <ul>
                                                     @foreach (var equipment in roomObjects.Equipments)
                                                     {
-                                                        <li>@equipment.GetRootName()</li>
+                                                        <li>@equipment.GetFullName()</li>
                                                     }
                                                 </ul>
                                             </div>
@@ -121,7 +122,7 @@
         <p>
             Êtes-vous sûr de vouloir supprimer la salle ?
             <br />
-            - @_roomToDelete!.Building?.Name : <b>@_roomToDelete.Name</b>
+            - @_roomToDelete!.BuildingDTO?.Name : <b>@_roomToDelete.Name</b>
         </p>
     </Content>
     <Buttons>
@@ -137,21 +138,22 @@
 </script>
 
 @inject IService<Building> buildingService;
+@inject IDTOService dtoService;
 @inject IService<Room> roomService;
 @code {
     public BuildingListVM BuildingListVM { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        BuildingListVM = new(buildingService, roomService);
+        BuildingListVM = new(buildingService, roomService, dtoService);
         await BuildingListVM.LoadBuildings();
     }
 
     // Delete building modal
     private Modal _deleteBuildingModal;
-    private Building? _buildingToDelete;
+    private BuildingListElementDTO? _buildingToDelete;
 
-    public void Click_DeleteBuilding(Building building)
+    public void Click_DeleteBuilding(BuildingListElementDTO building)
     {
         _buildingToDelete = building;
         _deleteBuildingModal.Open();
@@ -165,9 +167,9 @@
 
     // Delete room modal
     private Modal _deleteRoomModal;
-    private Room? _roomToDelete;
+    private BuildingListRoomDTO? _roomToDelete;
 
-    public void Click_DeleteRoom(Room room)
+    public void Click_DeleteRoom(BuildingListRoomDTO room)
     {
         _roomToDelete = room;
         _deleteRoomModal.Open();

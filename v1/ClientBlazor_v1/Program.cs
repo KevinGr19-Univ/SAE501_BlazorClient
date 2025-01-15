@@ -36,10 +36,12 @@ namespace ClientBlazor_v1
             {
                 builder.Services.AddScoped<IService<TEntity>>(sp => new WSService<TEntity>(entityRoute, sp.GetRequiredService<HttpClient>(), sp.GetRequiredService<JsonSerializerOptions>()));
             }
+
             AddWSService<Building>("api/building");
             AddWSService<Room>("api/room");
             AddWSService<RoomType>("api/roomType");
             AddWSService<RoomObject>("api/roomObjects");
+            builder.Services.AddScoped<IDTOService, DTOService>();
 
             await builder.Build().RunAsync();
         }

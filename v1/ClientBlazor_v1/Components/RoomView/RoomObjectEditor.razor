@@ -1,4 +1,5 @@
 ﻿﻿@using ClientBlazor_v1.Components.Utils
+@using ClientBlazor_v1.Models.RoomObjects.ConnectedObjects
 @using ClientBlazor_v1.ViewModels
 @using System.ComponentModel
 @using ClientBlazor_v1.ViewModels.JS
@@ -29,6 +30,13 @@
                         <label>Nom personnalisé</label>
                         <InputText class="text_box" @bind-Value="VM.Object.CustomName"/>
                     </div>
+                    @if(VM.Object is ConnectedObject connectedObj)
+                    {
+                        <div class="input-box">
+                            <label>ID d'objet connecté</label>
+                            <InputText class="text_box" @bind-Value="connectedObj.CustomId" />
+                        </div>
+                    }
                 </Content>
             </FSubWindow>
             <TransformEditor VM="VM"></TransformEditor>

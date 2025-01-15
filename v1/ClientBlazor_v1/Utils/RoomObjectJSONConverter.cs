@@ -25,7 +25,7 @@ namespace ClientBlazor_v1.Utils
             if (typeToConvert == typeof(RoomObject))
             {
                 var reader_clone = reader;
-                var discriminator = JsonSerializer.Deserialize<RoomObjectDiscriminator?>(ref reader_clone);
+                var discriminator = JsonSerializer.Deserialize<RoomObjectDiscriminator?>(ref reader_clone, options);
                 if (discriminator is null) return null;
 
                 var type = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(t => t.Name == discriminator.RoomObjectType);

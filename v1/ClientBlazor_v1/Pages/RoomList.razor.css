@@ -47,8 +47,9 @@
 
 .room_description {
     display: flex;
+    flex-direction: column;
     justify-content: space-around;
-    gap: 1em;
+    gap: 0.5em;
 }
 
 .bottom_bar {
