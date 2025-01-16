@@ -9,6 +9,8 @@ namespace ClientBlazor_v1.Services
 
         public Task<List<BuildingListElementDTO>> GetAllBuildingDTOsAsync() => _GetAllAsync<BuildingListElementDTO>("api/building/DTO");
 
+        public Task<List<RoomObjectRoomDTO>> GetAllRoomObjectRoomDTOsAsync() => _GetAllAsync<RoomObjectRoomDTO>("api/roomObjects/DTO");
+
         public Task<List<RoomTypeDTO>> GetAllRoomTypeDTOsAsync() => _GetAllAsync<RoomTypeDTO>("api/roomType/DTO");
 
         public Task<RoomTypeDTO> PostRoomTypeFromDTOAsync(RoomTypeDTO dto) => _PostAsync("api/roomType/DTO", dto);

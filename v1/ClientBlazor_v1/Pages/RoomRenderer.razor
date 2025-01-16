@@ -166,6 +166,9 @@
     [SupplyParameterFromQuery]
     public int RoomId { get; set; }
 
+    [SupplyParameterFromQuery]
+    public int? RoomObjectId { get; set; }
+
     public RoomSceneVM RoomSceneVM { get; set; }
     public override IUpdateUI Updatable => RoomSceneVM;
 
@@ -182,6 +185,9 @@
             UpdateUI();
 
             await RoomSceneVM.LoadRoom(RoomId);
+            if(RoomObjectId is not null && RoomObjectId != 0)
+                RoomSceneVM.ObjectVMs.FirstOrDefault(vm => vm.Object.Id == RoomObjectId)?.Select();
+
             _locationChangingHandler = NavigationManager.RegisterLocationChangingHandler(LocationChangingHandler);
         }
     }

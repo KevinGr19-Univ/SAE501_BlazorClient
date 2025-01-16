@@ -9,5 +9,7 @@ namespace ClientBlazor_v1.Services
 
         Task<RoomTypeDTO> PostRoomTypeFromDTOAsync(RoomTypeDTO dto);
         Task PutRoomTypeFromDTOAsync(int id, RoomTypeDTO dto);
+
+        Task<List<RoomObjectRoomDTO>> GetAllRoomObjectRoomDTOsAsync();
     }
 }
