@@ -37,14 +37,12 @@ namespace ClientBlazor_v1.ViewModels
                 Task.Run(async() => { Room = _idRoom is null ? new Room() : await _roomService.GetByIdAsync((int)_idRoom); })
             );
 
-            RoomBaseVM.Points = Room.Base.Select(v => new Vector2D(v.X, v.Y)).ToList();
+            RoomBaseVM.Points = Room.Base;
             IsLoaded = true;
         }
 
         public async Task SaveRoom()
         {
-            Room.Base = RoomBaseVM.Points.ToList();
-
             if(_idRoom is null) await _roomService.PostAsync(Room);
             else await _roomService.PutAsync((int)_idRoom, Room);
         }

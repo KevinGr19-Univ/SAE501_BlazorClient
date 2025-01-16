@@ -19,7 +19,7 @@
             <div class="d-flex flex-column align-items-center" style="gap: 1em;">
                 @foreach(var roomType in ListVM.RoomTypeDTOs)
                 {
-                    if (roomType == EditVM.RoomTypeDTO) continue;
+                    if (roomType.Id == EditVM.RoomType?.Id) continue;
 
                     <div class="p-2 rounded shadow d-flex flex-column roomtype-card collapsed">
                         <div class="d-flex align-items-center roomtype-card-header" style="gap: 1em;">
@@ -47,7 +47,7 @@
         </div>
 
         <div>
-            <EditForm Model="@EditVM.RoomTypeDTO" OnValidSubmit="Click_SaveChanges" class="mt-4 p-2 rounded bg-white shadow d-flex flex-column align-items-center" style="gap: 0.5em;">
+            <EditForm Model="@EditVM.RoomType" OnValidSubmit="Click_SaveChanges" class="mt-4 p-2 rounded bg-white shadow d-flex flex-column align-items-center" style="gap: 0.5em;">
                 <b class="text-center">@(EditVM.IsNew ? "Créer un type" : "Modifier un type")</b>
 
                 <DataAnnotationsValidator/>
@@ -55,11 +55,11 @@
 
                 @if(!EditVM.IsNew)
                 {
-                    <span>ID: <b>@EditVM.RoomTypeDTO.Id</b></span>
+                    <span>ID: <b>@EditVM.RoomType.Id</b></span>
                 }
                 <div class="input-box align-self-center">
                     <label for="room-type-name">Nom</label>
-                    <input id="room-type-name" type="text" @bind-value=EditVM.RoomTypeDTO.Name />
+                    <InputText id="room-type-name" @bind-value=EditVM.RoomType.Name />
                 </div>
 
                 <div class="d-flex align-items-center" style="gap: 0.5em;">
@@ -129,7 +129,7 @@
     protected override async Task OnInitializedAsync()
     {
         ListVM = new(roomTypeService, dtoService);
-        EditVM = new(dtoService);
+        EditVM = new(roomTypeService);
 
         await ListVM.Load();
     }

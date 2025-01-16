@@ -6,37 +6,42 @@ namespace ClientBlazor_v1.ViewModels
 {
     public class RoomTypeEditVM
     {
-        private readonly IDTOService _dtoService;
+        private readonly IService<RoomType> _roomTypeService;
 
-        public RoomTypeDTO RoomTypeDTO { get; private set; }
+        public RoomType RoomType { get; private set; }
         public bool IsNew { get; private set; }
 
-        public RoomTypeEditVM(IDTOService dtoService)
+        public RoomTypeEditVM(IService<RoomType> roomTypeService)
         {
-            _dtoService = dtoService;
+            _roomTypeService = roomTypeService;
             SetNewModel();
         }
 
         public void SetNewModel()
         {
-            RoomTypeDTO = new();
+            RoomType = new();
             IsNew = true;
+        }
+
+        public void SetExistingModel(RoomType roomType)
+        {
+            RoomType = roomType;
+            IsNew = false;
         }
 
         public void SetExistingModel(RoomTypeDTO roomTypeDto)
         {
-            RoomTypeDTO = roomTypeDto;
-            IsNew = false;
+            SetExistingModel(new RoomType() { Id = roomTypeDto.Id, Name = roomTypeDto.Name });
         }
 
         public async Task Save()
         {
             if (IsNew)
             {
-                var roomType = await _dtoService.PostRoomTypeFromDTOAsync(RoomTypeDTO);
+                var roomType = await _roomTypeService.PostAsync(RoomType);
                 SetExistingModel(roomType);
             }
-            else await _dtoService.PutRoomTypeFromDTOAsync(RoomTypeDTO.Id, RoomTypeDTO);
+            else await _roomTypeService.PutAsync(RoomType.Id, RoomType);
         }
     }
 }

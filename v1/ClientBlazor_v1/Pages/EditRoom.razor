@@ -17,12 +17,12 @@
                 <div class="shadow p-3 input-section">
                     <div class="input-box">
                         <label for="room-name">Nom</label>
-                        <input id="room-name" type="text" @bind-value=VM.Room.Name />
+                        <InputText id="room-name" @bind-Value=VM.Room.Name />
                     </div>
                     <div class="input-box">
                         <label for="room-building">Bâtiment</label>
                         <InputSelect id="room-building" @bind-Value="VM.Room.IdBuilding" class="form-select">
-                            <option value="null">- Séléctionnez un bâtiment -</option>
+                            <option value="0">- Séléctionnez un bâtiment -</option>
                             @foreach (var building in VM.Buildings)
                             {
                                 <option value="@building.Id">@building.Name</option>
@@ -32,7 +32,7 @@
                     <div class="input-box">
                         <label for="room-type">Type de salle</label>
                         <InputSelect id="room-type" @bind-Value="VM.Room.IdRoomType" class="form-select">
-                            <option value="null">- Séléctionnez un type de salle -</option>
+                            <option value="0">- Séléctionnez un type de salle -</option>
                             @foreach (var roomType in VM.RoomTypes)
                             {
                                 <option value="@roomType.Id">@roomType.Name</option>
@@ -78,11 +78,11 @@
                     </div>
                     <div class="input-box">
                         <label for="room-height">Hauteur</label>
-                        <input id="room-height" type="number" step="any" @bind-value=VM.Room.Height />
+                        <InputNumber id="room-height" step="any" min="0" @bind-Value=VM.Room.Height />
                     </div>
                     <div class="input-box">
                         <label for="room-orientation">Orientation (°N)</label>
-                        <input id="room-orientation" type="number" step="any" @bind-value=VM.Room.NorthOrientation />
+                        <InputNumber id="room-orientation" step="any" min="0" max="360" @bind-Value=VM.Room.NorthOrientation />
                     </div>
                 </div>
                 <div class="d-flex" style="gap: 1em;">

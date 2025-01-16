@@ -1,4 +1,5 @@
 ﻿using ClientBlazor_v1.ViewModels.JS.RoomObjects;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace ClientBlazor_v1.Models.RoomObjects
@@ -9,8 +10,12 @@ namespace ClientBlazor_v1.Models.RoomObjects
             .Where(t => t.IsAssignableTo(typeof(RoomObject)) && !t.IsAbstract).ToArray().AsReadOnly();
 
         public int Id { get; set; }
+
         public string? CustomName { get; set; }
+
+        [DeniedValues(0, ErrorMessage = "La salle de l'objet est requise")]
         public int IdRoom { get; set; }
+
         public Room Room { get; set; }
 
         abstract public string GetRootName();
