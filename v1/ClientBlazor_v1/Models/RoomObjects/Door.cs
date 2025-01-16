@@ -1,6 +1,5 @@
 ﻿using ClientBlazor_v1.Models.Transform;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using ClientBlazor_v1.ViewModels.JS.RoomObjects;
 
 namespace ClientBlazor_v1.Models.RoomObjects
 {
@@ -21,5 +20,8 @@ namespace ClientBlazor_v1.Models.RoomObjects
         public double SizeZ { get; set; }
 
         public override string GetRootName() => "Porte";
+
+        public override string GetJSBuilderName() => "addDoor";
+        public override RoomObjectVM ToVM() => new DoorVM() { Object = this };
     }
 }

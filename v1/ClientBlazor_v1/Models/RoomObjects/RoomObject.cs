@@ -1,7 +1,13 @@
-﻿namespace ClientBlazor_v1.Models.RoomObjects
+﻿using ClientBlazor_v1.ViewModels.JS.RoomObjects;
+using System.Reflection;
+
+namespace ClientBlazor_v1.Models.RoomObjects
 {
     public abstract class RoomObject : ICloneable
     {
+        public static readonly IList<Type> SUBTYPES = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => t.IsAssignableTo(typeof(RoomObject)) && !t.IsAbstract).ToArray().AsReadOnly();
+
         public int Id { get; set; }
         public string? CustomName { get; set; }
         public int IdRoom { get; set; }
@@ -11,5 +17,8 @@
         public string GetFullName() => GetRootName() + (string.IsNullOrEmpty(CustomName) ? "" : $" \"{CustomName}\"");
 
         public object Clone() => MemberwiseClone();
+
+        abstract public RoomObjectVM ToVM();
+        abstract public string GetJSBuilderName();
     }
 }

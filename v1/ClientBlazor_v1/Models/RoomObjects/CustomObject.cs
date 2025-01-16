@@ -1,4 +1,5 @@
 ﻿using ClientBlazor_v1.Models.Transform;
+using ClientBlazor_v1.ViewModels.JS.RoomObjects;
 
 namespace ClientBlazor_v1.Models.RoomObjects
 {
@@ -17,5 +18,8 @@ namespace ClientBlazor_v1.Models.RoomObjects
         public double SizeZ { get; set; }
 
         public override string GetRootName() => "Objet";
+
+        public override string GetJSBuilderName() => "addCustomObject";
+        public override RoomObjectVM ToVM() => new CustomObjectVM() { Object = this };
     }
 }

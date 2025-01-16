@@ -55,67 +55,13 @@ namespace ClientBlazor_v1.ViewModels.JS
         #endregion
 
         #region Add/Delete RoomObject
-        private class RoomObjectVMBuilder
-        {
-            public string JSBuilderName { get; init; }
-            public Func<RoomObject, RoomObjectVM> VMBuilder { get; init; }
-        }
-
-        private readonly Dictionary<Type, RoomObjectVMBuilder> _roomObjectVMBuilders = new()
-        {
-            { typeof(Door), new() {
-                JSBuilderName = "addDoor",
-                VMBuilder = (obj) => new DoorVM() { Object = (Door)obj } 
-            }},
-            { typeof(Table), new() {
-                JSBuilderName = "addTable",
-                VMBuilder = (obj) => new TableVM() { Object = (Table)obj } 
-            }},
-            { typeof(Heater), new() {
-                JSBuilderName = "addHeater",
-                VMBuilder = (obj) => new HeaterVM() { Object = (Heater)obj } 
-            }},
-            { typeof(Window), new() {
-                JSBuilderName = "addWindow",
-                VMBuilder = (obj) => new WindowVM() { Object = (Window)obj } 
-            }},
-            { typeof(Sensor6in1), new() {
-                JSBuilderName = "addSensor6in1",
-                VMBuilder = (obj) => new Sensor6in1VM() { Object = (Sensor6in1)obj } 
-            }},
-            { typeof(Sensor9in1), new() {
-                JSBuilderName = "addSensor9in1",
-                VMBuilder = (obj) => new Sensor9in1VM() { Object = (Sensor9in1)obj } 
-            }},
-            { typeof(SensorCO2), new() {
-                JSBuilderName = "addSensorCO2",
-                VMBuilder = (obj) => new SensorCO2VM() { Object = (SensorCO2)obj } 
-            }},
-            { typeof(Lamp), new() {
-                JSBuilderName = "addLamp",
-                VMBuilder = (obj) => new LampVM() { Object = (Lamp)obj } 
-            }},
-            { typeof(Plug), new() {
-                JSBuilderName = "addPlug",
-                VMBuilder = (obj) => new PlugVM() { Object = (Plug)obj } 
-            }},
-            { typeof(Siren), new() {
-                JSBuilderName = "addSiren",
-                VMBuilder = (obj) => new SirenVM() { Object = (Siren)obj }
-            }},
-            { typeof(CustomObject), new() {
-                JSBuilderName = "addCustomObject",
-                VMBuilder = (obj) => new CustomObjectVM() { Object = (CustomObject)obj }
-            }},
-        };
-
         public IList<RoomObject> InputSelect_RoomObjectTypes { get; private set; }
         public int RoomObjectType_SelectedIndex { get; set; } = -1;
         public RoomObject? RoomObjectType_Selected => RoomObjectType_SelectedIndex < 0 ? null : InputSelect_RoomObjectTypes[RoomObjectType_SelectedIndex];
 
         private void CreateInputSelectRoomObjectTypes()
         {
-            InputSelect_RoomObjectTypes = _roomObjectVMBuilders.Keys
+            InputSelect_RoomObjectTypes = RoomObject.SUBTYPES
                 .Select(t => (RoomObject)t.GetConstructor([])!.Invoke(null))
                 .ToList().AsReadOnly();
         }
@@ -134,9 +80,8 @@ namespace ClientBlazor_v1.ViewModels.JS
 
         private async Task<RoomObjectVM> AddRoomObjectVM(RoomObject roomObj, bool duplicated = false)
         {
-            var vmBuilder = _roomObjectVMBuilders[roomObj.GetType()];
-            var vm = vmBuilder.VMBuilder(roomObj);
-            vm.JSObj = await JSObj.InvokeAsync<IJSInProcessObjectReference>(vmBuilder.JSBuilderName);
+            var vm = roomObj.ToVM();
+            vm.JSObj = await JSObj.InvokeAsync<IJSInProcessObjectReference>(roomObj.GetJSBuilderName());
             vm.ApplyObjectToVM(duplicated);
 
             vm.OnSelect += OnVMSelect;

@@ -1,4 +1,5 @@
 ﻿using ClientBlazor_v1.Models.Transform;
+using ClientBlazor_v1.ViewModels.JS.RoomObjects;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClientBlazor_v1.Models.RoomObjects
@@ -20,5 +21,8 @@ namespace ClientBlazor_v1.Models.RoomObjects
         public double SizeZ { get; set; }
 
         public override string GetRootName() => "Table";
+
+        public override string GetJSBuilderName() => "addTable";
+        public override RoomObjectVM ToVM() => new TableVM() { Object = this };
     }
 }
