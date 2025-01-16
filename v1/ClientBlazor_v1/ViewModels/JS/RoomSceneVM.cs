@@ -1,6 +1,5 @@
 ﻿using ClientBlazor_v1.Models;
 using ClientBlazor_v1.Models.RoomObjects;
-using ClientBlazor_v1.Models.RoomObjects.ConnectedObjects;
 using ClientBlazor_v1.Services;
 using ClientBlazor_v1.ViewModels.JS.RoomObjects;
 using Microsoft.JSInterop;
