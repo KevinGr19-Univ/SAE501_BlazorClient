@@ -31,7 +31,7 @@
             @foreach(var roomDto in VM.Rooms.Where(RoomMatches))
             {
                 var objects = roomDto.RoomObjects.Where(RoomObjectMatches).ToList();
-                bool collapsed = OpenedVMs.Contains(roomDto);
+                bool collapsed = !OpenedVMs.Contains(roomDto);
 
                 @if (objects.Any())
                 {
@@ -173,7 +173,6 @@
 
     private bool RoomMatches(RoomObjectRoomDTO roomDto)
     {
-        Console.WriteLine(roomDto);
         return roomDto.Name.ToLower().Contains(FilterRoomName.ToLower())
             || roomDto.BuildingName.ToLower().Contains(FilterRoomName.ToLower());
     }
@@ -200,17 +199,7 @@
     public async Task Click_SwitchRoomConfirmed()
     {
         _switchRoomModal.Close();
-        if (_idNewRoom == 0) return;
-
-        int oldIdRoom = _currentRoomObject.IdRoom;
         await VM.SwitchRoomOfRoomObject(_currentRoomObject!, _idNewRoom);
-
-        var oldRoomDto = VM.Rooms.First(roomDto => roomDto.Id == oldIdRoom);
-        var newRoomDto = VM.Rooms.First(roomDto => roomDto.Id == _idNewRoom);
-
-        oldRoomDto.RoomObjects.Remove(_currentRoomObject);
-        newRoomDto.RoomObjects.Add(_currentRoomObject);
-        VM.SortRooms(newRoomDto);
     }
 
     // Delete object modal
@@ -227,7 +216,6 @@
         _deleteObjectModal.Close();
         await VM.DeleteRoomObject(_currentRoomObject!);
 
-        VM.Rooms.First(roomDto => roomDto.Id == _currentRoomObject.IdRoom).RoomObjects.Remove(_currentRoomObject);
         _currentRoomObject = null;
     }
 }

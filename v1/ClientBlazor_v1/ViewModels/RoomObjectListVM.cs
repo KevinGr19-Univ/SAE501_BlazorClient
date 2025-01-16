@@ -34,18 +34,25 @@ namespace ClientBlazor_v1.ViewModels
 
         public async Task SwitchRoomOfRoomObject(RoomObject roomObject, int newIdRoom)
         {
+            if (newIdRoom == 0) return;
+
             var newRoomObject = (RoomObject)roomObject.Clone();
             newRoomObject.IdRoom = newIdRoom;
 
             await _roomObjectService.PutAsync(newRoomObject.Id, newRoomObject);
+            Rooms.First(dto => dto.Id == roomObject.IdRoom).RoomObjects.Remove(roomObject);
+
             roomObject.IdRoom = newIdRoom;
+            var newRoomDto = Rooms.First(dto => dto.Id == roomObject.IdRoom);
+            newRoomDto.RoomObjects.Add(roomObject);
+            SortRooms(newRoomDto);
         }
 
         public async Task DeleteRoomObject(RoomObject roomObject)
         {
             await _roomObjectService.DeleteAsync(roomObject.Id);
 
-            var dto = Rooms.FirstOrDefault(dto => dto.Id == roomObject.Id);
+            var dto = Rooms.FirstOrDefault(dto => dto.Id == roomObject.IdRoom);
             if(dto is not null) dto.RoomObjects.Remove(roomObject);
         }
     }
