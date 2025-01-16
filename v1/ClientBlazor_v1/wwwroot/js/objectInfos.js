@@ -185,4 +185,38 @@ export var objectInfos = {
             }
         }
     },
+    customObject: {
+        meshBuilder: async (scene) => {
+            let obj = await createModel("customobject", scene);
+            obj.colorMesh = obj.getChildMeshes()[0];
+            obj.colorMesh.material = new BABYLON.StandardMaterial("customObject_colorMat");
+
+            obj.setCustomObjectColor = (color) => {
+                let babylonColor = new BABYLON.Color3(
+                    ((color >> 16) & 0xFF) / 256,
+                    ((color >> 8) & 0xFF) / 256,
+                    (color & 0xFF) / 256,
+                );
+                obj.colorMesh.material.diffuseColor = babylonColor;
+            };
+            return obj;
+        },
+        bindedProps: {
+            position: {
+                x: true,
+                y: true,
+                z: true,
+            },
+            rotation: {
+                x: true,
+                y: true,
+                z: true
+            },
+            size: {
+                x: true,
+                y: true,
+                z: true
+            }
+        }
+    }
 };

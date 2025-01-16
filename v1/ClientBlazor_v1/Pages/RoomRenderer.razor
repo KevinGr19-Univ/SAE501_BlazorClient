@@ -188,10 +188,10 @@
 
     // Add object modal
     private Modal _addObjectModal;
-    public void Click_AddObject()
+    public async Task Click_AddObject()
     {
         _addObjectModal.Close();
-        RoomSceneVM.AddNewOfSelectedRoomObjectType();
+        await RoomSceneVM.AddNewOfSelectedRoomObjectType();
     }
 
     // Save modal

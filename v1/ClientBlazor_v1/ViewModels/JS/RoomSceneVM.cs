@@ -103,6 +103,10 @@ namespace ClientBlazor_v1.ViewModels.JS
                 JSBuilderName = "addSiren",
                 VMBuilder = (obj) => new SirenVM() { Object = (Siren)obj }
             }},
+            { typeof(CustomObject), new() {
+                JSBuilderName = "addCustomObject",
+                VMBuilder = (obj) => new CustomObjectVM() { Object = (CustomObject)obj }
+            }},
         };
 
         public IList<RoomObject> InputSelect_RoomObjectTypes { get; private set; }
@@ -123,7 +127,7 @@ namespace ClientBlazor_v1.ViewModels.JS
 
             RoomObjectType_SelectedIndex = -1;
             CreateInputSelectRoomObjectTypes();
-            
+
             var vm = await AddRoomObjectVM(roomObj);
             vm.Select();
         }

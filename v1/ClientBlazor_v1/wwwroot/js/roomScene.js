@@ -169,6 +169,7 @@ class RoomScene {
     addLamp(){ return this._addRoomObject("lamp"); }
     addPlug(){ return this._addRoomObject("plug"); }
     addSiren() { return this._addRoomObject("siren"); }
+    addCustomObject() { return this._addRoomObject("customObject"); }
 
     async _addRoomObject(key) {
         let mesh = await objectInfos[key].meshBuilder(this.scene);
