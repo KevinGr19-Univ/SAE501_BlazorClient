@@ -168,6 +168,10 @@
     color: black !important;
 }
 
+.objectLink{
+    max-width: 15em;
+}
+
 .objectLink:hover{
     cursor: pointer;
     text-decoration: underline;
