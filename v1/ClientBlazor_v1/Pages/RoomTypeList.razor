@@ -1,4 +1,5 @@
 ﻿@page "/room_types"
+@using BlazorBootstrap
 @using ClientBlazor_v1.Components
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Models.DTO
@@ -29,9 +30,9 @@
                             </div>
                             <div class="roomtype-card-hover d-flex align-items-center" style="gap: 0.5em;">
                                 <button class="btn btn-primary" title="Modifier le type de salle"
-                                    @onclick="() => Click_EditType(roomType)" @onclick:stopPropagation=true><i class="bi bi-pen"></i></button>
+                                @onclick="() => Click_EditType(roomType)" @onclick:stopPropagation=true><i class="bi bi-pen"></i></button>
                                 <button class="btn btn-danger" title="Supprimer le type de salle"
-                                    @onclick="() => Click_DeleteType(roomType)" @onclick:stopPropagation=true><i class="bi bi-trash"></i></button>
+                                @onclick="() => Click_DeleteType(roomType)" @onclick:stopPropagation=true><i class="bi bi-trash"></i></button>
                             </div>
                         </div>
                         <hr class="roomtype-card-collapse"/>
@@ -70,7 +71,7 @@
         </div>
     }
 
-    <Modal @ref=_roomTypeDeleteModal>
+    <CModal @ref=_roomTypeDeleteModal>
         <Title>Supprimer le type de salle</Title>
         <Content>
             <p>Voulez vous vraiment supprimer le type de salle suivant ?</p>
@@ -80,12 +81,12 @@
             <button type="button" class="btn btn-danger" @onclick=Click_DeleteTypeConfirmed>Supprimer</button>
             <button type="button" class="btn btn-secondary" @onclick=_roomTypeDeleteModal.Close>Annuler</button>
         </Buttons>
-    </Modal>
+    </CModal>
 </div>
 
 <script>
     function onTypeCollapseClick(e){
-        $(e).closest(".roomtype-card").toggleClass("collapsed");
+    $(e).closest(".roomtype-card").toggleClass("collapsed");
     }
 </script>
 
@@ -119,11 +120,12 @@
 
 @inject IService<RoomType> roomTypeService;
 @inject IDTOService dtoService;
+@inject ToastService ToastService;
 @code {
     public RoomTypeListVM ListVM { get; set; }
     public RoomTypeEditVM EditVM { get; set; }
 
-    private Modal _roomTypeDeleteModal;
+    private CModal _roomTypeDeleteModal;
     private RoomTypeDTO? _roomTypeToDelete;
 
     protected override async Task OnInitializedAsync()
@@ -131,7 +133,13 @@
         ListVM = new(roomTypeService, dtoService);
         EditVM = new(roomTypeService);
 
-        await ListVM.Load();
+        await Load();
+    }
+
+    public async Task Load()
+    {
+        try { await ListVM.Load(); }
+        catch(HttpRequestException ex) { ToastService.Notify(new(ToastType.Danger, IconName.X, "Erreur HTTP", ex.StatusCode.ToString())); }
     }
 
     public void Click_EditType(RoomTypeDTO roomTypeDto)

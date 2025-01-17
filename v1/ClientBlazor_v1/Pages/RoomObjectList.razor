@@ -70,7 +70,7 @@
     }
 </div>
 
-<Modal @ref=_switchRoomModal>
+<CModal @ref=_switchRoomModal>
     <Title>Changement de salle</Title>
     <Content>
         <b>Objet</b>
@@ -94,9 +94,9 @@
         }
         <button type="button" class="btn btn-secondary" @onclick=_switchRoomModal.Close>Annuler</button>
     </Buttons>
-</Modal>
+</CModal>
 
-<Modal @ref=_deleteObjectModal>
+<CModal @ref=_deleteObjectModal>
     <Title>Supprimer l'objet ?</Title>
     <Content>
         <p>Êtes-vous sûr de vouloir supprimer cet objet ?</p>
@@ -105,7 +105,7 @@
         <button type="button" class="btn btn-danger" @onclick=Click_DeleteObjectConfirmed>Supprimer</button>
         <button type="button" class="btn btn-secondary" @onclick=_deleteObjectModal.Close>Annuler</button>
     </Buttons>
-</Modal>
+</CModal>
 
 <style>
     .room_header{
@@ -186,7 +186,7 @@
     private RoomObject? _currentRoomObject;
 
     // Switch room modal
-    private Modal _switchRoomModal;
+    private CModal _switchRoomModal;
     private int _idNewRoom;
 
     public void Click_SwitchRoom(RoomObject roomObject)
@@ -203,7 +203,7 @@
     }
 
     // Delete object modal
-    private Modal _deleteObjectModal;
+    private CModal _deleteObjectModal;
 
     public void Click_DeleteObject(RoomObject roomObject)
     {

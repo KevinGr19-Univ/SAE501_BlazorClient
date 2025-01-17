@@ -5,7 +5,7 @@ namespace ClientBlazor_v1.Services
 {
     public class DTOService : WSService, IDTOService
     {
-        public DTOService(HttpClient client, JsonSerializerOptions jsonSettings) : base(client, jsonSettings) { }
+        public DTOService(HttpClient client, JsonSerializerOptions jsonSettings, IConfiguration config) : base(client, jsonSettings, config) { }
 
         public Task<List<BuildingListElementDTO>> GetAllBuildingDTOsAsync() => _GetAllAsync<BuildingListElementDTO>("api/building/DTO");
 

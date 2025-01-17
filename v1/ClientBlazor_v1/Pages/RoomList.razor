@@ -107,7 +107,7 @@
     </div>
 </div>
 
-<Modal @ref="_deleteBuildingModal">
+<CModal @ref="_deleteBuildingModal">
     <Title>Supprimer le bâtiment ?</Title>
     <Content>
         <p>
@@ -120,9 +120,9 @@
         <button class="btn btn-danger" @onclick="Click_DeleteBuildingConfirmed">Supprimer</button>
         <button class="btn btn-secondary" @onclick="_deleteBuildingModal.Close">Annuler</button>
     </Buttons>
-</Modal>
+</CModal>
 
-<Modal @ref="_deleteRoomModal">
+<CModal @ref="_deleteRoomModal">
     <Title>Supprimer la salle ?</Title>
     <Content>
         <p>
@@ -135,7 +135,7 @@
         <button class="btn btn-danger" @onclick="Click_DeleteRoomConfirmed">Supprimer</button>
         <button class="btn btn-secondary" @onclick="_deleteRoomModal.Close">Annuler</button>
     </Buttons>
-</Modal>
+</CModal>
 
 <script type="text/javascript">
     function onHeaderCollapseClick(btn){
@@ -163,7 +163,7 @@
     }
 
     // Delete building modal
-    private Modal _deleteBuildingModal;
+    private CModal _deleteBuildingModal;
     private BuildingListElementDTO? _buildingToDelete;
 
     public void Click_DeleteBuilding(BuildingListElementDTO building)
@@ -179,7 +179,7 @@
     }
 
     // Delete room modal
-    private Modal _deleteRoomModal;
+    private CModal _deleteRoomModal;
     private BuildingListRoomDTO? _roomToDelete;
 
     public void Click_DeleteRoom(BuildingListRoomDTO room)

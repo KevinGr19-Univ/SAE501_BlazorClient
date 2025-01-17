@@ -9,13 +9,14 @@ namespace ClientBlazor_v1.Services
         protected readonly HttpClient httpClient;
         protected readonly JsonSerializerOptions jsonSettings;
 
-        public WSService(HttpClient client, JsonSerializerOptions jsonSettings)
+        public WSService(HttpClient client, JsonSerializerOptions jsonSettings, IConfiguration config)
         {
             httpClient = client;
             this.jsonSettings = jsonSettings;
 
             httpClient.DefaultRequestHeaders.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Add("API_KEY", config["API:ApiKey"]);
         }
 
         protected async Task<List<TEntity>> _GetAllAsync<TEntity>(string route)
@@ -52,7 +53,7 @@ namespace ClientBlazor_v1.Services
     {
         private readonly string _entityRoute;
 
-        public WSService(string entityRoute, HttpClient client, JsonSerializerOptions jsonSettings) : base(client, jsonSettings)
+        public WSService(string entityRoute, HttpClient client, JsonSerializerOptions jsonSettings, IConfiguration config) : base(client, jsonSettings, config)
         {
             _entityRoute = entityRoute;
         }

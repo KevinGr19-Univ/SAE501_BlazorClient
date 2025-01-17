@@ -33,7 +33,7 @@
     }
 </div>
 
-<Modal @ref="_deleteBuildingModal">
+<CModal @ref="_deleteBuildingModal">
     <Title>Supprimer le bâtiment ?</Title>
     <Content>
         <p>
@@ -46,7 +46,7 @@
         <button class="btn btn-danger" @onclick="Click_DeleteBuildingConfirmed">Supprimer</button>
         <button class="btn btn-secondary" @onclick="_deleteBuildingModal.Close">Annuler</button>
     </Buttons>
-</Modal>
+</CModal>
 
 @inject IService<Building> buildingService
 @inject NavigationManager NavigationManager
@@ -69,7 +69,7 @@
     }
 
     // Delete building modal
-    private Modal _deleteBuildingModal;
+    private CModal _deleteBuildingModal;
     public void Click_DeleteBuilding()
     {
         _deleteBuildingModal.Open();

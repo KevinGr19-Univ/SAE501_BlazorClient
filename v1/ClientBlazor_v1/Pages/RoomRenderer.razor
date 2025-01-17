@@ -99,7 +99,7 @@
         }
     </div>
 
-    <Modal @ref=_saveChangesModal>
+    <CModal @ref=_saveChangesModal>
         <Title>Sauvegarder les changements</Title>
         <Content>
             <p>Voulez-vous sauvegarder tous les changements ?</p>
@@ -108,9 +108,9 @@
             <button type="button" class="btn btn-success" @onclick=Click_SaveChangesConfirmed>Sauvegarder</button>
             <button type="button" class="btn btn-secondary" @onclick=_saveChangesModal.Close>Annuler</button>
         </Buttons>
-    </Modal>
+    </CModal>
 
-    <Modal @ref=_abortChangesModal>
+    <CModal @ref=_abortChangesModal>
         <Title>Quitter ?</Title>
         <Content>
             <p>Êtes-vous sûr de vouloir quitter ?</p>
@@ -119,9 +119,9 @@
             <button type="button" class="btn btn-danger" @onclick=Click_AbortChangesConfirmed>Quitter</button>
             <button type="button" class="btn btn-secondary" @onclick=_abortChangesModal.Close>Annuler</button>
         </Buttons>
-    </Modal>
+    </CModal>
 
-    <Modal @ref=_addObjectModal OnClose="OnClose_AbortModal">
+    <CModal @ref=_addObjectModal OnClose="OnClose_AbortModal">
         <Title>Ajouter un équipement</Title>
         <Content>
             <div class="input-box">
@@ -145,7 +145,7 @@
             }
             <button type="button" class="btn btn-secondary" @onclick=_addObjectModal.Close>Annuler</button>
         </Buttons>
-    </Modal>
+    </CModal>
 </div>
 
 <script>
@@ -193,7 +193,7 @@
     }
 
     // Add object modal
-    private Modal _addObjectModal;
+    private CModal _addObjectModal;
     public async Task Click_AddObject()
     {
         _addObjectModal.Close();
@@ -201,7 +201,7 @@
     }
 
     // Save modal
-    private Modal _saveChangesModal;
+    private CModal _saveChangesModal;
     public void Click_SaveChanges() => _saveChangesModal.Open();
     public async Task Click_SaveChangesConfirmed()
     {
@@ -210,7 +210,7 @@
     }
 
     // Abort modal
-    private Modal _abortChangesModal;
+    private CModal _abortChangesModal;
     private IDisposable _locationChangingHandler;
     private TaskCompletionSource<bool> _locationChangingTask;
 

@@ -97,7 +97,7 @@
     }
 </div>
 
-<Modal @ref="_deleteRoomModal">
+<CModal @ref="_deleteRoomModal">
     <Title>Supprimer la salle ?</Title>
     <Content>
         <p>
@@ -110,9 +110,9 @@
         <button class="btn btn-danger" @onclick="Click_DeleteRoomConfirmed">Supprimer</button>
         <button class="btn btn-secondary" @onclick="_deleteRoomModal.Close">Annuler</button>
     </Buttons>
-</Modal>
+</CModal>
 
-<Modal @ref=_bevelModal>
+<CModal @ref=_bevelModal>
     <Title>Arrondir un coin</Title>
     <Content>
         @{
@@ -138,7 +138,7 @@
         <button class="btn btn-success" @onclick=Click_BevelPointConfirmed>Arrondir</button>
         <button class="btn btn-secondary" @onclick=_bevelModal.Close>Annuler</button>
     </Buttons>
-</Modal>
+</CModal>
 
 @inject IService<Room> roomService;
 @inject IService<Building> buildingService;
@@ -167,7 +167,7 @@
     }
 
     // Delete room modal
-    private Modal _deleteRoomModal;
+    private CModal _deleteRoomModal;
     public void Click_DeleteRoom()
     {
         _deleteRoomModal.Open();
@@ -185,7 +185,7 @@
     }
 
     // Bevel modal
-    private Modal _bevelModal;
+    private CModal _bevelModal;
     public void Click_BevelPoint(Vector2D point)
     {
         BevelVM.PointToBevel = point;

@@ -34,7 +34,11 @@ namespace ClientBlazor_v1
 
             void AddWSService<TEntity>(string entityRoute)
             {
-                builder.Services.AddScoped<IService<TEntity>>(sp => new WSService<TEntity>(entityRoute, sp.GetRequiredService<HttpClient>(), sp.GetRequiredService<JsonSerializerOptions>()));
+                builder.Services.AddScoped<IService<TEntity>>(sp => new WSService<TEntity>(
+                    entityRoute, 
+                    sp.GetRequiredService<HttpClient>(), 
+                    sp.GetRequiredService<JsonSerializerOptions>(), 
+                    sp.GetRequiredService<IConfiguration>()));
             }
 
             AddWSService<Building>("api/building");
