@@ -6,9 +6,12 @@
 
 @inherits InputBase<double>
 @code {
+    [Parameter]
+    public int? Precision { get; set; } = 3;
+
     public string FormattedCurrentValue
     {
-        get => double.Round(Value, 3).ToString(CultureInfo.GetCultureInfo("en-GB"));
+        get => (Precision is null ? Value : double.Round(Value, (int)Precision)).ToString(CultureInfo.GetCultureInfo("en-GB"));
         set => CurrentValueAsString = value;
     }
 

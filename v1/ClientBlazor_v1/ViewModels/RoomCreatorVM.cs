@@ -43,6 +43,7 @@ namespace ClientBlazor_v1.ViewModels
 
         public async Task SaveRoom()
         {
+            Room.Base = RoomBaseVM.Points;
             if(_idRoom is null) await _roomService.PostAsync(Room);
             else await _roomService.PutAsync((int)_idRoom, Room);
         }
