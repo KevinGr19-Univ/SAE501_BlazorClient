@@ -1,7 +1,10 @@
 ﻿@page "/edit_building"
+@using BlazorBootstrap
 @using ClientBlazor_v1.Components
+@using ClientBlazor_v1.Components.Utils
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Services
+@using ClientBlazor_v1.Utils
 @using ClientBlazor_v1.ViewModels
 
 <div class="m-4 d-flex flex-column align-items-center" style="gap: 1em;">
@@ -48,8 +51,9 @@
     </Buttons>
 </CModal>
 
-@inject IService<Building> buildingService
-@inject NavigationManager NavigationManager
+@inject IService<Building> buildingService;
+@inject NavigationManager NavigationManager;
+@inject ToastService ToastService;
 @code {
     public BuildingCreatorVM VM { get; set; }
 
@@ -59,13 +63,18 @@
     protected override async Task OnInitializedAsync()
     {
         VM = new(buildingService);
-        await VM.Load(BuildingID);
+
+        try{await VM.Load(BuildingID);}
+        catch (Exception e) { ToastService.NewFromException(e); }
     }
 
     public async Task Click_SaveChanges()
     {
-        await VM.SaveBuilding();
-        ExitPage();
+        try{
+            await VM.SaveBuilding();
+            ExitPage();
+        }
+        catch(Exception e){ ToastService.NewFromException(e); }
     }
 
     // Delete building modal
@@ -77,8 +86,12 @@
     public async Task Click_DeleteBuildingConfirmed()
     {
         _deleteBuildingModal.Close();
-        await VM.Delete();
-        ExitPage();
+
+        try{
+            await VM.Delete();
+            ExitPage();
+        }
+        catch(Exception e){ ToastService.NewFromException(e); }
     }
 
     private void ExitPage()

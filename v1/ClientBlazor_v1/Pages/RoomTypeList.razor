@@ -1,13 +1,15 @@
 ﻿@page "/room_types"
 @using BlazorBootstrap
 @using ClientBlazor_v1.Components
+@using ClientBlazor_v1.Components.Utils
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Models.DTO
 @using ClientBlazor_v1.Services
+@using ClientBlazor_v1.Utils
 @using ClientBlazor_v1.ViewModels
 
 <div class="m-3 d-flex flex-column align-items-center">
-    <h3>Liste des types de salle</h3>
+    <h3 style="margin-bottom: 1em;">Liste des types de salle</h3>
 
     @if(ListVM.RoomTypeDTOs is null)
     {
@@ -15,7 +17,7 @@
     }
     else
     {
-        <div class="mt-4 d-flex flex-column align-items-center">
+        <div class="d-flex flex-column align-items-center">
             <p>Types : <b>@ListVM.RoomTypeDTOs.Count</b></p>
             <div class="d-flex flex-column align-items-center" style="gap: 1em;">
                 @foreach(var roomType in ListVM.RoomTypeDTOs)
@@ -133,13 +135,8 @@
         ListVM = new(roomTypeService, dtoService);
         EditVM = new(roomTypeService);
 
-        await Load();
-    }
-
-    public async Task Load()
-    {
-        try { await ListVM.Load(); }
-        catch(HttpRequestException ex) { ToastService.Notify(new(ToastType.Danger, IconName.X, "Erreur HTTP", ex.StatusCode.ToString())); }
+        try{await ListVM.Load();}
+        catch(Exception e) {ToastService.NewFromException(e);}
     }
 
     public void Click_EditType(RoomTypeDTO roomTypeDto)
@@ -149,9 +146,12 @@
 
     public async Task Click_SaveChanges()
     {
-        await EditVM.Save();
-        EditVM.SetNewModel();
-        await ListVM.Load();
+        try
+        {
+            await EditVM.Save();
+            EditVM.SetNewModel();
+        }
+        catch(Exception e) {ToastService.NewFromException(e);}
     }
 
     public void Click_CancelChanges()
@@ -168,9 +168,9 @@
     public async Task Click_DeleteTypeConfirmed()
     {
         if (_roomTypeToDelete is null) return;
-
         _roomTypeDeleteModal.Close();
-        await ListVM.DeleteRoomType(_roomTypeToDelete);
-        await ListVM.Load();
+
+        try{await ListVM.DeleteRoomType(_roomTypeToDelete);}
+        catch(Exception e) {ToastService.NewFromException(e);}
     }
 }

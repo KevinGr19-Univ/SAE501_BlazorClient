@@ -1,4 +1,5 @@
 ﻿@page "/renderer"
+@using BlazorBootstrap
 @using ClientBlazor_v1.Components
 @using ClientBlazor_v1.Components.RoomView
 @using ClientBlazor_v1.Components.Utils
@@ -160,6 +161,7 @@
 
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
+@inject ToastService ToastService;
 @inject IService<Room> roomService
 @inherits UIUpdatableComponent
 @code{
@@ -184,7 +186,12 @@
             TryBind();
             UpdateUI();
 
-            await RoomSceneVM.LoadRoom(RoomId);
+            try{await RoomSceneVM.LoadRoom(RoomId);}
+            catch(Exception e){
+                ToastService.NewFromException(e);
+                return;
+            }
+
             if(RoomObjectId is not null && RoomObjectId != 0)
                 RoomSceneVM.ObjectVMs.FirstOrDefault(vm => vm.Object.Id == RoomObjectId)?.Select();
 
@@ -205,8 +212,9 @@
     public void Click_SaveChanges() => _saveChangesModal.Open();
     public async Task Click_SaveChangesConfirmed()
     {
+        try{await RoomSceneVM.SaveChanges();}
+        catch(Exception e) { ToastService.NewFromException(e); }
         _saveChangesModal.Close();
-        await RoomSceneVM.SaveChanges();
     }
 
     // Abort modal

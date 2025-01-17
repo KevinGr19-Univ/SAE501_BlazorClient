@@ -1,7 +1,10 @@
 ﻿@page "/edit_room"
+@using BlazorBootstrap
 @using ClientBlazor_v1.Components
+@using ClientBlazor_v1.Components.Utils
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Services
+@using ClientBlazor_v1.Utils
 @using ClientBlazor_v1.ViewModels
 
 <div class="m-4 d-flex flex-column align-items-center" style="gap: 1em;">
@@ -144,7 +147,8 @@
 @inject IService<Building> buildingService;
 @inject IService<RoomType> roomTypeService;
 
-@inject NavigationManager NavigationManager
+@inject NavigationManager NavigationManager;
+@inject ToastService ToastService;
 @code {
     public RoomCreatorVM VM { get; set; }
     public RoomBaseBevelVM BevelVM { get; set; }
@@ -157,13 +161,17 @@
         VM = new(roomService, buildingService, roomTypeService);
         BevelVM = new() { BaseVM = VM.RoomBaseVM };
 
-        await VM.Load(RoomID);
+        try{await VM.Load(RoomID);}
+        catch(Exception e){ ToastService.NewFromException(e); }
     }
 
     public async Task Click_SaveChanges()
     {
-        await VM.SaveRoom();
-        ExitPage();
+        try{
+            await VM.SaveRoom();
+            ExitPage();
+        }
+        catch(Exception e){ ToastService.NewFromException(e); }
     }
 
     // Delete room modal
@@ -175,8 +183,12 @@
     public async Task Click_DeleteRoomConfirmed()
     {
         _deleteRoomModal.Close();
-        await VM.Delete();
-        ExitPage();
+
+        try{
+            await VM.Delete();
+            ExitPage();
+        }
+        catch(Exception e){ ToastService.NewFromException(e); }
     }
 
     private void ExitPage()

@@ -1,9 +1,12 @@
 ﻿@page "/room_objects"
 
+@using BlazorBootstrap
 @using ClientBlazor_v1.Components
+@using ClientBlazor_v1.Components.Utils
 @using ClientBlazor_v1.Models.DTO
 @using ClientBlazor_v1.Models.RoomObjects
 @using ClientBlazor_v1.Services
+@using ClientBlazor_v1.Utils
 @using ClientBlazor_v1.ViewModels
 @using System.Text.RegularExpressions
 
@@ -151,6 +154,7 @@
 
 @inject IService<RoomObject> _roomObjectService;
 @inject IDTOService _dtoService;
+@inject ToastService ToastService;
 @code {
     public RoomObjectListVM VM { get; set; }
 
@@ -159,7 +163,10 @@
     protected override async Task OnInitializedAsync()
     {
         VM = new(_roomObjectService, _dtoService);
-        await VM.Load();
+
+        try{await VM.Load();}
+        catch(Exception e){ ToastService.NewFromException(e); }
+
         OpenedVMs = new();
     }
 
@@ -199,7 +206,9 @@
     public async Task Click_SwitchRoomConfirmed()
     {
         _switchRoomModal.Close();
-        await VM.SwitchRoomOfRoomObject(_currentRoomObject!, _idNewRoom);
+
+        try{await VM.SwitchRoomOfRoomObject(_currentRoomObject!, _idNewRoom);}
+        catch(Exception e){ ToastService.NewFromException(e); }
     }
 
     // Delete object modal
@@ -214,8 +223,11 @@
     public async Task Click_DeleteObjectConfirmed()
     {
         _deleteObjectModal.Close();
-        await VM.DeleteRoomObject(_currentRoomObject!);
 
-        _currentRoomObject = null;
+        try{
+            await VM.DeleteRoomObject(_currentRoomObject!);
+            _currentRoomObject = null;
+        }
+        catch(Exception e){ ToastService.NewFromException(e); }
     }
 }

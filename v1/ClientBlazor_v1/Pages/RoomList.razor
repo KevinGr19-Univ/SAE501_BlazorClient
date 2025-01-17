@@ -1,5 +1,7 @@
 ﻿@page "/"
+@using BlazorBootstrap
 @using ClientBlazor_v1.Components
+@using ClientBlazor_v1.Components.Utils
 @using ClientBlazor_v1.Models
 @using ClientBlazor_v1.Models.DTO
 @using ClientBlazor_v1.Models.RoomObjects
@@ -146,13 +148,16 @@
 @inject IService<Building> buildingService;
 @inject IDTOService dtoService;
 @inject IService<Room> roomService;
+@inject ToastService ToastService;
 @code {
     public BuildingListVM BuildingListVM { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         BuildingListVM = new(buildingService, roomService, dtoService);
-        await BuildingListVM.LoadBuildings();
+
+        try{await BuildingListVM.LoadBuildings();}
+        catch (Exception e) { ToastService.NewFromException(e); }
     }
 
     public string FilterRoomName { get; set; } = "";
@@ -175,7 +180,9 @@
     public async Task Click_DeleteBuildingConfirmed()
     {
         _deleteBuildingModal.Close();
-        await BuildingListVM.DeleteBuilding(_buildingToDelete);
+
+        try{await BuildingListVM.DeleteBuilding(_buildingToDelete);}
+        catch (Exception e) { ToastService.NewFromException(e); }
     }
 
     // Delete room modal
@@ -191,7 +198,8 @@
     public async Task Click_DeleteRoomConfirmed()
     {
         _deleteRoomModal.Close();
-        await BuildingListVM.DeleteRoom(_roomToDelete);
+        try{await BuildingListVM.DeleteRoom(_roomToDelete);}
+        catch (Exception e) { ToastService.NewFromException(e); }
     }
 
     public IEnumerable<string> GetGroupedNames(IEnumerable<string> names)
