@@ -1,0 +1,31 @@
+﻿@using System.Diagnostics.CodeAnalysis
+@using System.Globalization
+@using Expressive
+
+<input @attributes=@AdditionalAttributes class="number_box" @bind-value=@FormattedCurrentValue />
+
+@inherits InputBase<double>
+@code {
+    public string FormattedCurrentValue
+    {
+        get => double.Round(Value, 3).ToString(CultureInfo.GetCultureInfo("en-GB"));
+        set => CurrentValueAsString = value;
+    }
+
+    protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out double result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        validationErrorMessage = null;
+
+        var expr = new Expression(value);
+        try
+        {
+            var res = expr.Evaluate();
+            result = res is int i ? i : (double)(decimal)res;
+        }
+        catch
+        {
+            result = Value;
+        }
+        return true;
+    }
+}

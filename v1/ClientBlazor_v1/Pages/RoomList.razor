@@ -1,7 +1,13 @@
 ﻿@page "/"
+@using BlazorBootstrap
 @using ClientBlazor_v1.Components
+@using ClientBlazor_v1.Components.Utils
+@using ClientBlazor_v1.Models
+@using ClientBlazor_v1.Models.DTO
+@using ClientBlazor_v1.Models.RoomObjects
+@using ClientBlazor_v1.Services
+@using ClientBlazor_v1.Utils
 @using ClientBlazor_v1.ViewModels
-@using ClientBlazor_v1.ViewModels.Utils
 
 <PageTitle>Liste des salles</PageTitle>
 
@@ -9,144 +15,204 @@
     <h3>Liste des salles</h3>
 
     <div class="building_container">
-        <div class="building rounded shadow">
-            <div class="building_header">
-                <span><b>IUT Annecy</b></span>
-                <hr />
-                <span>2 salles</span>
-            </div>
-            <div class="room_list">
-                <div class="room">
-                    <div class="room_header">
-                        <span><b>D360</b></span>
-                        <hr />
-                        <span>2 capteurs</span>
-                    </div>
-                    <div class="room_content">
-                        <div class="room_description">
-                            <div>
-                                <b>Capteurs (2)</b>
-                                <ul>
-                                    <li>1 Capteur Z-Wave 6-1</li>
-                                    <li>1 Capteur Z-Wave Multi</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <b>Equipements (8)</b>
-                                <ul>
-                                    <li>2 portes</li>
-                                    <li>4 fenêtres</li>
-                                    <li>2 radiateurs</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <b>Actionneurs (1)</b>
-                                <ul>
-                                    <li>1 Lampe Z-Wave</li>
-                                </ul>
-                            </div>
-                        </div>
+        @if(BuildingListVM.BuildingDTOs is null)
+        {
+            <div class="spinner-border" role="status"></div>
+        }
+        else
+        {
+            <div class="d-flex flex-column align-items-center">
+                <div class="d-flex" style="gap: 1em;">
+                    <a href="/edit_building">Ajouter un bâtiment</a>
+                    <a href="/edit_room">Ajouter une salle</a>
+                </div>
 
-                        <div class="bottom_bar">
-                            <button class="btn btn-success">Modifier</button>
-                            <button class="btn btn-danger">Supprimer</button>
+                <span>Bâtiments : <b>@BuildingListVM.BuildingDTOs.Count</b></span>
+                <span>Salles : <b>@BuildingListVM.BuildingDTOs.Sum(b => b.Rooms.Count)</b></span>
+                <div class="input-box">
+                    <label>Salle</label>
+                    <input type="text" @bind-value=FilterRoomName />
+                </div>
+            </div>
+
+            @foreach (var building in BuildingListVM.BuildingDTOs)
+            {
+                var rooms = building.Rooms.Where(RoomMatches).ToList();
+
+                <div class="building rounded shadow">
+                    <div class="building_header" onclick="onHeaderCollapseClick(this)">
+                        <span><b>@building.Name</b></span>
+                        <hr />
+                        <span>@rooms.Count salles</span>
+                    </div>
+                    <div class="building_content">
+                        <div class="d-flex" style="gap: 1em;">
+                            <a class="btn btn-primary" title="Modifier le bâtiment" href="/edit_building?BuildingId=@building.Id"><i class="bi bi-pen"></i></a>
+                            <button class="btn btn-danger" title="Supprimer le bâtiment" @onclick="() => Click_DeleteBuilding(building)"><i class="bi bi-trash"></i></button>
+                        </div>
+                        <hr />
+                        <div class="room_list">
+                            @foreach (var room in rooms)
+                            {
+                                RoomObjectSorter<RoomObject> roomObjects = RoomObjectSorter<RoomObject>.SortObjects(room.EmptyObjects ?? new(), obj => obj);
+
+                                <div class="room collapsed shadow-sm">
+                                    <div class="room_header" onclick="onHeaderCollapseClick(this)">
+                                        <span><b>@room.Name</b> <i>[@room.RoomTypeName]</i></span>
+                                        <hr />
+                                        <span>@roomObjects.Sensors.Count capteurs</span>
+                                    </div>
+                                    <div class="room_content">
+                                        <div class="room_description">
+                                            <div>
+                                                <b>Capteurs (@roomObjects.Sensors.Count)</b>
+                                                <ul>
+                                                    @foreach (var sensor in GetGroupedNames(roomObjects.Sensors.Select(s => s.GetFullName())) )
+                                                    {
+                                                        <li>@sensor</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <b>Actionneurs (@roomObjects.Actionnables.Count)</b>
+                                                <ul>
+                                                    @foreach (var actionnable in GetGroupedNames(roomObjects.Actionnables.Select(s => s.GetFullName())) )
+                                                    {
+                                                        <li>@actionnable</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <b>Equipements (@roomObjects.Equipments.Count)</b>
+                                                <ul>
+                                                    @foreach (var equipment in GetGroupedNames(roomObjects.Equipments.Select(s => s.GetRootName())) )
+                                                    {
+                                                        <li>@equipment</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="bottom_bar">
+                                            <a class="btn btn-primary" title="Modifier les objets de la salle" href="/renderer?RoomId=@room.Id"><i class="bi bi-box"></i></a>
+                                            <a class="btn btn-primary" title="Modifier la salle" href="/edit_room?RoomId=@room.Id"><i class="bi bi-pen"></i></a>
+                                            <button class="btn btn-danger" title="Supprimer la salle" @onclick="() => Click_DeleteRoom(room)"><i class="bi bi-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
-                </div>
-                <div class="room">
-                    <div class="room_header">
-                        <span><b>D361</b></span>
-                        <hr />
-                        <span>2 capteurs</span>
-                    </div>
-                    <div class="room_content visually-hidden"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="building rounded shadow">
-            <div class="building_header">
-                <span><b>Tetras</b></span>
-                <hr />
-                <span>1 salle</span>
-            </div>
-            <div class="room_list">
-                <div class="room">
-                    <div class="room_header">
-                        <span><b>E710</b></span>
-                        <hr />
-                        <span>2 capteurs</span>
-                    </div>
-                    <div class="room_content visually-hidden"></div>
-                </div>
-            </div>
-        </div>
+                </div>   
+            }
+        }
     </div>
 </div>
 
-<style>
-    .building_container{
-        margin: 3em 1em;
+<CModal @ref="_deleteBuildingModal">
+    <Title>Supprimer le bâtiment ?</Title>
+    <Content>
+        <p>
+            Êtes-vous sûr de vouloir supprimer le bâtiment ?
+            <br />
+            - <b>@_buildingToDelete!.Name</b>
+        </p>
+    </Content>
+    <Buttons>
+        <button class="btn btn-danger" @onclick="Click_DeleteBuildingConfirmed">Supprimer</button>
+        <button class="btn btn-secondary" @onclick="_deleteBuildingModal.Close">Annuler</button>
+    </Buttons>
+</CModal>
 
-        display: flex;
-        flex-direction: column;
-        gap: 2em;
+<CModal @ref="_deleteRoomModal">
+    <Title>Supprimer la salle ?</Title>
+    <Content>
+        <p>
+            Êtes-vous sûr de vouloir supprimer la salle ?
+            <br />
+            - @_roomToDelete!.BuildingDTO?.Name : <b>@_roomToDelete.Name</b>
+        </p>
+    </Content>
+    <Buttons>
+        <button class="btn btn-danger" @onclick="Click_DeleteRoomConfirmed">Supprimer</button>
+        <button class="btn btn-secondary" @onclick="_deleteRoomModal.Close">Annuler</button>
+    </Buttons>
+</CModal>
+
+<script type="text/javascript">
+    function onHeaderCollapseClick(btn){
+    btn.parentNode.classList.toggle("collapsed");
     }
+</script>
 
-    .building_header, .room_list{
-        padding: 1em;
-    }
-
-    .building_header, .room_header{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1em;
-
-        cursor: pointer;
-    }
-
-    .building_header > hr, .room_header > hr{
-        flex: 1;
-    }
-
-    .room_header, .room_content{
-        padding: 0.4em;
-    }
-
-    .room_content{
-        border-top: solid 1px #AAA7;
-    }
-
-    .building_header:hover, .room_header:hover{
-        background: #EEE;
-    }
-
-    .room_list{
-        border-top: solid 1px #8888;
-        padding-left: 2em;
-    }
-
-    .room_header::before{
-        content: '▸';
-        font-weight: bold;
-        font-size: 1.5em;
-    }
-
-    .room_description{
-        display: flex;
-        justify-content: space-around;
-        gap: 1em;
-    }
-
-    .bottom_bar{
-        display: flex;
-        gap: 1em;
-        justify-content: end;
-        padding: 0.4em;
-    }
-</style>
-
+@inject IService<Building> buildingService;
+@inject IDTOService dtoService;
+@inject IService<Room> roomService;
+@inject ToastService ToastService;
 @code {
+    public BuildingListVM BuildingListVM { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        BuildingListVM = new(buildingService, roomService, dtoService);
+
+        try{await BuildingListVM.LoadBuildings();}
+        catch (Exception e) { ToastService.NewFromException(e); }
+    }
+
+    public string FilterRoomName { get; set; } = "";
+
+    private bool RoomMatches(BuildingListRoomDTO room)
+    {
+        return room.Name.ToLower().Contains(FilterRoomName.ToLower());
+    }
+
+    // Delete building modal
+    private CModal _deleteBuildingModal;
+    private BuildingListElementDTO? _buildingToDelete;
+
+    public void Click_DeleteBuilding(BuildingListElementDTO building)
+    {
+        _buildingToDelete = building;
+        _deleteBuildingModal.Open();
+    }
+
+    public async Task Click_DeleteBuildingConfirmed()
+    {
+        _deleteBuildingModal.Close();
+
+        try{await BuildingListVM.DeleteBuilding(_buildingToDelete);}
+        catch (Exception e) { ToastService.NewFromException(e); }
+    }
+
+    // Delete room modal
+    private CModal _deleteRoomModal;
+    private BuildingListRoomDTO? _roomToDelete;
+
+    public void Click_DeleteRoom(BuildingListRoomDTO room)
+    {
+        _roomToDelete = room;
+        _deleteRoomModal.Open();
+    }
+
+    public async Task Click_DeleteRoomConfirmed()
+    {
+        _deleteRoomModal.Close();
+        try{await BuildingListVM.DeleteRoom(_roomToDelete);}
+        catch (Exception e) { ToastService.NewFromException(e); }
+    }
+
+    public IEnumerable<string> GetGroupedNames(IEnumerable<string> names)
+    {
+        Dictionary<string, int> groupedNames = new();
+
+        foreach (string name in names)
+        {
+            if (!groupedNames.ContainsKey(name)) groupedNames[name] = 0;
+            groupedNames[name]++;
+        }
+
+        return groupedNames.Select(kvp => kvp.Value > 1 ? $"(x{kvp.Value}) {kvp.Key}" : kvp.Key);
+    }
 }
+

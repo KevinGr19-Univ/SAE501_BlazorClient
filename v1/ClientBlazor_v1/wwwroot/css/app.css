@@ -130,3 +130,24 @@ code {
         -webkit-appearance: none;
         margin: 0;
     }
+
+.xaxis {
+    color: #f77;
+}
+.yaxis {
+    color: #7f7;
+}
+.zaxis {
+    color: #77f;
+}
+
+.input-box {
+    position: relative;
+    margin-top: 1.5em;
+}
+
+.input-box > label {
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+}

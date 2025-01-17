@@ -1,7 +1,14 @@
 ﻿@page "/renderer"
+@using BlazorBootstrap
 @using ClientBlazor_v1.Components
-@using ClientBlazor_v1.ViewModels
-@using ClientBlazor_v1.ViewModels.Utils
+@using ClientBlazor_v1.Components.RoomView
+@using ClientBlazor_v1.Components.Utils
+@using ClientBlazor_v1.Models
+@using ClientBlazor_v1.Models.RoomObjects
+@using ClientBlazor_v1.Services
+@using ClientBlazor_v1.Utils
+@using ClientBlazor_v1.ViewModels.JS
+@using ClientBlazor_v1.ViewModels.JS.RoomObjects
 
 <PageTitle>Salle 3D</PageTitle>
 
@@ -9,72 +16,236 @@
 
     <canvas id="renderer" touch-action="none"></canvas>
 
-    <div class="renderer_ui align-items-start">
-        <FWindow CloseButton="false">
-            <Header>
-                <span>Salle D360</span>
-            </Header>
-            <Content>
-                <FSubWindow>
-                    <Header><span>Actions</span></Header>
-                    <Content>
-                        <button class="button_add" @onclick=ClickAddSensor>Ajouter un capteur</button>
-                    </Content>
-                </FSubWindow>
-            </Content>
-        </FWindow>
+    @if(RoomSceneVM is not null){
+        <div class="renderer_navbar">
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoPos title="Translation (G)"><img src="images/move.png"/></div>
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoRot title="Rotation (R)"><img src="images/rotate.png" /></div>
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetGizmoScale title="Taille (S)"><img src="images/scale.png" /></div>
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetFocusToSelected title="Centrer vers l'objet sélectionné (F)"><img src="images/focus_element.png" /></div>
+            <div class="renderer_navbar_btn" @onclick=RoomSceneVM.SetFocusToCenter title="Centrer vers l'origine (W)"><img src="images/focus_world.png" /></div>
+            <Compass VM="RoomSceneVM.CompassVM" OrientationOffset="RoomSceneVM.Room?.NorthOrientation ?? 0"></Compass>
+        </div>
+    }
+
+    <div class="renderer_ui" style="left: 0;">
+        @if(RoomSceneVM is not null)
+        {
+            <FWindow CloseButton="false">
+                <Header>
+                    <span>@(RoomSceneVM.Room?.Name ?? "Chargement...")</span>
+                </Header>
+                <Content>
+                    @if(RoomSceneVM.Room is not null)
+                    {
+                        <FSubWindow>
+                            <Header><span>Informations</span></Header>
+                            <Content>
+                                <span>Bâtiment : <b>@(RoomSceneVM.Room.Building?.Name)</b></span>
+                                <span>Orientation : <b>@(RoomSceneVM.Room.NorthOrientation)° N</b></span>
+                                <span>Hauteur : <b>@(RoomSceneVM.Room.Height)m</b></span>
+                            </Content>
+                        </FSubWindow>
+                        <FSubWindow>
+                            <Header><span>Objets</span></Header>
+                            <Content>
+                                @{
+                                    RoomObjectSorter<RoomObjectVM> sortedVMs = RoomObjectSorter<RoomObjectVM>.SortObjects(RoomSceneVM.ObjectVMs, (vm) => vm.Object);
+                                }
+
+                                @foreach(var section in new[]{
+                                    new{ Title = "Capteurs", VMs = sortedVMs.Sensors },
+                                    new{ Title = "Actionneurs", VMs = sortedVMs.Actionnables },
+                                    new{ Title = "Equipements", VMs = sortedVMs.Equipments },
+                                }){
+                                    <span><b>@(section.Title)</b> (@(section.VMs.Count))</span>
+                                    @if(section.VMs.Count > 0)
+                                    {
+                                        <ul>
+                                            @foreach(var vm in section.VMs)
+                                            {
+                                                <li class="objectLink 
+                                                    @(RoomSceneVM.VisibleObjectVMs.Contains(vm) ? "isVisible" : "") 
+                                                    @(vm.MarkedForDeletion ? "text-danger" : "") 
+                                                    @(vm.IsNew ? "text-success" : "")"
+                                                @onclick=vm.Select
+                                                >
+                                                    @(vm.MarkedForDeletion ? "[-] " : (vm.IsNew ? "[+] " : ""))@vm.Object.GetFullName()
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                }
+                            </Content>
+                        </FSubWindow>
+                        <FSubWindow>
+                            <Header><span>Actions</span></Header>
+                            <Content>
+                                <button @onclick=_addObjectModal.Open>Ajouter un équipement</button>
+                                <button style="background: green" @onclick=Click_SaveChanges>Sauvegarder</button>
+                            </Content>
+                        </FSubWindow>
+                    }
+                </Content>
+            </FWindow>
+        }
     </div>
 
-    <div class="renderer_ui align-items-end">
-        @foreach(var sceneObjectVM in SceneObjectVMs)
+    <div class="renderer_ui" style="right: 0;">
+        @if(RoomSceneVM is not null)
         {
-            @if(sceneObjectVM is SensorVM sensorVM)
+            @foreach(var objVM in RoomSceneVM.VisibleObjectVMs)
             {
-                <SensorComponent SensorVM="sensorVM" OnClose=@(() => RemoveSceneObject(sceneObjectVM))></SensorComponent>
+                <RoomObjectEditor VM=objVM></RoomObjectEditor>
             }
         }
     </div>
+
+    <CModal @ref=_saveChangesModal>
+        <Title>Sauvegarder les changements</Title>
+        <Content>
+            <p>Voulez-vous sauvegarder tous les changements ?</p>
+        </Content>
+        <Buttons>
+            <button type="button" class="btn btn-success" @onclick=Click_SaveChangesConfirmed>Sauvegarder</button>
+            <button type="button" class="btn btn-secondary" @onclick=_saveChangesModal.Close>Annuler</button>
+        </Buttons>
+    </CModal>
+
+    <CModal @ref=_abortChangesModal>
+        <Title>Quitter ?</Title>
+        <Content>
+            <p>Êtes-vous sûr de vouloir quitter ?</p>
+        </Content>
+        <Buttons>
+            <button type="button" class="btn btn-danger" @onclick=Click_AbortChangesConfirmed>Quitter</button>
+            <button type="button" class="btn btn-secondary" @onclick=_abortChangesModal.Close>Annuler</button>
+        </Buttons>
+    </CModal>
+
+    <CModal @ref=_addObjectModal OnClose="OnClose_AbortModal">
+        <Title>Ajouter un équipement</Title>
+        <Content>
+            <div class="input-box">
+                <label for="room-building">Type</label>
+                <InputSelect id="room-building" @bind-Value="RoomSceneVM.RoomObjectType_SelectedIndex" class="form-select">
+                    <option value="-1">- Séléctionnez le type de nouvel objet -</option>
+                    @{
+                        int i = 0;
+                        foreach (var type in RoomSceneVM.InputSelect_RoomObjectTypes)
+                        {
+                            <option value="@(i++)">@type.GetRootName()</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+        </Content>
+        <Buttons>
+            @if(RoomSceneVM.RoomObjectType_Selected is not null)
+            {
+                <button type="button" class="btn btn-primary" @onclick="Click_AddObject">Ajouter</button>
+            }
+            <button type="button" class="btn btn-secondary" @onclick=_addObjectModal.Close>Annuler</button>
+        </Buttons>
+    </CModal>
 </div>
 
+<script>
+    window.onbeforeunload = function() {
+    return "Êtes-vous sûr de vouloir quitter ?";
+    }
+
+    function removeAbortMessage(){
+    window.onbeforeunload = () => {};
+    }
+</script>
+
 @inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+@inject ToastService ToastService;
+@inject IService<Room> roomService
+@inherits UIUpdatableComponent
 @code{
-    public Scene Scene;
-    public List<IJSObjectVM> SceneObjectVMs = new();
+    [SupplyParameterFromQuery]
+    public int RoomId { get; set; }
+
+    [SupplyParameterFromQuery]
+    public int? RoomObjectId { get; set; }
+
+    public RoomSceneVM RoomSceneVM { get; set; }
+    public override IUpdateUI Updatable => RoomSceneVM;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/scene.js");
-            Scene = new Scene();
-            Scene.JSObj = await module.InvokeAsync<IJSInProcessObjectReference>("getScene");
-            Scene.OnElementSelected += OnElementSelected;
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/roomScene.js");
+            var sceneObj = await module.InvokeAsync<IJSInProcessObjectReference>("getScene");
 
-            await InvokeAsync(() =>
-            {
-                StateHasChanged();
-            });
-        }
-        await base.OnAfterRenderAsync(firstRender);
-    }
+            RoomSceneVM = new(roomService, sceneObj);
 
-    public async Task ClickAddSensor()
-    {
-        var sensorVM = Scene.CreateSensor();
-        SceneObjectVMs.Add(sensorVM);
-    }
+            TryBind();
+            UpdateUI();
 
-    private void OnElementSelected(object? sender, Scene.OnElementSelectedEventArgs e)
-    {
-        if (!SceneObjectVMs.Contains(e.SceneObjectVM))
-        {
-            SceneObjectVMs.Add(e.SceneObjectVM);
-            StateHasChanged();
+            try{await RoomSceneVM.LoadRoom(RoomId);}
+            catch(Exception e){
+                ToastService.NewFromException(e);
+                return;
+            }
+
+            if(RoomObjectId is not null && RoomObjectId != 0)
+                RoomSceneVM.ObjectVMs.FirstOrDefault(vm => vm.Object.Id == RoomObjectId)?.Select();
+
+            _locationChangingHandler = NavigationManager.RegisterLocationChangingHandler(LocationChangingHandler);
         }
     }
 
-    private void RemoveSceneObject(IJSObjectVM sceneObjectVM)
+    // Add object modal
+    private CModal _addObjectModal;
+    public async Task Click_AddObject()
     {
-        SceneObjectVMs.Remove(sceneObjectVM);
+        _addObjectModal.Close();
+        await RoomSceneVM.AddNewOfSelectedRoomObjectType();
+    }
+
+    // Save modal
+    private CModal _saveChangesModal;
+    public void Click_SaveChanges() => _saveChangesModal.Open();
+    public async Task Click_SaveChangesConfirmed()
+    {
+        try{await RoomSceneVM.SaveChanges();}
+        catch(Exception e) { ToastService.NewFromException(e); }
+        _saveChangesModal.Close();
+    }
+
+    // Abort modal
+    private CModal _abortChangesModal;
+    private IDisposable _locationChangingHandler;
+    private TaskCompletionSource<bool> _locationChangingTask;
+
+    public void Click_AbortChangesConfirmed() => _locationChangingTask?.SetResult(true);
+    public void OnClose_AbortModal() => _locationChangingTask?.SetResult(false);
+    public async ValueTask LocationChangingHandler(LocationChangingContext context)
+    {
+        _abortChangesModal.Open();
+        await InvokeAsync(StateHasChanged);
+
+        _locationChangingTask = new();
+        bool abort = await _locationChangingTask.Task;
+        _locationChangingTask = null;
+
+        if (!abort){
+            context.PreventNavigation();
+            return;
+        }
+
+        await JS.InvokeVoidAsync("removeAbortMessage");
+    }
+    // END
+
+    public override void Dispose()
+    {
+        _locationChangingHandler.Dispose();
+        RoomSceneVM.Dispose();
+        base.Dispose();
     }
 }

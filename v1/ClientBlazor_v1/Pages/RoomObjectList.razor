@@ -1,0 +1,233 @@
+﻿@page "/room_objects"
+
+@using BlazorBootstrap
+@using ClientBlazor_v1.Components
+@using ClientBlazor_v1.Components.Utils
+@using ClientBlazor_v1.Models.DTO
+@using ClientBlazor_v1.Models.RoomObjects
+@using ClientBlazor_v1.Services
+@using ClientBlazor_v1.Utils
+@using ClientBlazor_v1.ViewModels
+@using System.Text.RegularExpressions
+
+<div class="m-3 d-flex flex-column align-items-center">
+    <h3 style="margin-bottom: 1em;">Liste des objets de salle</h3>
+
+    @if (!VM.IsLoaded)
+    {
+        <div class="spinner-border" role="status"></div>
+    }
+    else{
+        <div class="d-flex align-items-center" style="gap: 1em;">
+            <div class="input-box">
+                <label>Bâtiment & Salle</label>
+                <input type="text" @bind-value=FilterRoomName />
+            </div>
+
+            <div class="input-box">
+                <label>Objet</label>
+                <input type="text" @bind-value=FilterObjectFullName />
+            </div>
+        </div>
+
+        <div class="d-flex flex-column align-items-center" style="margin: 1em 0; gap: 1em;">
+            @foreach(var roomDto in VM.Rooms.Where(RoomMatches))
+            {
+                var objects = roomDto.RoomObjects.Where(RoomObjectMatches).ToList();
+                bool collapsed = !OpenedVMs.Contains(roomDto);
+
+                @if (objects.Any())
+                {
+                    <div class="room_dto bg-white shadow @(collapsed ? "" : "collapsed")">
+                        <div class="room_header" @onclick="() => Click_ToggleCollapse(roomDto)">
+                            <span>@roomDto.BuildingName - <b>@roomDto.Name</b></span>
+                            <hr class="flex-grow-1" style="min-width: 3em;" />
+                            <span>@objects.Count objets</span>
+                        </div>
+                        @if (!collapsed)
+                        {
+                            <div class="room_content">
+                                @foreach(var obj in objects)
+                                {
+                                    <div class="roomobject shadow-sm">
+                                        <span>#@obj.Id - @obj.GetFullName()</span>
+                                        <div class="flex-grow-1" style="min-width: 1em;"></div>
+                                        <div class="d-flex roomobject_buttons" style="gap: 0.5em;">
+                                            <a class="btn btn-primary" href="/renderer?RoomId=@(roomDto.Id)&RoomObjectId=@(obj.Id)" 
+                                            title="Modifier l'objet dans la salle 3D"><i class="bi bi-box"></i></a>
+
+                                            <button class="btn btn-primary" @onclick="() => Click_SwitchRoom(obj)"
+                                            title="Changer la salle de l'objet"><i class="bi bi-arrow-left-right"></i></button>
+
+                                            <button class="btn btn-danger" @onclick="() => Click_DeleteObject(obj)"
+                                            title="Supprimer l'objet"><i class="bi bi-trash"></i></button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
+
+<CModal @ref=_switchRoomModal>
+    <Title>Changement de salle</Title>
+    <Content>
+        <b>Objet</b>
+        <div>#@_currentRoomObject.Id - @_currentRoomObject.GetFullName()</div>
+        <br />
+        <div class="input-box">
+            <label><b>Nouvelle salle</b></label>
+            <InputSelect @bind-Value="_idNewRoom" class="form-select">
+                <option value="0">- Séléctionnez une salle -</option>
+                @foreach (var roomDto in VM.Rooms)
+                {
+                    <option value="@roomDto.Id">@roomDto.BuildingName - <b>@roomDto.Name</b></option>
+                }
+            </InputSelect>
+        </div>
+    </Content>
+    <Buttons>
+        @if(_idNewRoom != 0)
+        {
+            <button type="button" class="btn btn-primary" @onclick=Click_SwitchRoomConfirmed>Modifier</button>
+        }
+        <button type="button" class="btn btn-secondary" @onclick=_switchRoomModal.Close>Annuler</button>
+    </Buttons>
+</CModal>
+
+<CModal @ref=_deleteObjectModal>
+    <Title>Supprimer l'objet ?</Title>
+    <Content>
+        <p>Êtes-vous sûr de vouloir supprimer cet objet ?</p>
+    </Content>
+    <Buttons>
+        <button type="button" class="btn btn-danger" @onclick=Click_DeleteObjectConfirmed>Supprimer</button>
+        <button type="button" class="btn btn-secondary" @onclick=_deleteObjectModal.Close>Annuler</button>
+    </Buttons>
+</CModal>
+
+<style>
+    .room_header{
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        padding: 0.5em 1em;
+    }
+
+    .room_header:hover, .roomobject:hover{
+        cursor: pointer;
+        background: #EEE;
+    }
+
+    .room_header::before {
+        content: '▸';
+        font-weight: bold;
+        font-size: 1.5em;
+    }
+
+    .room_dto.collapsed .room_header::before{
+        content: '▾';
+    }
+
+    .room_content{
+        border-top: solid 1px #8888;
+        max-height: 30em;
+        overflow-y: auto;
+    }
+
+    .roomobject{
+        padding: 0.5em;
+        margin: 0.5em;
+
+        display: flex;
+        align-items: center;
+    }
+
+    .roomobject:not(:hover) .roomobject_buttons{
+        visibility: hidden;
+    }
+</style>
+
+@inject IService<RoomObject> _roomObjectService;
+@inject IDTOService _dtoService;
+@inject ToastService ToastService;
+@code {
+    public RoomObjectListVM VM { get; set; }
+
+    private HashSet<RoomObjectRoomDTO> OpenedVMs { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        VM = new(_roomObjectService, _dtoService);
+
+        try{await VM.Load();}
+        catch(Exception e){ ToastService.NewFromException(e); }
+
+        OpenedVMs = new();
+    }
+
+    public void Click_ToggleCollapse(RoomObjectRoomDTO dto)
+    {
+        if (!OpenedVMs.Remove(dto)) OpenedVMs.Add(dto);
+    }
+
+    public string FilterRoomName { get; set; } = "";
+    public string FilterObjectFullName { get; set; } = "";
+
+    private bool RoomMatches(RoomObjectRoomDTO roomDto)
+    {
+        return roomDto.Name.ToLower().Contains(FilterRoomName.ToLower())
+            || roomDto.BuildingName.ToLower().Contains(FilterRoomName.ToLower());
+    }
+
+    private bool RoomObjectMatches(RoomObject roomObj)
+    {
+        return roomObj.Id.ToString().Contains(FilterObjectFullName.ToLower()) 
+            || roomObj.GetFullName().ToLower().Contains(FilterObjectFullName.ToLower());
+    }
+
+    private RoomObject? _currentRoomObject;
+
+    // Switch room modal
+    private CModal _switchRoomModal;
+    private int _idNewRoom;
+
+    public void Click_SwitchRoom(RoomObject roomObject)
+    {
+        _currentRoomObject = roomObject;
+        _idNewRoom = _currentRoomObject.IdRoom;
+        _switchRoomModal.Open();
+    }
+
+    public async Task Click_SwitchRoomConfirmed()
+    {
+        _switchRoomModal.Close();
+
+        try{await VM.SwitchRoomOfRoomObject(_currentRoomObject!, _idNewRoom);}
+        catch(Exception e){ ToastService.NewFromException(e); }
+    }
+
+    // Delete object modal
+    private CModal _deleteObjectModal;
+
+    public void Click_DeleteObject(RoomObject roomObject)
+    {
+        _currentRoomObject = roomObject;
+        _deleteObjectModal.Open();
+    }
+
+    public async Task Click_DeleteObjectConfirmed()
+    {
+        _deleteObjectModal.Close();
+
+        try{
+            await VM.DeleteRoomObject(_currentRoomObject!);
+            _currentRoomObject = null;
+        }
+        catch(Exception e){ ToastService.NewFromException(e); }
+    }
+}

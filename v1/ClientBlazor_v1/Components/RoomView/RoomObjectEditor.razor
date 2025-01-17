@@ -1,0 +1,80 @@
+﻿﻿@using ClientBlazor_v1.Components.Utils
+@using ClientBlazor_v1.Models.RoomObjects
+@using ClientBlazor_v1.Models.RoomObjects.ConnectedObjects
+@using ClientBlazor_v1.ViewModels
+@using System.ComponentModel
+@using ClientBlazor_v1.ViewModels.JS
+@using ClientBlazor_v1.ViewModels.JS.RoomObjects
+
+<EditForm Model="VM.Object">
+    <FWindow CloseButton="true" OnClose=VM.Close>
+        <Header>
+            @if(VM.MarkedForDeletion){
+                <span class="text-danger">[-] @VM.Object.GetFullName()</span>
+            }
+            else if(VM.IsNew){
+                <span class="text-success">[+] @VM.Object.GetFullName()</span>
+            }
+            else{
+                <span>@VM.Object.GetFullName()</span>
+            }
+        </Header>
+        <Content>
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <FSubWindow>
+                <Header>Informations</Header>
+                <Content>
+                    <span>ID: @VM.Object.Id</span>
+                    <div class="input-box">
+                        <label>Nom personnalisé</label>
+                        <div class="d-flex align-items-center" style="gap: 1em;">
+                            <InputText class="text_box" @bind-Value="VM.Object.CustomName"/>
+                            <button type="button" style="background: #800;" title="Supprimer le nom personnalisé" @onclick=Click_ClearCustomName><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+                    @if(VM.Object is ConnectedObject connectedObj)
+                    {
+                        <div class="input-box">
+                            <label>ID d'objet connecté</label>
+                            <InputText class="text_box" @bind-Value="connectedObj.CustomId" />
+                        </div>
+                    }
+                    @if(VM is CustomObjectVM customObjVm)
+                    {
+                        <div class="input-box">
+                            <label>Couleur</label>
+                            <InputColor type="color" @bind-Value=customObjVm.Color />
+                        </div>
+                    }
+                </Content>
+            </FSubWindow>
+            <TransformEditor VM="VM"></TransformEditor>
+            <FSubWindow>
+                <Header>Actions</Header>
+                <Content>
+                    <button type="button" @onclick="() => VM.Duplicate()">Dupliquer</button>
+                    @if(!VM.MarkedForDeletion){
+                        <button type="button" style="background: red" @onclick="() => VM.SetMarkedForDeletion(true)">Supprimer</button>
+                    }
+                    else{
+                        <button type="button" style="background: gray" @onclick="() => VM.SetMarkedForDeletion(false)">Annuler la suppression</button>
+                    }
+                </Content>
+            </FSubWindow>
+        </Content>
+    </FWindow>
+</EditForm>
+
+@inherits UIUpdatableComponent
+@code {
+    [Parameter]
+    public RoomObjectVM VM { get; set; }
+    public override IUpdateUI Updatable => VM;
+
+    public void Click_ClearCustomName()
+    {
+        VM.Object.CustomName = null;
+    }
+}

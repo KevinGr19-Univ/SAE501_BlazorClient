@@ -1,0 +1,28 @@
+﻿.input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    width: fit-content;
+}
+
+#room-base-renderer {
+    width: 30em;
+    height: 30em;
+    border: solid 1px #0008;
+}
+
+.base-btn {
+    font-size: 0.8em;
+}
+
+.point-box:hover {
+    background: #0004;
+}
+
+.point-box:not(:hover) .onHovered {
+    display: none !important;
+}
+
+.point-list {
+    overflow-y: scroll;
+}

@@ -1,0 +1,119 @@
+﻿@using ClientBlazor_v1.Components.Utils
+@using ClientBlazor_v1.Models.Transform
+@using ClientBlazor_v1.Utils
+@using ClientBlazor_v1.ViewModels.JS
+@using ClientBlazor_v1.ViewModels.JS.RoomObjects
+
+<FSubWindow>
+    <Header><span>Transform</span></Header>
+    <Content>
+        @if (VM is IPosition positionable)
+        {
+            <div>
+                <b>Position</b>
+                <div class="sgap-row">
+                    <span>
+                        <label class="xaxis">X:&nbsp;</label>
+                        <InputMath @bind-Value=positionable.PosX></InputMath>
+                    </span>
+                    <span>
+                        <label class="yaxis">Y:&nbsp;</label>
+                        <InputMath @bind-Value=positionable.PosY></InputMath>
+                    </span>
+                    <span>
+                        <label class="zaxis">Z:&nbsp;</label>
+                        <InputMath @bind-Value=positionable.PosZ></InputMath>
+                    </span>
+                </div>
+            </div>
+        }
+
+        @if (VM is IRotation rotationable)
+        {
+            <div>
+                <b>Rotation</b>
+                <div class="sgap-row">
+                    <span>
+                        <label class="xaxis">X:&nbsp;</label>
+                        <InputMath @bind-Value=rotationable.RotX></InputMath>
+                    </span>
+                    <span>
+                        <label class="yaxis">Y:&nbsp;</label>
+                        <InputMath @bind-Value=rotationable.RotY></InputMath>
+                    </span>
+                    <span>
+                        <label class="zaxis">Z:&nbsp;</label>
+                        <InputMath @bind-Value=rotationable.RotZ></InputMath>
+                    </span>
+                </div>
+            </div>
+        }
+        else if (VM is IOrientation orientable)
+        {
+            <div>
+                <b>Rotation</b>
+                <div class="sgap-row">
+                    <span>
+                        <label class="yaxis">Y:&nbsp;</label>
+                        <InputMath @bind-Value=orientable.Orientation></InputMath>
+                    </span>
+                </div>
+            </div>
+        }
+
+        @if (VM is ISize sizable)
+        {
+            <div>
+                <b>Taille</b>
+                <div class="sgap-row">
+                    <span>
+                        <label class="xaxis">X:&nbsp;</label>
+                        <InputMath @bind-Value=sizable.SizeX></InputMath>
+                    </span>
+                    <span>
+                        <label class="yaxis">Y:&nbsp;</label>
+                        <InputMath @bind-Value=sizable.SizeY></InputMath>
+                    </span>
+                    <span>
+                        <label class="zaxis">Z:&nbsp;</label>
+                        <InputMath @bind-Value=sizable.SizeZ></InputMath>
+                    </span>
+                </div>
+            </div>
+        }
+        else
+        {
+            double sizeX = VM.GetSizeX();
+            double sizeY = VM.GetSizeY();
+            double sizeZ = VM.GetSizeZ();
+
+            <div>
+                <span>Taille (lecture seule)</span>
+                <div class="sgap-row">
+                    <span>
+                        <label class="xaxis">X:&nbsp;</label>
+                        <InputMath @bind-Value=sizeX readonly></InputMath>
+                    </span>
+                    <span>
+                        <label class="yaxis">Y:&nbsp;</label>
+                        <InputMath @bind-Value=sizeY readonly></InputMath>
+                    </span>
+                    <span>
+                        <label class="zaxis">Z:&nbsp;</label>
+                        <InputMath @bind-Value=sizeZ readonly></InputMath>
+                    </span>
+                </div>
+            </div>
+        }
+    </Content>
+</FSubWindow>
+
+@inherits UIUpdatableComponent
+@code {
+    [Parameter]
+    public RoomObjectVM VM { get; set; }
+
+    public override IUpdateUI Updatable => VM;
+
+    public string test;
+}

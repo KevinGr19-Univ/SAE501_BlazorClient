@@ -1,0 +1,211 @@
+﻿@page "/edit_room"
+@using BlazorBootstrap
+@using ClientBlazor_v1.Components
+@using ClientBlazor_v1.Components.Utils
+@using ClientBlazor_v1.Models
+@using ClientBlazor_v1.Services
+@using ClientBlazor_v1.Utils
+@using ClientBlazor_v1.ViewModels
+
+<div class="m-4 d-flex flex-column align-items-center" style="gap: 1em;">
+    <h3>@(RoomID is null ? "Créer" : "Modifier") une salle</h3>
+
+    @if(VM.IsLoaded)
+    {
+        <EditForm Model="@VM.Room" OnValidSubmit="Click_SaveChanges">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+
+            <div class="d-flex flex-column align-items-center" style="gap: 1.5em">
+                <div class="shadow p-3 input-section">
+                    <div class="input-box">
+                        <label for="room-name">Nom</label>
+                        <InputText id="room-name" @bind-Value=VM.Room.Name />
+                    </div>
+                    <div class="input-box">
+                        <label for="room-building">Bâtiment</label>
+                        <InputSelect id="room-building" @bind-Value="VM.Room.IdBuilding" class="form-select">
+                            <option value="0">- Séléctionnez un bâtiment -</option>
+                            @foreach (var building in VM.Buildings)
+                            {
+                                <option value="@building.Id">@building.Name</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="input-box">
+                        <label for="room-type">Type de salle</label>
+                        <InputSelect id="room-type" @bind-Value="VM.Room.IdRoomType" class="form-select">
+                            <option value="0">- Séléctionnez un type de salle -</option>
+                            @foreach (var roomType in VM.RoomTypes)
+                            {
+                                <option value="@roomType.Id">@roomType.Name</option>
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+
+                <div class="shadow p-3 input-section">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label>Base (@VM.RoomBaseVM.Points.Count points)</label>
+                            <button type="button" class="btn btn-primary base-btn m-1 p-1" @onclick=VM.RoomBaseVM.AddBasePoint>Ajouter</button>
+                        </div>
+                        <RoomBaseViewer VM="VM.RoomBaseVM"></RoomBaseViewer>
+                        <div class="m-2 d-flex flex-column point-list" style="height: 12em;">
+                            @{int i = 0;}
+                            @foreach(var point in VM.RoomBaseVM.Points)
+                            {
+                                i++;
+                                <div class="d-flex align-items-center p-1 point-box">
+                                    <b style="min-width: 5em;">#@i</b>
+
+                                    <span class="me-3"></span>
+
+                                    <span class="xaxis m-1">X:</span>
+                                    <input type="number" class="number_box" step="any" @bind-value=point.X/>
+
+                                    <span class="me-2"></span>
+
+                                    <span class="zaxis m-1">Z:</span>
+                                    <input type="number" class="number_box" step="any" @bind-value=point.Y/>
+
+                                    <span class="me-4"></span>
+
+                                    <button type="button" class="btn btn-secondary base-btn p-1 m-1 onHovered" @onclick=@(() => Click_BevelPoint(point))
+                                        title="Arrondir"><i class="bi bi-circle"></i></button>
+                                    <button type="button" class="btn btn-danger base-btn p-1 m-1 onHovered" @onclick=@(() => VM.RoomBaseVM.DeletePoint(point))
+                                        title="Supprimer"><i class="bi bi-trash"></i></button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="input-box">
+                        <label for="room-height">Hauteur</label>
+                        <InputNumber id="room-height" step="any" min="0" @bind-Value=VM.Room.Height />
+                    </div>
+                    <div class="input-box">
+                        <label for="room-orientation">Orientation (°N)</label>
+                        <InputNumber id="room-orientation" step="any" min="0" max="360" @bind-Value=VM.Room.NorthOrientation />
+                    </div>
+                </div>
+                <div class="d-flex" style="gap: 1em;">
+                    <button type="submit" class="btn btn-success">@(RoomID is null ? "Créer" : "Modifier")</button>
+                    @if(RoomID is not null)
+                    {
+                        <button type="button" class="btn btn-danger" @onclick=Click_DeleteRoom>Supprimer</button>
+                    }
+                </div>
+            </div>
+        </EditForm>     
+    }
+</div>
+
+<CModal @ref="_deleteRoomModal">
+    <Title>Supprimer la salle ?</Title>
+    <Content>
+        <p>
+            Êtes-vous sûr de vouloir supprimer la salle ?
+            <br />
+            - @VM.Buildings.FirstOrDefault(b => b.Id == VM.Room.IdBuilding)?.Name : <b>@VM.Room.Name</b>
+        </p>
+    </Content>
+    <Buttons>
+        <button class="btn btn-danger" @onclick="Click_DeleteRoomConfirmed">Supprimer</button>
+        <button class="btn btn-secondary" @onclick="_deleteRoomModal.Close">Annuler</button>
+    </Buttons>
+</CModal>
+
+<CModal @ref=_bevelModal>
+    <Title>Arrondir un coin</Title>
+    <Content>
+        @{
+            BevelVM.RecalculatePoints();
+        }
+        <RoomBaseViewer VM="BevelVM"></RoomBaseViewer>
+        <div class="d-flex" style="gap: 1em;">
+            <div class="input-box">
+                <label>Résolution</label>
+                <input type="number" style="max-width:5em;" step="1" @bind-value=BevelVM.VertexCount>
+            </div>
+            <div class="input-box">
+                <label>Rayon</label>
+                <input type="number" style="max-width:5em;" step="any" @bind-value=BevelVM.Radius>
+            </div>
+            <div class="input-box">
+                <label>Intérieur</label>
+                <InputCheckbox @bind-Value=BevelVM.Inside></InputCheckbox>
+            </div>
+        </div>
+    </Content>
+    <Buttons>
+        <button class="btn btn-success" @onclick=Click_BevelPointConfirmed>Arrondir</button>
+        <button class="btn btn-secondary" @onclick=_bevelModal.Close>Annuler</button>
+    </Buttons>
+</CModal>
+
+@inject IService<Room> roomService;
+@inject IService<Building> buildingService;
+@inject IService<RoomType> roomTypeService;
+
+@inject NavigationManager NavigationManager;
+@inject ToastService ToastService;
+@code {
+    public RoomCreatorVM VM { get; set; }
+    public RoomBaseBevelVM BevelVM { get; set; }
+
+    [SupplyParameterFromQuery]
+    public int? RoomID { get; set; } = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        VM = new(roomService, buildingService, roomTypeService);
+        BevelVM = new() { BaseVM = VM.RoomBaseVM };
+
+        try{await VM.Load(RoomID);}
+        catch(Exception e){ ToastService.NewFromException(e); }
+    }
+
+    public async Task Click_SaveChanges()
+    {
+        try{
+            await VM.SaveRoom();
+            ExitPage();
+        }
+        catch(Exception e){ ToastService.NewFromException(e); }
+    }
+
+    // Delete room modal
+    private CModal _deleteRoomModal;
+    public void Click_DeleteRoom()
+    {
+        _deleteRoomModal.Open();
+    }
+    public async Task Click_DeleteRoomConfirmed()
+    {
+        _deleteRoomModal.Close();
+
+        try{
+            await VM.Delete();
+            ExitPage();
+        }
+        catch(Exception e){ ToastService.NewFromException(e); }
+    }
+
+    private void ExitPage()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    // Bevel modal
+    private CModal _bevelModal;
+    public void Click_BevelPoint(Vector2D point)
+    {
+        BevelVM.PointToBevel = point;
+        _bevelModal.Open();
+    }
+    public void Click_BevelPointConfirmed()
+    {
+        BevelVM.ApplyChanges();
+        _bevelModal.Close();
+    }
+}
